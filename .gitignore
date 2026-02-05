@@ -1,82 +1,156 @@
-# Dependencies - NEVER commit node_modules
+# =========================
+# Dependencies - NEVER commit
+# =========================
 node_modules/
 
+# =========================
+# Environment & secrets
+# =========================
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+*.pem
+
+# =========================
+# Node / npm / yarn
+# =========================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/
+.pnp.*
+*.tgz
+
+# =========================
+# React Native / Metro
+# =========================
+.metro-health-check*
+/tmp/
+
+# =========================
+# Android
+# =========================
 # Built application files
 *.apk
 *.aab
 *.ap_
 
-# Files for the ART/Dalvik VM
+# VM/Bytecode
 *.dex
 
-# Java class files
+# Java
 *.class
 
-# Generated files
+# Generated
 bin/
 gen/
 out/
 
-# Gradle files
+# Gradle
 .gradle/
 build/
 
-# Local configuration file
+# Local config
 local.properties
 
 # Proguard
 proguard/
 
-# Log files
-*.log
-
-# Android Studio / IntelliJ
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# Keystore files
+# Keystore
 *.jks
 *.keystore
 
-# External native build
+# Native build
 .externalNativeBuild/
 .cxx/
 
-# Google Services
+# Google Services (sensitive)
 google-services.json
-
-# macOS
-.DS_Store
-
-# Windows
-Thumbs.db
-*.exe
-*.dll
-*.so
-*.dylib
-
-# VS Code
-.vscode/
 
 # NDK
 obj/
 
-# Temporary files
+# =========================
+# iOS
+# =========================
+ios/Pods/
+ios/build/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+ios/.xcode.env.local
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.hmap
+
+# =========================
+# IDE / Editor
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+*~
+
+# =========================
+# OS
+# =========================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================
+# Logs & temp
+# =========================
+*.log
 *.tmp
 *.temp
 *.bak
+*.orig
 
-# Debug files
+# =========================
+# Debug / Test / Coverage
+# =========================
 captures/
+coverage/
+.nyc_output/
+*.hprof
+*.lcov
 
+# =========================
 # Kotlin
+# =========================
 .kotlin/
 
+# =========================
 # Lint
+# =========================
 lint/
 lint-results*.xml
+.eslintcache
 
-# Firebase Crashlytics
+# =========================
+# Firebase / Crashlytics
+# =========================
 crashlytics-build.properties
+
+# =========================
+# Buck (if used)
+# =========================
+.buckd/
