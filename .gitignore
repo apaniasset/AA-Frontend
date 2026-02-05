@@ -1,0 +1,82 @@
+# Dependencies - NEVER commit node_modules
+node_modules/
+
+# Built application files
+*.apk
+*.aab
+*.ap_
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file
+local.properties
+
+# Proguard
+proguard/
+
+# Log files
+*.log
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Keystore files
+*.jks
+*.keystore
+
+# External native build
+.externalNativeBuild/
+.cxx/
+
+# Google Services
+google-services.json
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+*.exe
+*.dll
+*.so
+*.dylib
+
+# VS Code
+.vscode/
+
+# NDK
+obj/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Debug files
+captures/
+
+# Kotlin
+.kotlin/
+
+# Lint
+lint/
+lint-results*.xml
+
+# Firebase Crashlytics
+crashlytics-build.properties
