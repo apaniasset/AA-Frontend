@@ -1,0 +1,97 @@
+import React from 'react';
+import { useTheme } from '@react-navigation/native';
+import { Image, TouchableOpacity, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { COLORS,} from '../constants/theme';
+import themeContext from '../constants/themeContext';
+import { IMAGES } from '../constants/Images';
+
+const ThemeBtn = () => {
+
+    const theme = useTheme();
+    const { colors } : {colors : any } = theme;
+
+    const { setDarkTheme, setLightTheme } = React.useContext<any>(themeContext);
+
+    const offset = useSharedValue(0);
+    const opacityDark = useSharedValue(0);
+    const opacityLight = useSharedValue(0);
+
+    const animatedStyles = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: offset.value }],
+        };
+    });
+
+    if (theme.dark) {
+        offset.value = withSpring(24);
+        opacityDark.value = withTiming(1);
+        opacityLight.value = withTiming(0);
+    } else {
+        offset.value = withSpring(0);
+        opacityLight.value = withTiming(1);
+        opacityDark.value = withTiming(0);
+    }
+
+
+    return (
+        <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => 
+                {
+                    if (theme.dark) {
+                        setLightTheme()
+                    } else {
+                        setDarkTheme()
+                    }
+                }
+            }
+            style={{
+                height: 24,
+                width: 48,
+                borderRadius: 17,
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor:colors.background,
+            }}
+        >
+
+            <Animated.View
+                style={[animatedStyles, {
+                    height: 18,
+                    width: 18,
+                    borderRadius: 14,
+                    backgroundColor: COLORS.primary,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'absolute',
+                    top: 3,
+                    left: 3,
+                }]}
+            ></Animated.View>
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Image
+                    source={IMAGES.sun}
+                    style={{
+                        height:12,
+                        width:12,
+                        tintColor: COLORS.white,
+                    }}
+                />
+            </View>
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Image
+                    source={IMAGES.moon}
+                    style={{
+                        height:12,
+                        width:12,
+                        tintColor: theme.dark ? COLORS.white : COLORS.title,
+                    }}
+                />
+            </View>
+        </TouchableOpacity>
+    );
+};
+
+
+export default ThemeBtn;
