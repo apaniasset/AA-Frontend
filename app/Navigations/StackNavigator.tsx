@@ -29,6 +29,8 @@ import My_Listing from "../Screens/MyListing/My_Listing";
 import Edit_Listing from "../Screens/MyListing/Edit_Listing";
 import Edit_Property_Details from "../Screens/MyListing/Edit_Property_Details";
 import Settings from "../Screens/Settings/Settings";
+import Register from "../Screens/Auth/register";
+import Login from "../Screens/Auth/login";
 
 const MyStatusBar = ({ backgroundColor, ...props } : any) => (
   <View style={[styles.statusBar, { backgroundColor }]}>
@@ -81,6 +83,8 @@ const StackNavigator = () => {
         <Stack.Screen name={"SingleChat"} component={SingleChat} />
         <Stack.Screen name={"Notification"} component={Notification} />
         <Stack.Screen name={"Settings"} component={Settings} />
+        <Stack.Screen name={"Register"} component={Register} />
+        <Stack.Screen name={"Login"} component={Login} />
 
       </Stack.Navigator>
     </View>
