@@ -446,6 +446,12 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
                                     btnRounded
                                     onPress={() => setShowOtp(true)}
                                 />
+                                <View style={{marginTop:20,flexDirection:'row',justifyContent:'center',alignItems:'center',gap:5}}>
+                                    <Text style={[FONTS.BodyM,{color:colors.text}]}>Don't have an account? </Text>
+                                    <TouchableOpacity onPress={() => navigation.navigate('Register')} activeOpacity={0.7}>
+                                        <Text style={[FONTS.BodyM,FONTS.fontSemiBold,{color:COLORS.primary}]}>Register</Text>
+                                    </TouchableOpacity>
+                                </View>
                                 <View style={[GlobalStyleSheet.flexcenter,{paddingVertical:30,paddingHorizontal:20}]}>
                                     <View
                                         style={{
@@ -464,12 +470,19 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
                                     />
                                 </View>
                                 <Button
-                                    title='Do it later'
+                                    title='Create Account'
                                     btnRounded
-                                    color={theme.dark ? '#290B56' : '#F5EFFF'}
-                                    text={theme.dark ? '#F5EFFF' : '#28025F'}
-                                    onPress={handleContinue}
+                                    onPress={() => navigation.navigate('Register')}
                                 />
+                                <View style={{marginTop:15}}>
+                                    <Button
+                                        title='Do it later'
+                                        btnRounded
+                                        color={theme.dark ? '#290B56' : '#F5EFFF'}
+                                        text={theme.dark ? '#F5EFFF' : '#28025F'}
+                                        onPress={handleContinue}
+                                    />
+                                </View>
                             </>
                         ) : 
                         

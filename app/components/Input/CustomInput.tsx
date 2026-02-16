@@ -37,7 +37,7 @@ const CustomInput = (props : any) => {
 
     const labelStyle = {
         position: 'absolute',
-        left: props.paddingLeft ? 100 : props.lefticon ? 50 : 15,
+        left: props.paddingLeft ? 100 : props.lefticon ? (props.inputBorder ? 55 : 50) : 15,
         top: labelAnim.interpolate({
             inputRange: [0, 1],
             outputRange: [16, 8],
@@ -55,9 +55,6 @@ const CustomInput = (props : any) => {
         lineHeight: 15
     };
 
-    const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
-
-
     return (
         <>
             <View style={{ position: 'relative', justifyContent: 'center', marginTop: 15 }}>
@@ -67,7 +64,7 @@ const CustomInput = (props : any) => {
                     {props.placeholder}
                 </Animated.Text>
 
-                <AnimatedTextInput
+                <TextInput
                     secureTextEntry={props.type === "password" ? passwordShow : false}
                     style={[{
                         ...FONTS.h5,
@@ -78,8 +75,9 @@ const CustomInput = (props : any) => {
                         borderRadius:SIZES.radius_sm,
                         paddingHorizontal: 15,
                         paddingTop: 20,
-                        borderWidth:1,
-                        borderColor:isFocused ? COLORS.primary :theme.dark ? '#565656': '#E2E4ED'
+                        borderWidth: 1,
+                        borderColor: isFocused ? COLORS.primary : (theme.dark ? '#565656' : '#E2E4ED'),
+                        zIndex: 2,
                     },props.paddingLeft &&{
                         paddingLeft: 100,
                     }, props.inputXl && {
@@ -96,10 +94,9 @@ const CustomInput = (props : any) => {
                     }, 
                     props.inputBorder && {
                         borderWidth: 1.5,
-                        borderBottomWidth:1.5,
-                        borderColor: isFocused ? COLORS.primary : colors.border,
+                        borderColor: isFocused ? COLORS.primary : 'rgba(107,45,197,0.4)',
                         backgroundColor: colors.card,
-                        paddingLeft:20,
+                        paddingLeft: props.lefticon ? 55 : 20,
                         paddingRight:props.type === "password" ? 45 :20,
                     },props.style && {
                     ...props.style
@@ -109,13 +106,13 @@ const CustomInput = (props : any) => {
                     defaultValue={props.defaultValue}
                     multiline={props.inputLg || props.inputXl}
                     keyboardType={props.keyboardType}
-                    editable={props.editable}
+                    editable={props.editable !== false}
                     maxLength={props.maxLength}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                 />
 
-                {props.type === "password" &&
+                {props.type === 'password' &&
                     <TouchableOpacity
                         accessible={true}
                         accessibilityLabel="Password"
@@ -127,21 +124,26 @@ const CustomInput = (props : any) => {
                 }
 
                 {props.lefticon &&
-                    <View style={{
+                    <View 
+                        pointerEvents="none"
+                        style={{
                         position: 'absolute',
                         height: 48,
                         width: 48,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        zIndex: 1,
-                        left:0
+                        zIndex: 3,
+                        left: 0,
+                        top: 0,
                     }}>
                         {props.lefticon}
                     </View>
                 }
 
                 {props.icon &&
-                    <View style={{
+                    <View 
+                        pointerEvents="none"
+                        style={{
                         position: 'absolute',
                         height: 48,
                         width: 48,
