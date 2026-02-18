@@ -73,6 +73,10 @@ export type RootStackParamList = {
     ComplateProfile: undefined;
     Login: undefined;
     Register: undefined;
+    PropertyTypeSelection: undefined;
+    UserRegister: undefined;
+    MerchantRegister: undefined;
+    UserForgotPassword: undefined;
     ForgatPassword: undefined;
     LookingFor: undefined;
     ExperienceLevel: undefined;

@@ -5,49 +5,37 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
 import { COLORS, FONTS } from '../../../constants/theme';
 import CustomInput from '../../../components/Input/CustomInput';
-import { User, Mail, Lock, MapPin, Map, Home, Phone, Building2 } from 'lucide-react-native';
-import { registerSchema, type RegisterFormData, validateRegisterForm, validateRegisterField } from '../../../utils/validation/registerValidation';
-import { registerStyles } from './styles';
-import { merchantRegister } from '../../../services/auth';
+import { User, Mail, Lock, Phone } from 'lucide-react-native';
+import { userRegisterSchema, type UserRegisterFormData, validateUserRegisterForm, validateUserRegisterField } from '../../../utils/validation/userRegisterValidation';
+import { userRegisterStyles } from './styles';
+import { userRegister } from '../../../services/auth';
 import { ApiError } from '../../../services/api';
 
-type RegisterScreenProps = StackScreenProps<RootStackParamList, 'Register'>;
+type UserRegisterScreenProps = StackScreenProps<RootStackParamList, 'UserRegister'>;
 
 interface FormErrors {
   name?: string;
   email?: string;
   phone?: string;
-  company_name?: string;
   password?: string;
-  confirmPassword?: string;
-  city?: string;
-  state?: string;
-  address?: string;
 }
 
-const Register = ({ navigation }: RegisterScreenProps) => {
+const UserRegister = ({ navigation }: UserRegisterScreenProps) => {
   const theme = useTheme();
   const { colors }: { colors: any } = theme;
-  const styles = registerStyles(theme, colors);
-  const emailRef = useRef<TextInput>(null);
+  const styles = userRegisterStyles(theme, colors);
 
-  const [formData, setFormData] = useState<RegisterFormData>({
+  const [formData, setFormData] = useState<UserRegisterFormData>({
     name: '',
     email: '',
     phone: '',
-    company_name: '',
     password: '',
-    confirmPassword: '',
-    city: '',
-    state: '',
-    address: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [loader, setLoader] = useState(false);
 
-  const handleInputChange = useCallback((field: keyof RegisterFormData, value: string) => {
-    // Apply field-specific formatting (no validation here - only on blur)
+  const handleInputChange = useCallback((field: keyof UserRegisterFormData, value: string) => {
     let formattedValue = value;
 
     if (field === 'name') {
@@ -56,12 +44,8 @@ const Register = ({ navigation }: RegisterScreenProps) => {
       formattedValue = value.slice(0, 100);
     } else if (field === 'phone') {
       formattedValue = value.replace(/[^0-9]/g, '').slice(0, 10);
-    } else if (field === 'company_name') {
-      formattedValue = value.replace(/[^a-zA-Z0-9\s&.,-]/g, '').slice(0, 100);
-    } else if (field === 'password' || field === 'confirmPassword') {
+    } else if (field === 'password') {
       formattedValue = value.slice(0, 24);
-    } else if (field === 'city' || field === 'state') {
-      formattedValue = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 30);
     }
 
     setFormData((prev) => ({
@@ -69,16 +53,15 @@ const Register = ({ navigation }: RegisterScreenProps) => {
       [field]: formattedValue,
     }));
 
-    // Clear error only via setErrors with functional update to avoid extra render
     setErrors((prev) =>
       prev[field] ? { ...prev, [field]: undefined } : prev
     );
   }, []);
 
-  const handleFieldBlur = (field: keyof RegisterFormData) => {
+  const handleFieldBlur = (field: keyof UserRegisterFormData) => {
     const value = formData[field];
-    if (value || field === 'confirmPassword') {
-      const error = validateRegisterField(field, value || '', formData);
+    if (value) {
+      const error = validateUserRegisterField(field, value);
       setErrors((prev) => ({
         ...prev,
         [field]: error,
@@ -86,43 +69,8 @@ const Register = ({ navigation }: RegisterScreenProps) => {
     }
   };
 
-  const handleEmailBlur = async () => {
-    handleFieldBlur('email');
-
-    if (formData.email && !errors.email) {
-      // TODO: Add email duplicate check API call here
-      // Example:
-      // try {
-      //   const res = await emailDuplicateCheck({ email: formData.email.toLowerCase() });
-      //   if (res?.data === false) {
-      //     setErrors((prev) => ({
-      //       ...prev,
-      //       email: 'Email already exists',
-      //     }));
-      //     setTimeout(() => {
-      //       emailRef.current?.focus();
-      //     }, 100);
-      //   } else {
-      //     setErrors((prev) => ({
-      //       ...prev,
-      //       email: undefined,
-      //     }));
-      //   }
-      // } catch (error) {
-      //   console.error('Email check error:', error);
-      // }
-    }
-  };
-
-  const validateForm = (): boolean => {
-    const result = validateRegisterForm(formData);
-    setErrors(result.errors as FormErrors);
-    return result.success;
-  };
-
   const handleRegister = async () => {
-    // Validate form using Zod
-    const result = validateRegisterForm(formData);
+    const result = validateUserRegisterForm(formData);
     if (!result.success) {
       setErrors(result.errors as FormErrors);
       return;
@@ -131,42 +79,28 @@ const Register = ({ navigation }: RegisterScreenProps) => {
     try {
       setLoader(true);
 
-      // Parse and validate with Zod schema
-      const validatedData = registerSchema.parse(formData);
+      const validatedData = userRegisterSchema.parse(formData);
 
-      // Prepare API request data for merchant register endpoint
-      const apiData: any = {
+      const apiData = {
         name: validatedData.name.trim(),
         phone: validatedData.phone.trim(),
         email: validatedData.email.toLowerCase().trim(),
-        company_name: validatedData.company_name.trim(),
         password: validatedData.password,
-        confirm_password: validatedData.confirmPassword,
       };
-      
-      // Add referral_code only if provided (optional field)
-      // apiData.referral_code = 'OPTIONAL'; // Can be added later if needed
 
-      // Call merchant registration API
-      const response = await merchantRegister(apiData);
+      const response = await userRegister(apiData);
 
       if (response.success && response.data) {
-        // Registration successful - response includes merchant + token
-        const { merchant, token } = response.data;
-        console.log('Registration successful:', merchant);
+        const { user, token } = response.data;
+        console.log('User registration successful:', user);
         
-        // Navigate to login screen
         navigation.navigate('Login');
-        
-        // Optional: Show success message
-        // You can add a toast/alert here if needed
       } else {
         throw new Error(response.message || 'Registration failed');
       }
     } catch (error: any) {
       console.error('Registration error:', error);
       
-      // Safely extract error message and status from various formats
       let errorMessage = 'Registration failed. Please try again.';
       const errorStatus = error?.status;
       
@@ -186,27 +120,22 @@ const Register = ({ navigation }: RegisterScreenProps) => {
         }
       }
       
-      // Handle API errors
       if (errorStatus === 400 || errorStatus === 422) {
-        // Validation errors from server
         setErrors((prev) => ({
           ...prev,
           email: errorMessage,
         }));
       } else if (errorStatus === 409) {
-        // Conflict - email/phone already exists
         setErrors((prev) => ({
           ...prev,
           email: 'Email or phone number already exists',
         }));
       } else if (errorStatus === 500) {
-        // Server error (like bcrypt issue)
         setErrors((prev) => ({
           ...prev,
           email: 'Server error. Please try again later.',
         }));
       } else {
-        // Generic error
         setErrors((prev) => ({
           ...prev,
           email: errorMessage.length > 100 ? 'Registration failed. Please try again.' : errorMessage,
@@ -221,21 +150,6 @@ const Register = ({ navigation }: RegisterScreenProps) => {
     navigation.navigate('Login');
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      company_name: '',
-      password: '',
-      confirmPassword: '',
-      city: '',
-      state: '',
-      address: '',
-    });
-    setErrors({});
-  };
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -248,16 +162,13 @@ const Register = ({ navigation }: RegisterScreenProps) => {
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.cardContainer}>
-            {/* Header */}
             <View style={styles.headerContainer}>
               <Text
                 style={[
                   FONTS.h2,
                   FONTS.fontBold,
                   styles.title,
-                  {
-                    color: colors.title,
-                  },
+                  { color: colors.title },
                 ]}
               >
                 Create Account
@@ -266,17 +177,14 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                 style={[
                   FONTS.BodyM,
                   styles.subtitle,
-                  {
-                    color: colors.textLight,
-                  },
+                  { color: colors.textLight },
                 ]}
               >
-                Fill in your details to get started
+                Register to buy properties
               </Text>
             </View>
 
-            {/* Form Fields */}
-            {/* Full Name */}
+            {/* Name */}
             <View>
               <CustomInput
                 placeholder="Full Name"
@@ -297,7 +205,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
               )}
             </View>
 
-            {/* Email Address */}
+            {/* Email */}
             <View>
               <CustomInput
                 placeholder="Email Address"
@@ -305,7 +213,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                 onChangeText={(value: string) => handleInputChange('email', value)}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                onBlur={handleEmailBlur}
+                onBlur={() => handleFieldBlur('email')}
                 editable={!loader}
                 lefticon={
                   <Mail
@@ -320,7 +228,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
               )}
             </View>
 
-            {/* Phone Number */}
+            {/* Phone */}
             <View>
               <CustomInput
                 placeholder="Phone Number"
@@ -340,27 +248,6 @@ const Register = ({ navigation }: RegisterScreenProps) => {
               />
               {errors.phone && (
                 <Text style={styles.errorText}>{errors.phone}</Text>
-              )}
-            </View>
-
-            {/* Company Name */}
-            <View>
-              <CustomInput
-                placeholder="Company Name"
-                value={formData.company_name}
-                onChangeText={(value: string) => handleInputChange('company_name', value)}
-                onBlur={() => handleFieldBlur('company_name')}
-                editable={!loader}
-                lefticon={
-                  <Building2
-                    size={22}
-                    color={errors.company_name ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
-              {errors.company_name && (
-                <Text style={styles.errorText}>{errors.company_name}</Text>
               )}
             </View>
 
@@ -386,96 +273,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
               )}
             </View>
 
-            {/* Confirm Password */}
-            <View>
-              <CustomInput
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChangeText={(value: string) =>
-                  handleInputChange('confirmPassword', value)
-                }
-                onBlur={() => handleFieldBlur('confirmPassword')}
-                editable={!loader}
-                type="password"
-                lefticon={
-                  <Lock
-                    size={22}
-                    color={errors.confirmPassword ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
-              {errors.confirmPassword && (
-                <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-              )}
-            </View>
-
-            {/* City */}
-            <View>
-              <CustomInput
-                placeholder="City"
-                value={formData.city}
-                onChangeText={(value: string) => handleInputChange('city', value)}
-                onBlur={() => handleFieldBlur('city')}
-                editable={!loader}
-                lefticon={
-                  <MapPin
-                    size={22}
-                    color={errors.city ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
-              {errors.city && (
-                <Text style={styles.errorText}>{errors.city}</Text>
-              )}
-            </View>
-
-            {/* State */}
-            <View>
-              <CustomInput
-                placeholder="State"
-                value={formData.state}
-                onChangeText={(value: string) => handleInputChange('state', value)}
-                onBlur={() => handleFieldBlur('state')}
-                editable={!loader}
-                lefticon={
-                  <Map
-                    size={22}
-                    color={errors.state ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
-              {errors.state && (
-                <Text style={styles.errorText}>{errors.state}</Text>
-              )}
-            </View>
-
-            {/* Address */}
-            <View>
-              <CustomInput
-                placeholder="Address"
-                value={formData.address}
-                onChangeText={(value: string) => handleInputChange('address', value)}
-                onBlur={() => handleFieldBlur('address')}
-                editable={!loader}
-                inputLg
-                textAlignVertical="top"
-                lefticon={
-                  <Home
-                    size={22}
-                    color={errors.address ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
-              {errors.address && (
-                <Text style={styles.errorText}>{errors.address}</Text>
-              )}
-            </View>
-
-            {/* Create Account Button */}
+            {/* Register Button */}
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 disabled={loader}
@@ -500,9 +298,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                 style={[
                   FONTS.BodyM,
                   styles.loginText,
-                  {
-                    color: colors.text,
-                  },
+                  { color: colors.text },
                 ]}
               >
                 Already have an account?{' '}
@@ -513,9 +309,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                     FONTS.BodyM,
                     FONTS.fontSemiBold,
                     styles.loginLink,
-                    {
-                      color: COLORS.danger,
-                    },
+                    { color: COLORS.primary },
                   ]}
                 >
                   Login Now
@@ -529,4 +323,4 @@ const Register = ({ navigation }: RegisterScreenProps) => {
   );
 };
 
-export default Register;
+export default UserRegister;

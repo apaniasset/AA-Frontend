@@ -13,4 +13,9 @@ export const API_ENDPOINTS = {
   MERCHANT_REGISTER: '/merchant/register',
   MERCHANT_LOGIN: '/merchant/login',
   MERCHANT_FORGOT_PASSWORD: '/merchant/forgot-password',
+  
+  // User
+  USER_REGISTER: '/user/register',
+  USER_LOGIN: '/user/login',
+  USER_FORGOT_PASSWORD: '/user/forgot-password',
 };

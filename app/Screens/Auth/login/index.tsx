@@ -24,6 +24,10 @@ import {
   validateLoginField,
 } from '../../../utils/validation/loginValidation';
 import { loginStyles } from './styles';
+import { merchantLogin } from '../../../services/auth';
+import { ApiError } from '../../../services/api';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../../redux/reducer/user';
 
 type LoginScreenProps = StackScreenProps<RootStackParamList, 'Login'>;
 
@@ -36,6 +40,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
   const theme = useTheme();
   const { colors }: { colors: any } = theme;
   const styles = loginStyles(theme, colors);
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState<LoginFormData>({
     userId: '',
@@ -92,27 +97,60 @@ const Login = ({ navigation }: LoginScreenProps) => {
       // Parse and validate with Zod schema
       const validatedData = loginSchema.parse(formData);
 
-      // TODO: Add your login API call here
-      // Example:
-      // const response = await login(validatedData);
-      // if (response) {
-      //   // Handle success - navigate to home/dashboard
-      //   navigation.navigate('DrawerNavigation');
-      // }
+      // Prepare API request - map userId to identifier
+      const apiData = {
+        identifier: validatedData.userId.trim(), // Can be email or phone
+        password: validatedData.password,
+      };
 
-      console.log('Login data (validated):', validatedData);
+      // Call login API
+      const response = await merchantLogin(apiData);
 
-      // Simulate API call
-      await new Promise<void>((resolve) => setTimeout(() => resolve(), 1000));
+      if (response.success && response.data) {
+        // Login successful
+        const { merchant, token } = response.data;
+        
+        // Store user data and token in Redux
+        dispatch(setUser({
+          ...merchant,
+          token,
+        }));
 
-      // For now, navigate to drawer
-      // navigation.navigate('DrawerNavigation');
-    } catch (error) {
+        console.log('Login successful:', merchant);
+
+        // Navigate to main app (DrawerNavigation)
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'DrawerNavigation' }],
+        });
+      } else {
+        throw new Error(response.message || 'Login failed');
+      }
+    } catch (error: any) {
       console.error('Login error:', error);
-      if (error instanceof Error) {
+      
+      // Safely extract error message and status
+      const errorMessage = error?.message || error?.data?.message || 'Login failed. Please try again.';
+      const errorStatus = error?.status;
+      
+      // Handle API errors
+      if (errorStatus === 401 || errorStatus === 403) {
+        // Unauthorized - invalid credentials
         setErrors((prev) => ({
           ...prev,
           password: 'Invalid credentials. Please try again.',
+        }));
+      } else if (errorStatus === 400 || errorStatus === 422) {
+        // Validation errors
+        setErrors((prev) => ({
+          ...prev,
+          userId: errorMessage,
+        }));
+      } else {
+        // Network or other errors
+        setErrors((prev) => ({
+          ...prev,
+          password: errorMessage,
         }));
       }
     } finally {
@@ -125,9 +163,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
   };
 
   const handleForgotPassword = () => {
-    // TODO: Navigate to forgot password screen
-    // navigation.navigate('ForgatPassword');
-    console.log('Forgot password clicked');
+    navigation.navigate('UserForgotPassword');
   };
 
   return (
@@ -144,12 +180,14 @@ const Login = ({ navigation }: LoginScreenProps) => {
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
         >
-        {/* Logo - full screen reference */}
-        <Image
-          source={theme.dark ? IMAGES.Darklogo : IMAGES.logo}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        {/* Rounded Logo from Splash Screen */}
+        <View style={{ alignItems: 'center', marginTop: 40, marginBottom: 20 }}>
+          <Image
+            resizeMode="contain"
+            style={{ width: 172 }}
+            source={theme.dark ? IMAGES.Darklogo : IMAGES.logo}
+          />
+        </View>
         <View style={styles.cardContainer}>
           {/* Header - Welcome Back style from reference */}
           <View style={styles.headerContainer}>

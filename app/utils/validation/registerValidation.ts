@@ -23,6 +23,13 @@ export const registerSchema = z.object({
     .regex(/^[0-9]{10}$/, 'Phone number must be exactly 10 digits')
     .trim(),
 
+  company_name: z
+    .string()
+    .min(1, 'Company name is required')
+    .min(2, 'Company name must be at least 2 characters')
+    .max(100, 'Company name must be less than 100 characters')
+    .trim(),
+
   password: z
     .string()
     .min(1, 'Password is required')
@@ -107,6 +114,7 @@ export const validateRegisterField = (
       name: z.string().min(1, 'Full name is required').min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters').regex(/^[a-zA-Z\s]+$/, 'Name can only contain letters and spaces').trim(),
       email: z.string().min(1, 'Email is required').email('Please enter a valid email address').max(100, 'Email must be less than 100 characters').toLowerCase().trim(),
       phone: z.string().min(1, 'Phone number is required').regex(/^[0-9]{10}$/, 'Phone number must be exactly 10 digits').trim(),
+      company_name: z.string().min(1, 'Company name is required').min(2, 'Company name must be at least 2 characters').max(100, 'Company name must be less than 100 characters').trim(),
       password: z.string().min(1, 'Password is required').min(6, 'Password must be at least 6 characters').max(24, 'Password must be less than 24 characters'),
       city: z.string().min(1, 'City is required').max(30, 'City must be less than 30 characters').regex(/^[a-zA-Z\s]+$/, 'City can only contain letters and spaces').trim(),
       state: z.string().min(1, 'State is required').max(30, 'State must be less than 30 characters').regex(/^[a-zA-Z\s]+$/, 'State can only contain letters and spaces').trim(),

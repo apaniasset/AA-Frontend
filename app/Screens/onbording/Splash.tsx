@@ -23,7 +23,7 @@ const Splash = ({ navigation }: SplashScreenProps) => {
         setProgress((prev) => {
             if (prev >= 1) {
             clearInterval(interval);
-            navigation.replace("Onbording");
+            navigation.replace("PropertyTypeSelection");
             return 1;
             }
             return prev + 0.02; // (0.02 * 50) = ~5s

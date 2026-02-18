@@ -51,8 +51,22 @@ async function apiRequest<T = any>(
 
     // Handle non-OK responses
     if (!response.ok) {
+      // Extract error message from various possible formats
+      let errorMsg = `HTTP ${response.status}: ${response.statusText}`;
+      
+      if (typeof responseData === 'string') {
+        errorMsg = responseData;
+      } else if (responseData && typeof responseData === 'object') {
+        errorMsg = responseData?.message || 
+                   responseData?.error || 
+                   responseData?.data?.message ||
+                   responseData?.data?.error ||
+                   JSON.stringify(responseData) ||
+                   errorMsg;
+      }
+      
       const error: ApiError = {
-        message: responseData?.message || responseData?.error || `HTTP ${response.status}: ${response.statusText}`,
+        message: errorMsg,
         status: response.status,
         data: responseData,
       };
