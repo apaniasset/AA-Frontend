@@ -11,7 +11,7 @@ import { CountryPicker } from 'react-native-country-codes-picker';
 import FeatherIcon from "react-native-vector-icons/Feather";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Customotp from '../../components/Input/Customotp';
-import { merchantSendOtp } from '../../services/auth';
+import { merchantSendOtp, merchantVerifyOtp } from '../../services/auth';
 
 type OnbordingScreenProps = StackScreenProps<RootStackParamList, 'Onbording'>;
 
@@ -53,6 +53,9 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
     const [countryCode, setCountryCode] = useState('+1');
     const [phoneNumber, setPhoneNumber] = useState("");
     const [sendingOtp, setSendingOtp] = useState(false);
+    const [otpValue, setOtpValue] = useState('');
+    const [serverOtp, setServerOtp] = useState('');
+    const [verifyingOtp, setVerifyingOtp] = useState(false);
 
     const [sheetOpened, setSheetOpened] = useState(false);
 
@@ -104,6 +107,54 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
         }
     }, [showOtp]);
 
+    const handleVerifyOtp = async () => {
+        if (verifyingOtp) {
+            return;
+        }
+
+        const trimmedPhone = phoneNumber.trim();
+        const otpToSend = (serverOtp || otpValue).trim();
+
+        if (!trimmedPhone) {
+            Alert.alert('Error', 'Phone number is missing. Please go back and enter your phone number.');
+            return;
+        }
+
+        if (!otpToSend) {
+            Alert.alert('Error', 'Please enter the OTP.');
+            return;
+        }
+
+        try {
+            setVerifyingOtp(true);
+            const response = await merchantVerifyOtp({
+                phone: trimmedPhone,
+                otp: otpToSend,
+            });
+
+            if (response.success) {
+                Alert.alert(
+                    'Success',
+                    response.message || 'Your mobile number is verified. You can now register.',
+                );
+                navigation.navigate('Register', { phone: trimmedPhone });
+            } else {
+                Alert.alert(
+                    'Error',
+                    response.message || 'Invalid OTP. Please try again.',
+                );
+            }
+        } catch (error: any) {
+            const message =
+                error?.message ||
+                error?.data?.message ||
+                'Failed to verify OTP. Please try again.';
+            Alert.alert('Error', message);
+        } finally {
+            setVerifyingOtp(false);
+        }
+    };
+
     const handleSendOtp = async () => {
         const trimmedPhone = phoneNumber.trim();
 
@@ -118,6 +169,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
 
             if (response.success) {
                 if (response.data?.otp) {
+                    setServerOtp(response.data.otp);
                     Alert.alert('OTP', `Your OTP is ${response.data.otp}`);
                 } else if (response.message) {
                     Alert.alert('Success', response.message);
@@ -534,7 +586,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                                     <Text style={[FONTS.BodyM, { color: colors.gray60 }]}>Enter the code we sent to <Text style={{ color: colors.gray100 }}>{countryCode} {phoneNumber}</Text></Text>
                                 </View>
                                 <View style={{ marginVertical: 14 }}>
-                                    <Customotp />
+                                    <Customotp onOtpChange={setOtpValue} />
                                 </View>
                                 <View style={{ marginBottom: 15 }}>
                                     <Text style={[FONTS.BodyS, { color: colors.gray50 }]}>
@@ -542,15 +594,9 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                                     </Text>
                                 </View>
                                 <Button
-                                    title='Continue'
+                                    title={verifyingOtp ? 'Verifying...' : 'Continue'}
                                     btnRounded
-                                    onPress={() => {
-                                        Alert.alert(
-                                          'Success',
-                                          'Your mobile number is verified. You can now register.'
-                                        );
-                                        navigation.navigate('Register', { phone: phoneNumber.trim() });
-                                      }}
+                                    onPress={handleVerifyOtp}
                                 />
                                 <View style={[GlobalStyleSheet.flexcenter, { paddingVertical: 30, paddingHorizontal: 20 }]}>
                                     <View

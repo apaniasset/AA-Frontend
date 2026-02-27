@@ -10,6 +10,7 @@ export interface CreateUserRequest {
   phone: string;
   password: string;
   role: string; // 'merchant' | 'staff' | 'admin'
+  referral_code?: string;
 }
 
 export interface CreateUserResponse {
@@ -19,7 +20,7 @@ export interface CreateUserResponse {
 export async function createUser(
   data: CreateUserRequest
 ): Promise<ApiResponse<CreateUserResponse>> {
-  return post<CreateUserResponse>(API_ENDPOINTS.ADMIN_USERS_CREATE, data);
+  return post<CreateUserResponse>(API_ENDPOINTS.MERCHANT_REGISTER, data);
 }
 
 // ===== Merchant auth =====
@@ -36,12 +37,41 @@ export interface MerchantRegisterRequest {
 
 export interface MerchantData {
   id: number;
+  merchant_type: string | null;
+  affiliate_id: number | null;
   name: string;
+  company_name: string | null;
   email: string;
+  password?: string; // hashed, avoid using on client
   phone: string;
-  company_name: string;
-  referred_by: string | null;
-  referrer_code: string | null;
+  alt_phone: string | null;
+  rera_number: string | null;
+  gst_number: string | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  city: string | null;
+  city_id: number | null;
+  area_id: number | null;
+  area_name: string | null;
+  state: string | null;
+  state_id: number | null;
+  country: string | null;
+  pincode: string | null;
+  profile_photo: string | null;
+  status: string;
+  login_otp: string | null;
+  login_otp_expires: string | null;
+  last_login: string | null;
+  created_at: string;
+  updated_at: string;
+  reset_password_otp: string | null;
+  reset_password_expires: string | null;
+  registration_otp: string | null;
+  registration_otp_expires: string | null;
+  country_id: number | null;
+  otp_verified_at: string | null;
+  referred_by?: string | null;
+  referrer_code?: string | null;
 }
 
 export interface MerchantRegisterResponse {
@@ -83,6 +113,24 @@ export async function merchantSendOtp(
   data: MerchantSendOtpRequest
 ): Promise<ApiResponse<MerchantSendOtpResponse>> {
   return post<MerchantSendOtpResponse>(API_ENDPOINTS.MERCHANT_SEND_OTP, data);
+}
+
+export interface MerchantVerifyOtpRequest {
+  phone: string;
+  otp: string;
+}
+
+export interface MerchantVerifyOtpResponse {
+  verified?: boolean;
+}
+
+export async function merchantVerifyOtp(
+  data: MerchantVerifyOtpRequest
+): Promise<ApiResponse<MerchantVerifyOtpResponse>> {
+  return post<MerchantVerifyOtpResponse>(
+    API_ENDPOINTS.MERCHANT_VERIFY_OTP,
+    data
+  );
 }
 
 // ===== User auth (buyers) =====

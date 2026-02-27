@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Image, View } from "react-native";
 import { StackScreenProps } from "@react-navigation/stack";
+import { useSelector } from "react-redux";
 import { RootStackParamList } from "../../Navigations/RootStackParamList";
 import { COLORS } from "../../constants/theme";
 import { IMAGES } from "../../constants/Images";
 import LinearGradient from "react-native-linear-gradient";
 import * as Progress from "react-native-progress";
 import { useTheme } from "@react-navigation/native";
+import { RootState } from "../../redux/reducer";
 
 type SplashScreenProps = StackScreenProps<RootStackParamList, 'splash'>;
 
@@ -14,7 +16,7 @@ const Splash = ({ navigation }: SplashScreenProps) => {
 
     const theme = useTheme();
     const {colors} : {colors : any} = theme;
-    
+    const isLoggedIn = useSelector((state: RootState) => state.user?.login === true);
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
@@ -23,7 +25,11 @@ const Splash = ({ navigation }: SplashScreenProps) => {
         setProgress((prev) => {
             if (prev >= 1) {
             clearInterval(interval);
-            navigation.replace("Onbording");
+            if (isLoggedIn) {
+                navigation.replace("DrawerNavigation");
+            } else {
+                navigation.replace("Onbording");
+            }
             return 1;
             }
             return prev + 0.02; // (0.02 * 50) = ~5s
@@ -31,7 +37,7 @@ const Splash = ({ navigation }: SplashScreenProps) => {
         }, 100);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [isLoggedIn]);
 
     return (
         <View style={{ backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, flex: 1, justifyContent: "center", alignItems: "center" }}>

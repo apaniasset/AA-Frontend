@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
+import { useDispatch } from 'react-redux';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
 import { COLORS, FONTS } from '../../../constants/theme';
 import { IMAGES } from '../../../constants/Images';
@@ -24,6 +25,9 @@ import {
   validateLoginField,
 } from '../../../utils/validation/loginValidation';
 import { loginStyles } from './styles';
+import { merchantLogin } from '../../../services/auth';
+import { saveAuth } from '../../../utils/authStorage';
+import { setUser } from '../../../redux/reducer/user';
 
 type LoginScreenProps = StackScreenProps<RootStackParamList, 'Login'>;
 
@@ -34,6 +38,7 @@ interface FormErrors {
 
 const Login = ({ navigation }: LoginScreenProps) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { colors }: { colors: any } = theme;
   const styles = loginStyles(theme, colors);
 
@@ -89,32 +94,37 @@ const Login = ({ navigation }: LoginScreenProps) => {
     try {
       setLoader(true);
 
-      // Parse and validate with Zod schema
       const validatedData = loginSchema.parse(formData);
 
-      // TODO: Add your login API call here
-      // Example:
-      // const response = await login(validatedData);
-      // if (response) {
-      //   // Handle success - navigate to home/dashboard
-      //   navigation.navigate('DrawerNavigation');
-      // }
+      const response = await merchantLogin({
+        identifier: validatedData.userId.trim(),
+        password: validatedData.password,
+      });
 
-      console.log('Login data (validated):', validatedData);
-
-      // Simulate API call
-      await new Promise<void>((resolve) => setTimeout(() => resolve(), 1000));
-
-      // For now, navigate to drawer
-      // navigation.navigate('DrawerNavigation');
-    } catch (error) {
-      console.error('Login error:', error);
-      if (error instanceof Error) {
+      if (response.success && response.data) {
+        const { merchant, token } = response.data;
+        await saveAuth(merchant as unknown as Record<string, unknown>, token);
+        dispatch(setUser({ merchant, token } as any));
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'DrawerNavigation' }],
+        });
+      } else {
         setErrors((prev) => ({
           ...prev,
-          password: 'Invalid credentials. Please try again.',
+          password: response.message || 'Invalid credentials. Please try again.',
         }));
       }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      const message =
+        error?.message ||
+        error?.data?.message ||
+        'Invalid credentials. Please try again.';
+      setErrors((prev) => ({
+        ...prev,
+        password: message,
+      }));
     } finally {
       setLoader(false);
     }

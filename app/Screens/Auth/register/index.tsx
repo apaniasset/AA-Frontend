@@ -2,14 +2,16 @@ import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, TextInput } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
+import { useDispatch } from 'react-redux';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
 import { COLORS, FONTS } from '../../../constants/theme';
 import CustomInput from '../../../components/Input/CustomInput';
 import { User, Mail, Lock, MapPin, Map, Home, Phone } from 'lucide-react-native';
 import { registerSchema, type RegisterFormData, validateRegisterForm, validateRegisterField } from '../../../utils/validation/registerValidation';
 import { registerStyles } from './styles';
-import { createUser } from '../../../services/auth';
-import { ApiError } from '../../../services/api';
+import { merchantRegister } from '../../../services/auth';
+import { saveAuth } from '../../../utils/authStorage';
+import { setUser } from '../../../redux/reducer/user';
 
 type RegisterScreenProps = StackScreenProps<RootStackParamList, 'Register'>;
 
@@ -22,10 +24,12 @@ interface FormErrors {
   city?: string;
   state?: string;
   address?: string;
+  referral_code?: string;
 }
 
 const Register = ({ navigation, route }: RegisterScreenProps) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { colors }: { colors: any } = theme;
   const styles = registerStyles(theme, colors);
   const emailRef = useRef<TextInput>(null);
@@ -39,6 +43,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
     city: '',
     state: '',
     address: '',
+     referral_code: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -58,6 +63,8 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
       formattedValue = value.slice(0, 24);
     } else if (field === 'city' || field === 'state') {
       formattedValue = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 30);
+    } else if (field === 'referral_code') {
+      formattedValue = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
     }
 
     setFormData((prev) => ({
@@ -130,27 +137,28 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
       // Parse and validate with Zod schema
       const validatedData = registerSchema.parse(formData);
 
-      // Prepare API request data
+      // Prepare API request data for merchant register (matches POST /merchant/register)
       const apiData = {
-        name: validatedData.name,
-        email: validatedData.email.toLowerCase().trim(),
+        name: validatedData.name.trim(),
         phone: validatedData.phone.trim(),
+        email: validatedData.email.toLowerCase().trim(),
+        company_name: '', // optional for backend; add field to form if required
         password: validatedData.password,
-        role: 'merchant', // Default role - can be made dynamic later
+        confirm_password: validatedData.confirmPassword,
+        ...(validatedData.referral_code && { referral_code: validatedData.referral_code }),
       };
 
-      // Call registration API
-      const response = await createUser(apiData);
+      // Call merchant registration API
+      const response = await merchantRegister(apiData);
 
       if (response.success && response.data) {
-        // Registration successful
-        console.log('Registration successful:', response.data);
-        
-        // Navigate to login screen
-        navigation.navigate('Login');
-        
-        // Optional: Show success message
-        // You can add a toast/alert here if needed
+        const { merchant, token } = response.data;
+        await saveAuth(merchant as unknown as Record<string, unknown>, token);
+        dispatch(setUser({ merchant, token } as any));
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'DrawerNavigation' }],
+        });
       } else {
         throw new Error(response.message || 'Registration failed');
       }
@@ -197,6 +205,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
       city: '',
       state: '',
       address: '',
+      referral_code: '',
     });
     setErrors({});
   };
@@ -416,6 +425,32 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
               />
               {errors.address && (
                 <Text style={styles.errorText}>{errors.address}</Text>
+              )}
+            </View>
+
+            {/* Referral Code (optional) */}
+            <View>
+              <CustomInput
+                placeholder="Referral Code (optional)"
+                value={formData.referral_code}
+                onChangeText={(value: string) =>
+                  handleInputChange('referral_code', value)
+                }
+                onBlur={() => handleFieldBlur('referral_code')}
+                editable={!loader}
+                maxLength={10}
+                lefticon={
+                  <User
+                    size={22}
+                    color={
+                      errors.referral_code ? COLORS.danger : colors.gray60
+                    }
+                  />
+                }
+                inputBorder
+              />
+              {errors.referral_code && (
+                <Text style={styles.errorText}>{errors.referral_code}</Text>
               )}
             </View>
 

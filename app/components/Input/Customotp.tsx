@@ -1,19 +1,27 @@
 import React from 'react'
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import OTPTextInput from 'react-native-otp-textinput';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
 
-const Customotp = () => {
+interface CustomOtpProps {
+    onOtpChange?: (text: string) => void;
+}
+
+const Customotp: React.FC<CustomOtpProps> = ({ onOtpChange }) => {
 
     const theme =  useTheme();
     const { colors } : {colors : any} = theme;
 
+    // Cast OTPTextInput to any to avoid incorrect library TypeScript definitions
+    const OTPInputAny: any = OTPTextInput;
+
     return (
         <View>
-            <OTPTextInput 
+            <OTPInputAny 
                 tintColor={'#E2E4ED'}
                 inputCount={6}
+                handleTextChange={onOtpChange}
                 textInputStyle={{
                     ...FONTS.h3,
                     ...FONTS.fontRegular,
