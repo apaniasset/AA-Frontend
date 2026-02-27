@@ -72,7 +72,7 @@ export type RootStackParamList = {
     SignUp: undefined;
     ComplateProfile: undefined;
     Login: undefined;
-    Register: undefined;
+    Register: { phone?: string };
     ForgatPassword: undefined;
     LookingFor: undefined;
     ExperienceLevel: undefined;

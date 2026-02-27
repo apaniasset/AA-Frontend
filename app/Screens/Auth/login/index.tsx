@@ -121,7 +121,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
   };
 
   const handleRegister = () => {
-    navigation.navigate('Register');
+    navigation.navigate('Register', { phone: '' });
   };
 
   const handleForgotPassword = () => {

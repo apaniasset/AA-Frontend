@@ -24,7 +24,7 @@ interface FormErrors {
   address?: string;
 }
 
-const Register = ({ navigation }: RegisterScreenProps) => {
+const Register = ({ navigation, route }: RegisterScreenProps) => {
   const theme = useTheme();
   const { colors }: { colors: any } = theme;
   const styles = registerStyles(theme, colors);
@@ -33,7 +33,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
   const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',
-    phone: '',
+    phone: route.params?.phone || '',
     password: '',
     confirmPassword: '',
     city: '',
