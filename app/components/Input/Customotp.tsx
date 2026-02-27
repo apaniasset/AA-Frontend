@@ -4,7 +4,11 @@ import { useTheme } from '@react-navigation/native';
 import OTPTextInput from 'react-native-otp-textinput';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
 
-const Customotp = () => {
+type CustomotpProps = {
+    onChange?: (code: string) => void;
+};
+
+const Customotp = ({ onChange }: CustomotpProps) => {
 
     const theme =  useTheme();
     const { colors } : {colors : any} = theme;
@@ -14,6 +18,7 @@ const Customotp = () => {
             <OTPTextInput 
                 tintColor={'#E2E4ED'}
                 inputCount={6}
+                handleTextChange={(code: string) => onChange?.(code)}
                 textInputStyle={{
                     ...FONTS.h3,
                     ...FONTS.fontRegular,

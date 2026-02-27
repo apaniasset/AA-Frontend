@@ -11,6 +11,7 @@ import { CountryPicker } from 'react-native-country-codes-picker';
 import FeatherIcon from "react-native-vector-icons/Feather";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Customotp from '../../components/Input/Customotp';
+import { merchantSendOtpRegistration, merchantVerifyOtpRegistration } from '../../services/auth';
 
 type OnbordingScreenProps = StackScreenProps<RootStackParamList, 'Onbording'>;
 
@@ -51,6 +52,10 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
     const [show, setShow] = useState(false);
     const [countryCode, setCountryCode] = useState('+1');
     const [phoneNumber, setPhoneNumber] = useState("");
+    const [otpCode, setOtpCode] = useState("");
+    const [otpError, setOtpError] = useState<string | null>(null);
+    const [sendingOtp, setSendingOtp] = useState(false);
+    const [verifyingOtp, setVerifyingOtp] = useState(false);
 
     const [sheetOpened, setSheetOpened] = useState(false);
 
@@ -68,6 +73,57 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
     const handleContinue = () => {
         refRBSheet.current?.close();
         navigation.navigate('DrawerNavigation', { screen: 'Home' });
+    };
+
+    const handleSendOtp = async () => {
+        const phone = phoneNumber.replace(/\D/g, '');
+        setOtpError(null);
+
+        if (!phone || phone.length < 8) {
+            setOtpError('Please enter a valid phone number.');
+            return;
+        }
+
+        if (sendingOtp) return;
+
+        try {
+            setSendingOtp(true);
+            await merchantSendOtpRegistration({ phone });
+            setOtpCode('');
+            setShowOtp(true);
+        } catch (e: any) {
+            setOtpError(e?.message || 'Failed to send OTP. Please try again.');
+        } finally {
+            setSendingOtp(false);
+        }
+    };
+
+    const handleVerifyOtp = async () => {
+        const phone = phoneNumber.replace(/\D/g, '');
+        const code = otpCode.replace(/\D/g, '');
+        setOtpError(null);
+
+        if (!phone || phone.length < 8) {
+            setOtpError('Please enter a valid phone number.');
+            return;
+        }
+
+        if (!code || code.length < 4) {
+            setOtpError('Please enter the OTP.');
+            return;
+        }
+
+        if (verifyingOtp) return;
+
+        try {
+            setVerifyingOtp(true);
+            await merchantVerifyOtpRegistration({ phone, otp: code });
+            handleContinue();
+        } catch (e: any) {
+            setOtpError(e?.message || 'OTP verification failed. Please try again.');
+        } finally {
+            setVerifyingOtp(false);
+        }
     };
 
     const handleUseThisNumber = () => {
@@ -108,6 +164,7 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
                 ref={refRBSheet}
                 height={300}
                 openDuration={300}
+                // @ts-expect-error - prop exists at runtime, types are outdated
                 closeOnDragDown
                 customStyles={{
                     wrapper: {
@@ -442,10 +499,16 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
                                     </View>
                                 </View>
                                 <Button
-                                    title='Continue'
+                                    title={sendingOtp ? 'Sending OTP...' : 'Continue'}
                                     btnRounded
-                                    onPress={() => setShowOtp(true)}
+                                    disabled={sendingOtp}
+                                    onPress={handleSendOtp}
                                 />
+                                {!!otpError && (
+                                    <Text style={[FONTS.BodyS, { color: COLORS.danger, marginTop: 8 }]}>
+                                        {otpError}
+                                    </Text>
+                                )}
                                 <View style={{marginTop:20,flexDirection:'row',justifyContent:'center',alignItems:'center',gap:5}}>
                                     <Text style={[FONTS.BodyM,{color:colors.text}]}>Don't have an account? </Text>
                                     <TouchableOpacity onPress={() => navigation.navigate('Register')} activeOpacity={0.7}>
@@ -498,7 +561,7 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
                                     <Text style={[FONTS.BodyM,{color:colors.gray60}]}>Enter the code we sent to <Text style={{color:colors.gray100}}>{countryCode} {phoneNumber}</Text></Text>
                                 </View>
                                 <View style={{marginVertical:14}}>
-                                    <Customotp/>
+                                    <Customotp onChange={setOtpCode} />
                                 </View>
                                 <View style={{marginBottom:15}}>
                                     <Text style={[FONTS.BodyS,{color:colors.gray50}]}>
@@ -506,10 +569,16 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
                                     </Text>
                                 </View>
                                 <Button
-                                    title='Continue'
+                                    title={verifyingOtp ? 'Verifying...' : 'Continue'}
                                     btnRounded
-                                    onPress={handleContinue}
+                                    disabled={verifyingOtp}
+                                    onPress={handleVerifyOtp}
                                 />
+                                {!!otpError && (
+                                    <Text style={[FONTS.BodyS, { color: COLORS.danger, marginTop: 8 }]}>
+                                        {otpError}
+                                    </Text>
+                                )}
                                 <View style={[GlobalStyleSheet.flexcenter,{paddingVertical:30,paddingHorizontal:20}]}>
                                     <View
                                         style={{
