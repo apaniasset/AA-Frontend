@@ -19,34 +19,31 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
 
     const theme = useTheme();
     const { colors }: { colors: any } = theme;
-
     const moveAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         Animated.parallel([
-            // Animate scale from 0 to 1
             Animated.timing(scaleAnim, {
-                toValue: 1, // Scale up to full size
-                duration: 500, // Duration for the scaling effect
+                toValue: 1,
+                duration: 500,
                 useNativeDriver: true,
             }),
-            // Loop the left-right movement animation
             Animated.loop(
                 Animated.sequence([
                     Animated.timing(moveAnim, {
-                        toValue: -15, // Move up by 50 units
+                        toValue: -15,
                         duration: 1500,
                         useNativeDriver: true,
                     }),
                     Animated.timing(moveAnim, {
-                        toValue: 0, // Move down by 50 units
+                        toValue: 0,
                         duration: 1500,
                         useNativeDriver: true,
                     }),
                 ])
             ),
-        ]).start(); // Start both animations together after the delay
+        ]).start();
     }, [moveAnim, scaleAnim]);
 
     const [show, setShow] = useState(false);
@@ -534,12 +531,12 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                                     btnRounded
                                     onPress={handleSendOtp}
                                 />
-                                <View style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5 }}>
+                                {/* <View style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5 }}>
                                     <Text style={[FONTS.BodyM, { color: colors.text }]}>Don't have an account? </Text>
                                     <TouchableOpacity onPress={() => navigation.navigate('Register', { phone: '' })} activeOpacity={0.7}>
                                         <Text style={[FONTS.BodyM, FONTS.fontSemiBold, { color: COLORS.primary }]}>Register</Text>
                                     </TouchableOpacity>
-                                </View>
+                                </View> */}
                                 <View style={[GlobalStyleSheet.flexcenter, { paddingVertical: 30, paddingHorizontal: 20 }]}>
                                     <View
                                         style={{
@@ -557,18 +554,18 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                                         }}
                                     />
                                 </View>
-                                <Button
+                                {/* <Button
                                     title='Create Account'
                                     btnRounded
                                     onPress={() => navigation.navigate('Register', { phone: '' })}
-                                />
-                                <View style={{ marginTop: 15 }}>
+                                /> */}
+                                <View>
                                     <Button
-                                        title='Do it later'
+                                        title='Login'
                                         btnRounded
                                         color={theme.dark ? '#290B56' : '#F5EFFF'}
                                         text={theme.dark ? '#F5EFFF' : '#28025F'}
-                                        onPress={handleContinue}
+                                        onPress={() => navigation.navigate('Login')}
                                     />
                                 </View>
                             </>

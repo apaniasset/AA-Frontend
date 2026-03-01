@@ -12,37 +12,39 @@ export interface ApiError {
   status?: number;
   data?: any;
 }
-
-/**
- * Generic API request function
- */
+type ApiHeaders = Record<string, string>;
+type ApiRequestConfig = RequestInit & { timeout?: number };
 async function apiRequest<T = any>(
   endpoint: string,
-  options: RequestInit = {}
+  options: ApiRequestConfig = {}
 ): Promise<ApiResponse<T>> {
   const url = `${API_CONFIG.BASE_URL}${endpoint}`;
 
-  const defaultHeaders: HeadersInit = {
+  const defaultHeaders: ApiHeaders = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
   };
 
-  const config: RequestInit = {
+  const mergedHeaders: ApiHeaders = {
+    ...defaultHeaders,
+    ...(typeof options.headers === 'object' && !(options.headers instanceof Headers)
+      ? (options.headers as ApiHeaders)
+      : {}),
+  };
+
+  const config: ApiRequestConfig = {
     ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
+    headers: mergedHeaders,
     timeout: API_CONFIG.TIMEOUT,
   };
 
   try {
-    const response = await fetch(url, config);
+    const response = await fetch(url, config as RequestInit);
 
     // Parse response
     let responseData: any;
     const contentType = response.headers.get('content-type');
-    
+
     if (contentType && contentType.includes('application/json')) {
       responseData = await response.json();
     } else {
@@ -85,7 +87,7 @@ async function apiRequest<T = any>(
 export async function post<T = any>(
   endpoint: string,
   data: any,
-  headers?: HeadersInit
+  headers?: ApiHeaders
 ): Promise<ApiResponse<T>> {
   return apiRequest<T>(endpoint, {
     method: 'POST',
@@ -99,7 +101,7 @@ export async function post<T = any>(
  */
 export async function get<T = any>(
   endpoint: string,
-  headers?: HeadersInit
+  headers?: ApiHeaders
 ): Promise<ApiResponse<T>> {
   return apiRequest<T>(endpoint, {
     method: 'GET',
@@ -113,7 +115,7 @@ export async function get<T = any>(
 export async function put<T = any>(
   endpoint: string,
   data: any,
-  headers?: HeadersInit
+  headers?: ApiHeaders
 ): Promise<ApiResponse<T>> {
   return apiRequest<T>(endpoint, {
     method: 'PUT',
@@ -127,7 +129,7 @@ export async function put<T = any>(
  */
 export async function del<T = any>(
   endpoint: string,
-  headers?: HeadersInit
+  headers?: ApiHeaders
 ): Promise<ApiResponse<T>> {
   return apiRequest<T>(endpoint, {
     method: 'DELETE',
