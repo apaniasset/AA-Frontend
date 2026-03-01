@@ -55,8 +55,8 @@ export type RootStackParamList = {
     Messages: undefined;
     Save: undefined;
     AddProperty: undefined;
-    PropertyDetailsStep2: undefined;
-    PropertyDetailsStep3: undefined;
+    PropertyDetailsStep2: { propertyDraft?: Record<string, unknown> };
+    PropertyDetailsStep3: { propertyDraft?: Record<string, unknown> };
     Add_Amenities: undefined;
     Property_Details: { data?: any };
     Galary: undefined;

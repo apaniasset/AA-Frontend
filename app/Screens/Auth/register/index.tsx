@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
 import { COLORS, FONTS } from '../../../constants/theme';
 import CustomInput from '../../../components/Input/CustomInput';
+import LocationDropdowns from '../../../components/LocationDropdowns';
 import { User, Mail, Lock, MapPin, Map, Home, Phone } from 'lucide-react-native';
 import { registerSchema, type RegisterFormData, validateRegisterForm, validateRegisterField } from '../../../utils/validation/registerValidation';
 import { registerStyles } from './styles';
@@ -363,43 +364,27 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
               )}
             </View>
 
-            {/* City */}
+            {/* State, City, Area dropdowns (from Master Data APIs) */}
             <View>
-              <CustomInput
-                placeholder="City"
-                value={formData.city}
-                onChangeText={(value: string) => handleInputChange('city', value)}
-                onBlur={() => handleFieldBlur('city')}
-                editable={!loader}
-                lefticon={
-                  <MapPin
-                    size={22}
-                    color={errors.city ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
+              <LocationDropdowns
+                onValuesChange={(values) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    state: values.stateName ?? '',
+                    city: values.cityName ?? '',
+                  }));
+                  if (values.stateName || values.cityName) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      state: undefined,
+                      city: undefined,
+                    }));
+                  }
+                }}
               />
               {errors.city && (
                 <Text style={styles.errorText}>{errors.city}</Text>
               )}
-            </View>
-
-            {/* State */}
-            <View>
-              <CustomInput
-                placeholder="State"
-                value={formData.state}
-                onChangeText={(value: string) => handleInputChange('state', value)}
-                onBlur={() => handleFieldBlur('state')}
-                editable={!loader}
-                lefticon={
-                  <Map
-                    size={22}
-                    color={errors.state ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
               {errors.state && (
                 <Text style={styles.errorText}>{errors.state}</Text>
               )}

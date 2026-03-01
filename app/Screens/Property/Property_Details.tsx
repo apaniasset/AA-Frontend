@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, TextInput, ScrollView, Image, Platform, Animated, StyleSheet } from 'react-native'
-import React, { useRef, useState } from 'react'
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Image, Platform, Animated, StyleSheet, ActivityIndicator } from 'react-native'
+import React, { useRef, useState, useEffect } from 'react'
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../Navigations/RootStackParamList';
 import { useTheme } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import Likebtn from '../../components/Likebtn';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTosaveProperty, removeFromsaveProperty } from '../../redux/reducer/savePropertyReducer';
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { getPropertyDetails, PropertyDetailData } from '../../services/properties';
 
 const propertyHighlights = [
     {
@@ -211,9 +212,31 @@ const TabViewData = [
 
 type Property_DetailsScreenProps = StackScreenProps<RootStackParamList, 'Property_Details'>;
 
-const Property_Details = ({route,navigation } : Property_DetailsScreenProps) => {
+const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) => {
 
-    const {data} = route.params;
+    const passedData = route.params?.data;
+    const [detailData, setDetailData] = useState<PropertyDetailData | null>(null);
+    const [loadingDetail, setLoadingDetail] = useState(!!(passedData?.id));
+
+    useEffect(() => {
+        const id = passedData?.id;
+        if (id == null || typeof id !== 'number') {
+            setLoadingDetail(false);
+            return;
+        }
+        let cancelled = false;
+        getPropertyDetails(id)
+            .then((res) => {
+                if (!cancelled && res.success && res.data) setDetailData(res.data);
+            })
+            .catch(() => {})
+            .finally(() => {
+                if (!cancelled) setLoadingDetail(false);
+            });
+        return () => { cancelled = true; };
+    }, [passedData?.id]);
+
+    const data = detailData ?? passedData ?? {};
 
     const theme = useTheme();
     const { colors } : {colors : any } = theme;
@@ -257,7 +280,14 @@ const Property_Details = ({route,navigation } : Property_DetailsScreenProps) => 
         "Frequent Water Shortage"
     ];
     
-    const imageSource = data?.images?.length > 0 ? data.images[0] : data?.image ? data.image : null;
+    const firstImage = data?.images?.[0];
+    const imageSource = firstImage?.image_url
+        ? { uri: firstImage.image_url }
+        : (data?.images?.length > 0 && typeof data.images[0] === 'string')
+            ? { uri: data.images[0] as string }
+            : data?.image
+                ? (typeof data.image === 'string' ? { uri: data.image } : data.image)
+                : null;
 
     const [showTabs, setShowTabs] = useState(false);
     const tabOpacity = useRef(new Animated.Value(0)).current;
@@ -526,6 +556,11 @@ const Property_Details = ({route,navigation } : Property_DetailsScreenProps) => 
                 onScroll={handleScroll} 
             >
                 <View style={[GlobalStyleSheet.container,{padding:0,flex:1}]}>
+                    {loadingDetail && (
+                        <View style={{ paddingVertical: 12, alignItems: 'center' }}>
+                            <ActivityIndicator size="small" color={theme.dark ? '#9654F4' : COLORS.primary} />
+                        </View>
+                    )}
                     {TabViewData.map((item,index) => { 
                         if(item.name === 'Overview'){
                             return(
@@ -550,7 +585,7 @@ const Property_Details = ({route,navigation } : Property_DetailsScreenProps) => 
                                         >
                                             {imageSource && (
                                                 <Image
-                                                    source={typeof imageSource === "string" ? { uri: imageSource } : imageSource}
+                                                    source={imageSource}
                                                     style={{ width: "100%", height: "100%" }}
                                                     resizeMode="cover"
                                                 />

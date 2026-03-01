@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Image, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import { useTheme } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -10,32 +10,43 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../Navigations/RootStackParamList';
 import { IMAGES } from '../../constants/Images';
 
+const LISTING_MAP: Record<string, string> = { Sell: 'Sale', Rent: 'Rent', 'Paying Guest': 'Paying Guest' };
+const PROPERTY_TYPE_MAP: Record<string, string> = {
+  'Flat/Apartment': 'Apartment/Flat',
+  'Builder Floor': 'Builder Floor',
+  'Farm House': 'Farm House',
+  'Independent House/Villa': 'Independent House/Villa',
+  'Serviced Apartment': 'Serviced Apartment',
+  'Studio Apartment': 'Studio Apartment',
+  'Other': 'Other',
+};
+
 type AddPropertyScreenProps = StackScreenProps<RootStackParamList, 'AddProperty'>;
 
-const AddProperty = ({navigation } : AddPropertyScreenProps) => {
+const AddProperty = ({ navigation }: AddPropertyScreenProps) => {
 
-    const theme = useTheme();
-    const { colors }: { colors: any } = theme;
+  const theme = useTheme();
+  const { colors }: { colors: any } = theme;
 
-    const Lookingtabs = ["Sell", "Rent", "Paying Guest"];
+  const Lookingtabs = ['Sell', 'Rent', 'Paying Guest'];
+  const [activeTab, setActiveTab] = useState(Lookingtabs[0]);
 
-    const [activeTab, setActiveTab] = useState(Lookingtabs[0]);
+  const PropertyLokingtabs = ['Residential', 'Commercial'];
+  const [activeTab1, setActiveTab1] = useState(PropertyLokingtabs[0]);
 
-    const PropertyLokingtabs = ["Residential", "Commercial"];
+  const PropertyTypestabs = [
+    'Flat/Apartment',
+    'Builder Floor',
+    'Farm House',
+    'Independent House/Villa',
+    'Serviced Apartment',
+    'Studio Apartment',
+    'Other',
+  ];
+  const [activeTab2, setActiveTab2] = useState(PropertyTypestabs[0]);
 
-    const [activeTab1, setActiveTab1] = useState(PropertyLokingtabs[0]);
-
-    const PropertyTypestabs = [
-      "Flat/Apartment", 
-      "Builder Floor", 
-      "Farm House", 
-      "Independent House/Villa", 
-      "Serviced Apartment", 
-      "Studio Apartment", 
-      "Other"
-    ];
-
-    const [activeTab2, setActiveTab2] = useState(PropertyTypestabs[0]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
 
 
 
@@ -88,6 +99,28 @@ const AddProperty = ({navigation } : AddPropertyScreenProps) => {
             <View style={[GlobalStyleSheet.container,{paddingHorizontal:20,paddingTop:55}]}>
               <Text style={[FONTS.h4,FONTS.fontMedium,{color:colors.gray100}]}>Add Basic Details</Text>
               <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray70,fontSize:11}]}>STEP 1 OF 3</Text>
+              <View style={{ marginTop: 20 }}>
+                <Text style={[FONTS.BodyS, FONTS.fontSemiBold, { color: colors.gray90 }]}>Title</Text>
+                <TextInput
+                  placeholder="e.g. 3BHK Apartment in Baner"
+                  placeholderTextColor={colors.gray50}
+                  value={title}
+                  onChangeText={setTitle}
+                  style={[FONTS.BodyM, { color: colors.title, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth: 1, borderColor: colors.checkBoxborder, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginTop: 6 }]}
+                />
+              </View>
+              <View style={{ marginTop: 12 }}>
+                <Text style={[FONTS.BodyS, FONTS.fontSemiBold, { color: colors.gray90 }]}>Description</Text>
+                <TextInput
+                  placeholder="e.g. Spacious 3BHK apartment with all amenities"
+                  placeholderTextColor={colors.gray50}
+                  value={description}
+                  onChangeText={setDescription}
+                  multiline
+                  numberOfLines={3}
+                  style={[FONTS.BodyM, { color: colors.title, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth: 1, borderColor: colors.checkBoxborder, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginTop: 6, minHeight: 80, textAlignVertical: 'top' }]}
+                />
+              </View>
               <View style={{marginTop:20}}>
                 <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>You’re Looking to?</Text>
                 <View style={{flexDirection:'row',alignItems:'center',gap:7,paddingVertical:10}}>
@@ -178,7 +211,15 @@ const AddProperty = ({navigation } : AddPropertyScreenProps) => {
             <Button
               title='Next'
               btnRounded
-              onPress={() => navigation.navigate('PropertyDetailsStep2')}
+              onPress={() => navigation.navigate('PropertyDetailsStep2', {
+                propertyDraft: {
+                  title: title.trim() || undefined,
+                  description: description.trim() || undefined,
+                  listing_type: LISTING_MAP[activeTab] || activeTab,
+                  property_segment: activeTab1,
+                  property_type: PROPERTY_TYPE_MAP[activeTab2] || activeTab2,
+                },
+              })}
             />
           </View>
         </View>

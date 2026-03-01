@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Image, TextInput, ScrollView, StyleSheet } from 'react-native'
-import React, { useRef, useState } from 'react'
+import { View, Text, TouchableOpacity, Image, TextInput, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
+import React, { useRef, useState, useEffect } from 'react'
 import { useTheme } from '@react-navigation/native';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import FeatherIcon from "react-native-vector-icons/Feather";
@@ -10,54 +10,7 @@ import { IMAGES } from '../../constants/Images';
 import Progresscircle from '../../components/Progresscircle';
 import FilterSheet from '../../components/BottomSheet/FilterSheet';
 import SortSheet from '../../components/BottomSheet/SortSheet';
-
-const propertyList = [
-    {
-        id: '26801450',
-        type: 'Rent',
-        status: 'Active',
-        images: [IMAGES.projectpic1],
-        tags: ["Family", "Furnished", "Garden View", "Lift"],
-        location: "Mumbai",
-        title: '2 BHK Flat/Apartment in Greenview Residences, Austin',
-        price: '$2,400',
-        priceType: "Month",
-        area: "1,250 Sqft",
-        progress: 0.99,
-        userName:'Ethan Walker',
-        time: "2m ago",
-    },
-    {
-        id: '26801450',
-        type: 'For Sell',
-        status: 'Close',
-        images: [IMAGES.projectpic2],
-        tags: ["Swimming Pool", "Gym", "Parking"],
-        location: "Bangalore",
-        title: '2 BHK Flat/Apartment in Greenview Residences, Austin',
-        price: '$2,400',
-        priceType: "Month",
-        area: "1,250 Sqft",
-        progress: 0.75,
-        userName:'Ethan Walker',
-        time: "2m ago",
-    },
-    {
-        id: '26801450',
-        type: 'Rent',
-        status: 'Active',
-        images: [IMAGES.projectpic3],
-        location: "Gurugram",
-        tags: ["Lake View", "Pet Friendly", "Security"],
-        title: '2 BHK Flat/Apartment in Greenview Residences, Austin',
-        price: '$2,400',
-        priceType: "Month",
-        area: "1,250 Sqft",
-        progress: 0.10,
-        userName:'Ethan Walker',
-        time: "2m ago",
-    }
-];
+import { getPropertiesList, PropertyListItem } from '../../services/properties';
 
 
 type My_ListingScreenProps = StackScreenProps<RootStackParamList, 'My_Listing'>;
@@ -68,10 +21,26 @@ const My_Listing = ({ navigation } : My_ListingScreenProps) => {
     const { colors } : {colors : any } = theme;
 
     const sheetRef = useRef<any>(null);
-
     const dynamicSheetRef = useRef<any>(null);
-
     const [sortValue, setSortValue] = useState("Relevance");
+    const [propertyList, setPropertyList] = useState<PropertyListItem[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let cancelled = false;
+        setLoading(true);
+        getPropertiesList(1)
+            .then((res) => {
+                if (!cancelled && res.success && res.data?.data) setPropertyList(res.data.data);
+            })
+            .catch(() => {
+                if (!cancelled) setPropertyList([]);
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+        return () => { cancelled = true; };
+    }, []);
 
     return (
          <View style={{ backgroundColor: colors.card, flex: 1 }}>
@@ -172,105 +141,125 @@ const My_Listing = ({ navigation } : My_ListingScreenProps) => {
                 <View
                     style={[GlobalStyleSheet.container,{paddingHorizontal:20,paddingTop:20}]}
                 >
-                    {propertyList.map((data, index) => {
-                        return(
-                            <View
-                                key={index}
-                                style={[styles.card,{
-                                    backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white,
-                                }]}
-                            >
-                                <View style={[GlobalStyleSheet.flexcenter]}>
-                                    <View style={{flexDirection:'row',alignItems:'center',gap:10}}>
-                                        <View
-                                            style={{
-                                                padding:2,
-                                                paddingHorizontal:5,
-                                                backgroundColor:data.type === 'For Sell' ? theme.dark ? '#480000' : '#F8EFF1': theme.dark ? '#0B3C0D': '#EFF8EF',
-                                                borderRadius:4
-                                            }}
-                                        >
-                                            <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:data.type === 'For Sell' ? theme.dark ? '#DA243D': '#FC3752':theme.dark ? '#D8FFDA' : '#267529'}]}>{data.type}</Text>
-                                        </View>
-                                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray50}]}><Text style={{color:colors.gray90}}>ID:</Text> {data.id}</Text>
-                                    </View>
-                                    <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:'#4FB954'}]}>{data.status}</Text>
-                                </View>
-                                <View style={{height:1,backgroundColor:colors.checkBoxborder,marginVertical:10}}/>
-                                <View>
-                                    <View style={[GlobalStyleSheet.flexcenter,{gap:10}]}>
-                                        <View
-                                            style={{
-                                                width:115,
-                                                height:90,
-                                                borderRadius:6,
-                                                backgroundColor:'red',
-                                                overflow:'hidden'
-                                            }}
-                                        >
-                                            <Image
-                                                source={data.images[0]}
-                                                style={{ width: "100%", height: "100%",borderRadius:6 }}
-                                                resizeMode="cover"
-                                            />
-                                            <Image
+                    {loading ? (
+                        <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+                            <ActivityIndicator size="large" color={theme.dark ? '#9654F4' : COLORS.primary} />
+                        </View>
+                    ) : (
+                        propertyList.map((data) => {
+                            const listType = data.listing_type === 'Sale' ? 'For Sell' : (data.listing_type || 'Rent');
+                            const price = data.rent_price ? `₹${Number(data.rent_price).toLocaleString()}` : (data.sale_price ? `₹${Number(data.sale_price).toLocaleString()}` : '—');
+                            const priceType = data.listing_type === 'Rent' ? 'Month' : '';
+                            const areaText = data.carpet_area ? `${data.carpet_area} Sqft` : (data.area || '');
+                            const imgUri = data.images?.[0]?.image_url;
+                            const progress = data.status === 'active' && (data.city_id != null && data.address_line1) ? 0.99 : 0.10;
+                            return (
+                                <View
+                                    key={data.id}
+                                    style={[styles.card,{
+                                        backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
+                                    }]}
+                                >
+                                    <View style={[GlobalStyleSheet.flexcenter]}>
+                                        <View style={{flexDirection:'row',alignItems:'center',gap:10}}>
+                                            <View
                                                 style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    position: 'absolute',
-                                                    left: 0,
-                                                    right: 0,
-                                                    borderRadius:6
+                                                    padding:2,
+                                                    paddingHorizontal:5,
+                                                    backgroundColor: listType === 'For Sell' ? theme.dark ? '#480000' : '#F8EFF1' : theme.dark ? '#0B3C0D' : '#EFF8EF',
+                                                    borderRadius:4
                                                 }}
-                                                resizeMode='cover'
-                                                source={IMAGES.Rectangle2}
-                                            />
-                                        </View>
-                                        <View style={{flex:1,paddingRight:60}}>
-                                            <TouchableOpacity
-                                                onPress={() => navigation.navigate('Property_Details',{data : data })}
-                                                activeOpacity={0.8}
-                                                style={{marginBottom:5}}
                                             >
-                                                <Text numberOfLines={3} style={[FONTS.h6,FONTS.fontSemiBold,{color:colors.gray100}]}>{data.title}</Text>
-                                            </TouchableOpacity>
-                                            <View style={{flexDirection:'row',alignItems:'center',gap:5}}>
-                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray50}]}>
-                                                    {data.price}/ {data.priceType} 
-                                                </Text>
-                                                <View style={{height:4,width:4,borderRadius:4,backgroundColor:colors.gray50}}/>
-                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray50}]}>
-                                                    {data.area}
-                                                </Text>
+                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color: listType === 'For Sell' ? theme.dark ? '#DA243D' : '#FC3752' : theme.dark ? '#D8FFDA' : '#267529'}]}>{listType}</Text>
+                                            </View>
+                                            <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray50}]}><Text style={{color:colors.gray90}}>ID:</Text> {data.property_id || data.id}</Text>
+                                        </View>
+                                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:'#4FB954'}]}>{data.status || 'Active'}</Text>
+                                    </View>
+                                    <View style={{height:1,backgroundColor:colors.checkBoxborder,marginVertical:10}}/>
+                                    <View>
+                                        <View style={[GlobalStyleSheet.flexcenter,{gap:10}]}>
+                                            <View
+                                                style={{
+                                                    width:115,
+                                                    height:90,
+                                                    borderRadius:6,
+                                                    backgroundColor: colors.gray20,
+                                                    overflow:'hidden'
+                                                }}
+                                            >
+                                                {imgUri ? (
+                                                    <Image
+                                                        source={{ uri: imgUri }}
+                                                        style={{ width: "100%", height: "100%", borderRadius: 6 }}
+                                                        resizeMode="cover"
+                                                    />
+                                                ) : (
+                                                    <Image
+                                                        source={IMAGES.projectpic1}
+                                                        style={{ width: "100%", height: "100%", borderRadius: 6 }}
+                                                        resizeMode="cover"
+                                                    />
+                                                )}
+                                                <Image
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        position: 'absolute',
+                                                        left: 0,
+                                                        right: 0,
+                                                        borderRadius:6
+                                                    }}
+                                                    resizeMode='cover'
+                                                    source={IMAGES.Rectangle2}
+                                                />
+                                            </View>
+                                            <View style={{flex:1,paddingRight:60}}>
+                                                <TouchableOpacity
+                                                    onPress={() => navigation.navigate('Property_Details', { data })}
+                                                    activeOpacity={0.8}
+                                                    style={{marginBottom:5}}
+                                                >
+                                                    <Text numberOfLines={3} style={[FONTS.h6,FONTS.fontSemiBold,{color:colors.gray100}]}>{data.title || 'Untitled'}</Text>
+                                                </TouchableOpacity>
+                                                <View style={{flexDirection:'row',alignItems:'center',gap:5}}>
+                                                    <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray50}]}>
+                                                        {price}{priceType ? ` / ${priceType}` : ''}
+                                                    </Text>
+                                                    {(price && areaText) ? <View style={{height:4,width:4,borderRadius:4,backgroundColor:colors.gray50}}/> : null}
+                                                    <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray50}]}>
+                                                        {areaText || data.city || data.area || ''}
+                                                    </Text>
+                                                </View>
                                             </View>
                                         </View>
                                     </View>
-                                </View>
-                                <View style={{height:1,backgroundColor:colors.checkBoxborder,marginVertical:10}}/>
-                                <View style={[GlobalStyleSheet.flexcenter]}>
-                                    <View style={[GlobalStyleSheet.flexcenter,{width:'40%',gap:5}]}>
-                                        <Progresscircle progress={data.progress} />
-                                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60,flex:1}]}>Posting Completion:</Text>
+                                    <View style={{height:1,backgroundColor:colors.checkBoxborder,marginVertical:10}}/>
+                                    <View style={[GlobalStyleSheet.flexcenter]}>
+                                        <View style={[GlobalStyleSheet.flexcenter,{width:'40%',gap:5}]}>
+                                            <Progresscircle progress={progress} />
+                                            <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60,flex:1}]}>Posting Completion:</Text>
+                                        </View>
+                                        <TouchableOpacity
+                                            onPress={() => navigation.navigate('Property_Details', { data })}
+                                            activeOpacity={0.8}
+                                            style={{
+                                                padding: 8,
+                                                paddingHorizontal: 15,
+                                                backgroundColor: colors.checkBoxborder,
+                                                borderRadius: 8,
+                                                width:'60%'
+                                            }}
+                                        >
+                                            <Text style={[FONTS.BodyS, FONTS.fontRegular, { color: colors.gray90,textAlign:'center' }]}>
+                                                Manage Property
+                                            </Text>
+                                        </TouchableOpacity>
                                     </View>
-                                    <TouchableOpacity
-                                        onPress={() => navigation.navigate('Property_Details',{data : data })}
-                                        activeOpacity={0.8}
-                                        style={{
-                                            padding: 8,
-                                            paddingHorizontal: 15,
-                                            backgroundColor: colors.checkBoxborder,
-                                            borderRadius: 8,
-                                            width:'60%'
-                                        }}
-                                    >
-                                        <Text style={[FONTS.BodyS, FONTS.fontRegular, { color: colors.gray90,textAlign:'center' }]}>
-                                            Manage Property
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View> 
-                            </View>
-                        )
-                    })}
+                                </View>
+                            );
+                        })
+                    )}
                 </View>
             </ScrollView>
             <FilterSheet

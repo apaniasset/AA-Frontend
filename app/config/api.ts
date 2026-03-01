@@ -20,4 +20,14 @@ export const API_ENDPOINTS = {
   USER_REGISTER: '/user/register',
   USER_LOGIN: '/user/login',
   USER_FORGOT_PASSWORD: '/user/forgot-password',
+
+  // Properties
+  PROPERTIES_STORE: '/properties/store',
+  PROPERTIES_LIST: '/properties/list',
+  PROPERTIES_SHOW: '/properties/show',
+
+  // Master Data
+  STATE_LIST: '/state/list',
+  CITY_LIST: '/city/list',
+  AREA_LIST: '/area/list',
 };
