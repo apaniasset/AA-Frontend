@@ -196,6 +196,31 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
     navigation.navigate('Login');
   };
 
+  const handleLocationValuesChange = useCallback(
+    (values: {
+      stateName: string | null;
+      cityName: string | null;
+      stateId: number | null;
+      cityId: number | null;
+      areaId: number | null;
+      areaName: string | null;
+    }) => {
+      setFormData((prev) => ({
+        ...prev,
+        state: values.stateName ?? '',
+        city: values.cityName ?? '',
+      }));
+      if (values.stateName || values.cityName) {
+        setErrors((prev) => ({
+          ...prev,
+          state: undefined,
+          city: undefined,
+        }));
+      }
+    },
+    []
+  );
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -366,22 +391,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
 
             {/* State, City, Area dropdowns (from Master Data APIs) */}
             <View>
-              <LocationDropdowns
-                onValuesChange={(values) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    state: values.stateName ?? '',
-                    city: values.cityName ?? '',
-                  }));
-                  if (values.stateName || values.cityName) {
-                    setErrors((prev) => ({
-                      ...prev,
-                      state: undefined,
-                      city: undefined,
-                    }));
-                  }
-                }}
-              />
+              <LocationDropdowns onValuesChange={handleLocationValuesChange} />
               {errors.city && (
                 <Text style={styles.errorText}>{errors.city}</Text>
               )}

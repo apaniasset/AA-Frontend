@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, ScrollView, Image, Animated, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import { View, Text, ImageBackground, ScrollView, Image, Animated, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTheme } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -187,7 +187,11 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
     };
 
     return (
-        <View style={{ backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white, flex: 1 }}>
+        <KeyboardAvoidingView
+            style={{ flex: 1, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
             <RBSheet
                 ref={refRBSheet}
                 height={300}
@@ -624,7 +628,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                     }
                 </View>
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 

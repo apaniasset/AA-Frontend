@@ -15,34 +15,34 @@ type SplashScreenProps = StackScreenProps<RootStackParamList, 'splash'>;
 const Splash = ({ navigation }: SplashScreenProps) => {
 
     const theme = useTheme();
-    const {colors} : {colors : any} = theme;
+    const { colors }: { colors: any } = theme;
     const isLoggedIn = useSelector((state: RootState) => state.user?.login === true);
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
         // Animate progress from 0 → 1 in 5 seconds
         let interval = setInterval(() => {
-        setProgress((prev) => {
-            if (prev >= 1) {
-            clearInterval(interval);
-            if (isLoggedIn) {
-                navigation.replace("DrawerNavigation");
-            } else {
-                navigation.replace("Onbording");
-            }
-            return 1;
-            }
-            return prev + 0.02; // (0.02 * 50) = ~5s
-        });
+            setProgress((prev) => {
+                if (prev >= 1) {
+                    clearInterval(interval);
+                    if (isLoggedIn) {
+                        navigation.replace("DrawerNavigation");
+                    } else {
+                        navigation.replace("Onbording");
+                    }
+                    return 1;
+                }
+                return prev + 0.02; // (0.02 * 50) = ~5s
+            });
         }, 100);
 
         return () => clearInterval(interval);
     }, [isLoggedIn]);
 
     return (
-        <View style={{ backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View style={{ backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white, flex: 1, justifyContent: "center", alignItems: "center" }}>
             <LinearGradient
-                colors={[theme.dark ? COLORS.darkwhite : COLORS.white, theme.dark ? '#290B56': "#F5EFFF"]}
+                colors={[theme.dark ? COLORS.darkwhite : COLORS.white, theme.dark ? '#290B56' : "#F5EFFF"]}
                 style={{
                     height: "100%",
                     width: "100%",
@@ -64,8 +64,8 @@ const Splash = ({ navigation }: SplashScreenProps) => {
                 <Progress.Bar
                     progress={progress}
                     width={80}
-                    color={theme.dark ? '#9654F4': COLORS.primary || theme.dark ? '#9654F4': COLORS.primary}
-                    unfilledColor={ theme.dark ? '#3C0C81':'#F5EFFF'}
+                    color={theme.dark ? '#9654F4' : COLORS.primary || theme.dark ? '#9654F4' : COLORS.primary}
+                    unfilledColor={theme.dark ? '#3C0C81' : '#F5EFFF'}
                     borderWidth={0}
                     height={6}
                     borderRadius={10}
@@ -81,7 +81,7 @@ const Splash = ({ navigation }: SplashScreenProps) => {
                     bottom: 25,
                 }}
                 source={IMAGES.SplashShap}
-                tintColor={theme.dark ? '#3C0C81': '#E0CAFF'}
+                tintColor={theme.dark ? '#3C0C81' : '#E0CAFF'}
             />
         </View>
     );

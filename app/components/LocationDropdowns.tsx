@@ -84,7 +84,8 @@ function SingleDropdown({
         style={[
           styles.selectBox,
           {
-            borderColor: colors.checkBoxborder,
+            borderColor: theme.dark ? '#565656' : 'rgba(107,45,197,0.4)',
+            borderWidth: 1.5,
             backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
             opacity: disabled ? 0.7 : 1,
           },
@@ -101,7 +102,8 @@ function SingleDropdown({
           {
             height: dropdownHeight,
             opacity: fadeAnim,
-            borderColor: colors.checkBoxborder,
+            borderWidth: 1.5,
+            borderColor: theme.dark ? '#565656' : 'rgba(107,45,197,0.4)',
             backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
           },
         ]}
@@ -114,7 +116,7 @@ function SingleDropdown({
                 onSelect(item.id, item.label);
                 setOpen(false);
               }}
-              style={[styles.dropdownItem, { borderBottomColor: colors.checkBoxborder }]}
+              style={[styles.dropdownItem, { borderBottomColor: theme.dark ? '#565656' : 'rgba(107,45,197,0.4)' }]}
             >
               <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.title }]} numberOfLines={1}>
                 {item.label}
@@ -153,9 +155,12 @@ export default function LocationDropdowns({ onValuesChange }: LocationDropdownsP
     selectArea,
   } = useStateCityArea();
 
+  const onValuesChangeRef = useRef(onValuesChange);
+  onValuesChangeRef.current = onValuesChange;
+
   useEffect(() => {
-    onValuesChange?.(values);
-  }, [values.stateId, values.cityId, values.areaId, values.stateName, values.cityName, values.areaName, onValuesChange]);
+    onValuesChangeRef.current?.(values);
+  }, [values.stateId, values.cityId, values.areaId, values.stateName, values.cityName, values.areaName]);
 
   const stateItems: IdLabelItem[] = Array.isArray(states) ? states.map((s) => ({ id: s.id, label: s.state_name })) : [];
   const cityItems: IdLabelItem[] = Array.isArray(cities) ? cities.map((c) => ({ id: c.id, label: c.city_name })) : [];
@@ -211,7 +216,6 @@ const styles = StyleSheet.create({
     padding: 12,
     paddingHorizontal: 14,
     borderRadius: 10,
-    borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -225,7 +229,6 @@ const styles = StyleSheet.create({
     zIndex: 99,
     overflow: 'hidden',
     borderRadius: 10,
-    borderWidth: 1,
   },
   dropdownScroll: {
     maxHeight: MAX_DROPDOWN_HEIGHT,
