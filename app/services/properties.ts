@@ -251,6 +251,23 @@ export async function getPropertiesList(
   return get<PropertiesListResponse>(url, headers);
 }
 
+/**
+ * Call GET /user/properties to fetch the logged-in user's (merchant's) posted property list.
+ * Uses stored merchant token for Authorization.
+ * Handles both paginated { data: { data: [...] } } and direct { data: [...] } response shapes.
+ */
+export async function getUserProperties(
+  page: number = 1
+): Promise<ApiResponse<PropertiesListResponse | PropertyListItem[]>> {
+  const auth = await loadAuth();
+  const headers: Record<string, string> = {};
+  if (auth?.token) {
+    headers.Authorization = `Bearer ${auth.token}`;
+  }
+  const url = page > 1 ? `${API_ENDPOINTS.USER_PROPERTIES}?page=${page}` : API_ENDPOINTS.USER_PROPERTIES;
+  return get<PropertiesListResponse | PropertyListItem[]>(url, headers);
+}
+
 /** Full property details from POST /properties/show */
 export interface PropertyDetailData {
   id: number;

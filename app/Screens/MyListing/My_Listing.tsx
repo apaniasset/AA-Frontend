@@ -10,7 +10,7 @@ import { IMAGES } from '../../constants/Images';
 import Progresscircle from '../../components/Progresscircle';
 import FilterSheet from '../../components/BottomSheet/FilterSheet';
 import SortSheet from '../../components/BottomSheet/SortSheet';
-import { getPropertiesList, PropertyListItem } from '../../services/properties';
+import { getUserProperties, PropertyListItem } from '../../services/properties';
 
 
 type My_ListingScreenProps = StackScreenProps<RootStackParamList, 'My_Listing'>;
@@ -29,9 +29,12 @@ const My_Listing = ({ navigation }: My_ListingScreenProps) => {
     useEffect(() => {
         let cancelled = false;
         setLoading(true);
-        getPropertiesList(1)
+        getUserProperties(1)
             .then((res) => {
-                if (!cancelled && res.success && res.data?.data) setPropertyList(res.data.data);
+                if (!cancelled && res.success && res.data) {
+                    const list = Array.isArray(res.data) ? res.data : (res.data as { data?: PropertyListItem[] }).data;
+                    setPropertyList(list || []);
+                }
             })
             .catch(() => {
                 if (!cancelled) setPropertyList([]);

@@ -195,6 +195,23 @@ const SidebarSheet = ({}, ref : any) => {
                   marginBottom:15
                 }]}
               >
+                <TouchableOpacity
+                  style={[GlobalStyleSheet.flexcenter,
+                    {padding:15,gap:10,borderBottomWidth:1,borderColor:colors.checkBoxborder}
+                  ]}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    ref.current?.close();
+                    navigation.navigate('My_Listing');
+                  }}
+                >
+                  <Image
+                    style={{height:18,width:18}}
+                    resizeMode='contain'
+                    source={IMAGES.building}
+                  />
+                  <Text style={[FONTS.BodyS,FONTS.fontMedium,{color:colors.gray80,flex:1}]}>My Posted Properties</Text>
+                </TouchableOpacity>
                 <TouchableOpacity 
                   style={[GlobalStyleSheet.flexcenter,
                     {padding:15,gap:10,borderBottomWidth:1,borderColor:colors.checkBoxborder}
@@ -228,7 +245,10 @@ const SidebarSheet = ({}, ref : any) => {
                     {padding:15,gap:10}
                   ]}
                   activeOpacity={0.8}
-                  onPress={() => navigation.navigate('My_Listing')}
+                  onPress={() => {
+                    ref.current?.close();
+                    navigation.navigate('My_Listing');
+                  }}
                 >
                   <Image
                     style={{height:18,width:18}}
