@@ -33,26 +33,6 @@ export const registerSchema = z.object({
     .string()
     .min(1, 'Please confirm your password'),
 
-  city: z
-    .string()
-    .min(1, 'City is required')
-    .max(30, 'City must be less than 30 characters')
-    .regex(/^[a-zA-Z\s]+$/, 'City can only contain letters and spaces')
-    .trim(),
-
-  state: z
-    .string()
-    .min(1, 'State is required')
-    .max(30, 'State must be less than 30 characters')
-    .regex(/^[a-zA-Z\s]+$/, 'State can only contain letters and spaces')
-    .trim(),
-
-  address: z
-    .string()
-    .min(1, 'Address is required')
-    .min(10, 'Please enter a complete address')
-    .trim(),
-  
   // Optional referral code: exactly 10 characters if provided
   referral_code: z
     .union([
@@ -117,9 +97,6 @@ export const validateRegisterField = (
       email: z.string().min(1, 'Email is required').email('Please enter a valid email address').max(100, 'Email must be less than 100 characters').toLowerCase().trim(),
       phone: z.string().min(1, 'Phone number is required').regex(/^[0-9]{10}$/, 'Phone number must be exactly 10 digits').trim(),
       password: z.string().min(1, 'Password is required').min(6, 'Password must be at least 6 characters').max(24, 'Password must be less than 24 characters'),
-      city: z.string().min(1, 'City is required').max(30, 'City must be less than 30 characters').regex(/^[a-zA-Z\s]+$/, 'City can only contain letters and spaces').trim(),
-      state: z.string().min(1, 'State is required').max(30, 'State must be less than 30 characters').regex(/^[a-zA-Z\s]+$/, 'State can only contain letters and spaces').trim(),
-      address: z.string().min(1, 'Address is required').min(10, 'Please enter a complete address').trim(),
       referral_code: z
         .union([
           z.literal(''),

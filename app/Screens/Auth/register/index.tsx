@@ -6,8 +6,7 @@ import { useDispatch } from 'react-redux';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
 import { COLORS, FONTS } from '../../../constants/theme';
 import CustomInput from '../../../components/Input/CustomInput';
-import LocationDropdowns from '../../../components/LocationDropdowns';
-import { User, Mail, Lock, MapPin, Map, Home, Phone } from 'lucide-react-native';
+import { User, Mail, Lock, Phone } from 'lucide-react-native';
 import { registerSchema, type RegisterFormData, validateRegisterForm, validateRegisterField } from '../../../utils/validation/registerValidation';
 import { registerStyles } from './styles';
 import { merchantRegister } from '../../../services/auth';
@@ -22,9 +21,6 @@ interface FormErrors {
   phone?: string;
   password?: string;
   confirmPassword?: string;
-  city?: string;
-  state?: string;
-  address?: string;
   referral_code?: string;
 }
 
@@ -41,10 +37,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
     phone: route.params?.phone || '',
     password: '',
     confirmPassword: '',
-    city: '',
-    state: '',
-    address: '',
-     referral_code: '',
+    referral_code: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -62,8 +55,6 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
       formattedValue = value.replace(/[^0-9]/g, '').slice(0, 10);
     } else if (field === 'password' || field === 'confirmPassword') {
       formattedValue = value.slice(0, 24);
-    } else if (field === 'city' || field === 'state') {
-      formattedValue = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 30);
     } else if (field === 'referral_code') {
       formattedValue = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
     }
@@ -196,31 +187,6 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
     navigation.navigate('Login');
   };
 
-  const handleLocationValuesChange = useCallback(
-    (values: {
-      stateName: string | null;
-      cityName: string | null;
-      stateId: number | null;
-      cityId: number | null;
-      areaId: number | null;
-      areaName: string | null;
-    }) => {
-      setFormData((prev) => ({
-        ...prev,
-        state: values.stateName ?? '',
-        city: values.cityName ?? '',
-      }));
-      if (values.stateName || values.cityName) {
-        setErrors((prev) => ({
-          ...prev,
-          state: undefined,
-          city: undefined,
-        }));
-      }
-    },
-    []
-  );
-
   const resetForm = () => {
     setFormData({
       name: '',
@@ -228,9 +194,6 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
       phone: '',
       password: '',
       confirmPassword: '',
-      city: '',
-      state: '',
-      address: '',
       referral_code: '',
     });
     setErrors({});
@@ -386,40 +349,6 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
               />
               {errors.confirmPassword && (
                 <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-              )}
-            </View>
-
-            {/* State, City, Area dropdowns (from Master Data APIs) */}
-            <View>
-              <LocationDropdowns onValuesChange={handleLocationValuesChange} />
-              {errors.city && (
-                <Text style={styles.errorText}>{errors.city}</Text>
-              )}
-              {errors.state && (
-                <Text style={styles.errorText}>{errors.state}</Text>
-              )}
-            </View>
-
-            {/* Address */}
-            <View>
-              <CustomInput
-                placeholder="Address"
-                value={formData.address}
-                onChangeText={(value: string) => handleInputChange('address', value)}
-                onBlur={() => handleFieldBlur('address')}
-                editable={!loader}
-                inputLg
-                textAlignVertical="top"
-                lefticon={
-                  <Home
-                    size={22}
-                    color={errors.address ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
-              {errors.address && (
-                <Text style={styles.errorText}>{errors.address}</Text>
               )}
             </View>
 
