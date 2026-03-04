@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
   MERCHANT_FORGOT_PASSWORD: '/merchant/forgot-password',
   MERCHANT_SEND_OTP: '/merchant/send-otp',
   MERCHANT_VERIFY_OTP: '/merchant/verify-otp',
+  MERCHANT_PROFILE_UPDATE: '/merchant/profile',
 
   // User
   USER_REGISTER: '/user/register',

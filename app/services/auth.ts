@@ -1,6 +1,7 @@
-import { post } from './api';
+import { post, put } from './api';
 import { API_ENDPOINTS } from '../config/api';
 import { ApiResponse } from './api';
+import { loadAuth } from '../utils/authStorage';
 
 // ===== Admin user creation =====
 
@@ -131,6 +132,28 @@ export async function merchantVerifyOtp(
     API_ENDPOINTS.MERCHANT_VERIFY_OTP,
     data
   );
+}
+
+// ===== Merchant profile update =====
+
+export interface MerchantProfileUpdateRequest {
+  name?: string;
+  company_name?: string;
+}
+
+export interface MerchantProfileUpdateResponse {
+  merchant: MerchantData;
+}
+
+export async function updateMerchantProfile(
+  data: MerchantProfileUpdateRequest
+): Promise<ApiResponse<MerchantData>> {
+  const auth = await loadAuth();
+  const headers: Record<string, string> = {};
+  if (auth?.token) {
+    headers.Authorization = `Bearer ${auth.token}`;
+  }
+  return put<MerchantData>(API_ENDPOINTS.MERCHANT_PROFILE_UPDATE, data, headers);
 }
 
 // ===== User auth (buyers) =====
