@@ -47,7 +47,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
     }, [moveAnim, scaleAnim]);
 
     const [show, setShow] = useState(false);
-    const [countryCode, setCountryCode] = useState('+1');
+    const [countryCode, setCountryCode] = useState('+91');
     const [phoneNumber, setPhoneNumber] = useState("");
     const [sendingOtp, setSendingOtp] = useState(false);
     const [otpValue, setOtpValue] = useState('');
@@ -241,7 +241,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                     </View>
                     <View style={{ paddingVertical: 16 }}>
                         <Button
-                            title='USE +1 987 654 3210'
+                            title='USE +91 987 654 3210'
                             onPress={handleUseThisNumber}
                             btnRounded
                         />
