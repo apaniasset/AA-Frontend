@@ -92,7 +92,7 @@ const Search = ({ navigation, route }: SearchScreenProps) => {
 
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: colors.card }} edges={['top']}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.card }} edges={[]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ flexGrow: 1 }}
