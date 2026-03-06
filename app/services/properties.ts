@@ -215,6 +215,7 @@ export interface PropertyListItem {
   address_line1: string | null;
   carpet_area: number | null;
   built_up_area: number | null;
+  furnishing_status?: string | null;
   images?: { id: number; property_id: number; image_url: string; is_primary: number }[];
   [key: string]: unknown;
 }

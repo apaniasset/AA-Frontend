@@ -18,95 +18,8 @@ import { searchPropertiesList, getPropertyTypes } from '../../services/propertie
 import type { PropertyListItem } from '../../services/properties';
 
 const PROPERTY_TYPE_ALL = { id: 0, name: 'All Type' };
-
-const categoriesData = [
-    {
-        id: "0",
-        image: IMAGES.projectpic4,
-        title: "Furnished"
-    },
-    {
-        id: "1",
-        image: IMAGES.projectpic3,
-        title: "Semifurnished"
-    },
-    {
-        id: "2",
-        image: IMAGES.projectpic6,
-        title: "Unfurnished"
-    },
-    {
-        id: "3",
-        image: IMAGES.projectpic4,
-        title: "Furnished"
-    },
-    {
-        id: "4",
-        image: IMAGES.projectpic3,
-        title: "Semifurnished"
-    },
-    {
-        id: "5",
-        image: IMAGES.projectpic6,
-        title: "Unfurnished"
-    },
-]
-
-const ReviewpropertyData = [
-    {
-        id: "4",
-        images: [IMAGES.projectpic1],
-        title: "Luxury 2 BHK Apartment in Greenview Residency",
-        location: "Downtown Austin, Texas",
-        price: "$2,400",
-        status: "Ready to move",
-        tags: ["Family", "Furnished", "Garden View", "Lift"],
-        area: "1,250 Sqft",
-        time: "2m ago",
-        userName: "Ethan Walker",
-        userPic: IMAGES.small1
-    },
-    {
-        id: "5",
-        images: [IMAGES.projectpic2, IMAGES.projectpic3],
-        title: "Modern 3 BHK Villa with Open Terrace",
-        location: "San Francisco, California",
-        price: "$3,900",
-        status: "Under Construction",
-        tags: ["Swimming Pool", "Gym", "Parking"],
-        area: "1,850 Sqft",
-        time: "10m ago",
-        userName: "Ethan Walker",
-        userPic: IMAGES.small1
-    },
-    {
-        id: "6",
-        images: [IMAGES.projectpic4, IMAGES.projectpic5, IMAGES.projectpic6, IMAGES.projectpic2],
-        title: "Premium Studio Apartment with Lake View",
-        location: "Chicago, Illinois",
-        price: "$1,500",
-        status: "Available",
-        tags: ["Lake View", "Pet Friendly", "Security"],
-        area: "750 Sqft",
-        time: "30m ago",
-        userName: "Ethan Walker",
-        userPic: IMAGES.small1
-    },
-    {
-        id: "7",
-        images: [IMAGES.projectpic3, IMAGES.projectpic1, IMAGES.projectpic4],
-        title: "4 BHK Ultra Luxury Penthouse",
-        location: "New York City, USA",
-        price: "$6,800",
-        status: "Ready to move",
-        tags: ["Swimming Pool", "Private Lift", "Sky Lounge", "Smart Home"],
-        area: "3,500 Sqft",
-        time: "1h ago",
-        userName: "Ethan Walker",
-        userPic: IMAGES.small1
-    }
-];
-
+const FURNISHING_IMAGES = [IMAGES.projectpic4, IMAGES.projectpic3, IMAGES.projectpic6];
+type FurnishingOption = { id: string; title: string; image: any; furnishing_status: string };
 
 type HomeScreenProps = StackScreenProps<RootStackParamList, 'Home'>;
 
@@ -127,6 +40,16 @@ function mapListItemToCard(item: PropertyListItem) {
     };
 }
 
+function mapListItemToPropertyCard(item: PropertyListItem) {
+    const base = mapListItemToCard(item);
+    return {
+        ...base,
+        tags: [] as string[],
+        userPic: IMAGES.small1,
+        _raw: item,
+    };
+}
+
 const Home = ({ navigation }: HomeScreenProps) => {
     const theme = useTheme();
     const { colors }: { colors: any } = theme;
@@ -136,6 +59,10 @@ const Home = ({ navigation }: HomeScreenProps) => {
     const [selected, setSelected] = useState(0);
     const [recommendedList, setRecommendedList] = useState<ReturnType<typeof mapListItemToCard>[]>([]);
     const [recommendedLoading, setRecommendedLoading] = useState(true);
+    const [rentList, setRentList] = useState<ReturnType<typeof mapListItemToPropertyCard>[]>([]);
+    const [rentLoading, setRentLoading] = useState(true);
+    const [furnishingOptions, setFurnishingOptions] = useState<FurnishingOption[]>([]);
+    const [furnishingLoading, setFurnishingLoading] = useState(true);
 
     const sheetRef = useRef<any>(null);
     const filterRef = useRef<any>(null);
@@ -156,6 +83,58 @@ const Home = ({ navigation }: HomeScreenProps) => {
             })
             .finally(() => {
                 if (!cancelled) setPropertyTypesLoading(false);
+            });
+        return () => { cancelled = true; };
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        setFurnishingLoading(true);
+        searchPropertiesList({ per_page: 100, page: 1 })
+            .then((res) => {
+                if (cancelled) return;
+                const list = res.success && res.data?.data ? res.data.data : [];
+                const seen = new Set<string>();
+                const options: FurnishingOption[] = [];
+                list.forEach((item: PropertyListItem) => {
+                    const status = typeof item.furnishing_status === 'string' ? item.furnishing_status.trim() : '';
+                    if (status && !seen.has(status)) {
+                        seen.add(status);
+                        options.push({
+                            id: status,
+                            title: status,
+                            furnishing_status: status,
+                            image: FURNISHING_IMAGES[options.length % FURNISHING_IMAGES.length],
+                        });
+                    }
+                });
+                setFurnishingOptions(options);
+            })
+            .catch(() => {
+                if (!cancelled) setFurnishingOptions([]);
+            })
+            .finally(() => {
+                if (!cancelled) setFurnishingLoading(false);
+            });
+        return () => { cancelled = true; };
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        setRentLoading(true);
+        searchPropertiesList({ type: 'rent', per_page: 10, page: 1 })
+            .then((res) => {
+                if (!cancelled && res.success && res.data?.data) {
+                    setRentList(res.data.data.map(mapListItemToPropertyCard));
+                } else {
+                    if (!cancelled) setRentList([]);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) setRentList([]);
+            })
+            .finally(() => {
+                if (!cancelled) setRentLoading(false);
             });
         return () => { cancelled = true; };
     }, []);
@@ -357,8 +336,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
             </View>
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: 45 }}
-            >
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 45 }}>
                 <View style={[GlobalStyleSheet.container, { flex: 1, padding: 0, paddingTop: 20 }]}>
                     <View style={[GlobalStyleSheet.flexcenter, { paddingHorizontal: 20 }]}>
                         <Text style={[FONTS.BodyM, FONTS.fontSemiBold, { color: colors.gray100 }]}>Recommended</Text>
@@ -501,7 +479,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                         <Text style={[FONTS.BodyM, FONTS.fontSemiBold, { color: colors.gray100 }]}>Homes by furnishing</Text>
                         <TouchableOpacity
                             style={[GlobalStyleSheet.flexcenter, { gap: 2 }]}
-                            onPress={() => navigation.navigate('My_Listing')}
+                            onPress={() => navigation.navigate('Search_List', { filters: {} })}
                             activeOpacity={0.8}
                         >
                             <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: theme.dark ? '#9F5DFF' : COLORS.primary }]}>View All</Text>
@@ -515,52 +493,55 @@ const Home = ({ navigation }: HomeScreenProps) => {
                             contentContainerStyle={{ marginHorizontal: 20 }}
                         >
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 40 }}>
-                                {categoriesData.map((data, index) => {
-                                    return (
-                                        <View
-                                            style={{ flexDirection: 'column', alignItems: 'center', gap: 10 }}
-                                            key={index}
+                                {furnishingLoading ? (
+                                    <View style={{ paddingVertical: 24, minWidth: 110, alignItems: 'center' }}>
+                                        <ActivityIndicator size="small" color={theme.dark ? '#9654F4' : COLORS.primary} />
+                                    </View>
+                                ) : furnishingOptions.length === 0 ? (
+                                    <View style={{ paddingVertical: 24, minWidth: 110, alignItems: 'center' }}>
+                                        <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray60 }]}>No furnishing types</Text>
+                                    </View>
+                                ) : furnishingOptions.map((data) => (
+                                    <View
+                                        style={{ flexDirection: 'column', alignItems: 'center', gap: 10 }}
+                                        key={data.id}
+                                    >
+                                        <TouchableOpacity
+                                            onPress={() => navigation.navigate('Search_List', { filters: { furnishing_status: data.furnishing_status } })}
+                                            activeOpacity={0.8}
+                                            style={[{
+                                                height: 110,
+                                                width: 110,
+                                                borderRadius: 10,
+                                                backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
+                                                padding: 5,
+                                                elevation: 4,
+                                                shadowColor: 'rgba(0,0,0,0.5)',
+                                                shadowOffset: { width: 0, height: 0 },
+                                                shadowOpacity: .10,
+                                                shadowRadius: 30,
+                                            }]}
                                         >
-                                            <TouchableOpacity
-                                                onPress={() => navigation.navigate('My_Listing')}
-                                                activeOpacity={0.8}
-                                                style={[{
-                                                    height: 110,
-                                                    width: 110,
-                                                    borderRadius: 10,
-                                                    backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
-                                                    padding: 5,
-                                                    elevation: 4,
-                                                    shadowColor: 'rgba(0,0,0,0.5)',
-                                                    shadowOffset: {
-                                                        width: 0,
-                                                        height: 0,
-                                                    },
-                                                    shadowOpacity: .10,
-                                                    shadowRadius: 30,
-                                                }]}
-                                            >
-                                                <View style={[GlobalStyleSheet.center, { overflow: 'hidden', borderRadius: 6, flex: 1 }]}>
-                                                    <Image
-                                                        style={{ width: '100%', height: '100%' }}
-                                                        resizeMode='cover'
-                                                        source={data.image}
-                                                    />
-                                                </View>
-                                            </TouchableOpacity>
-                                            <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray100 }]}>{data.title}</Text>
-                                        </View>
-                                    )
-                                })}
+                                            <View style={[GlobalStyleSheet.center, { overflow: 'hidden', borderRadius: 6, flex: 1 }]}>
+                                                <Image
+                                                    style={{ width: '100%', height: '100%' }}
+                                                    resizeMode='cover'
+                                                    source={data.image}
+                                                />
+                                            </View>
+                                        </TouchableOpacity>
+                                        <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray100 }]} numberOfLines={1}>{data.title}</Text>
+                                    </View>
+                                ))}
                             </View>
                         </ScrollView>
                     </View>
                     <View>
                         <View style={[GlobalStyleSheet.flexcenter, { paddingHorizontal: 20, marginBottom: 10 }]}>
-                            <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Reviews by Residents</Text>
+                            <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Rent properties</Text>
                             <TouchableOpacity
                                 style={[GlobalStyleSheet.flexcenter, { gap: 2 }]}
-                                onPress={() => navigation.navigate('My_Listing')}
+                                onPress={() => navigation.navigate('Search_List', { filters: { type: 'rent' } })}
                                 activeOpacity={0.8}
                             >
                                 <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: theme.dark ? '#9F5DFF' : COLORS.primary }]}>View All</Text>
@@ -573,31 +554,34 @@ const Home = ({ navigation }: HomeScreenProps) => {
                             contentContainerStyle={{ paddingHorizontal: 15 }}
                         >
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                                {ReviewpropertyData.map((item: any, index: any) => {
-                                    return (
-                                        <View
-                                            key={index}
-                                            style={{ width: 350 }}
-                                        >
-                                            <PropertyCard
-                                                id={item.id}
-                                                images={item.images}
-                                                title={item.title}
-                                                location={item.location}
-                                                price={item.price}
-                                                status={item.status}
-                                                time={item.time}
-                                                area={item.area}
-                                                tags={item.tags}
-                                                userName={item.userName}
-                                                userPic={item.userPic}
-                                                onPress={() => navigation.navigate('SingleChat', { data: item })}
-                                                PropertyDetailsonPress={() => navigation.navigate('Property_Details', { data: item })}
-                                                SavePropertyonPress={() => addItemTosaveProperty(item)}
-                                            />
-                                        </View>
-                                    )
-                                })}
+                                {rentLoading ? (
+                                    <View style={{ paddingVertical: 24, minWidth: 350, alignItems: 'center' }}>
+                                        <ActivityIndicator size="large" color={theme.dark ? '#9654F4' : COLORS.primary} />
+                                    </View>
+                                ) : rentList.length === 0 ? (
+                                    <View style={{ paddingVertical: 24, minWidth: 350, alignItems: 'center' }}>
+                                        <Text style={[FONTS.BodyM, FONTS.fontMedium, { color: colors.gray60 }]}>No rent properties at the moment</Text>
+                                    </View>
+                                ) : rentList.map((item) => (
+                                    <View key={item.id} style={{ width: 350 }}>
+                                        <PropertyCard
+                                            id={item.id}
+                                            images={item.images}
+                                            title={item.title}
+                                            location={item.location}
+                                            price={item.price}
+                                            status={item.status}
+                                            time={item.time}
+                                            area={item.area}
+                                            tags={item.tags}
+                                            userName={item.userName}
+                                            userPic={item.userPic}
+                                            onPress={() => navigation.navigate('SingleChat', { data: item })}
+                                            PropertyDetailsonPress={() => navigation.navigate('Property_Details', { data: (item as any)._raw || item })}
+                                            SavePropertyonPress={() => addItemTosaveProperty(item)}
+                                        />
+                                    </View>
+                                ))}
                             </View>
                         </ScrollView>
                     </View>
