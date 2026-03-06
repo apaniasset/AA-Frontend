@@ -339,7 +339,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                 contentContainerStyle={{ flexGrow: 1, paddingBottom: 45 }}>
                 <View style={[GlobalStyleSheet.container, { flex: 1, padding: 0, paddingTop: 20 }]}>
                     <View style={[GlobalStyleSheet.flexcenter, { paddingHorizontal: 20 }]}>
-                        <Text style={[FONTS.BodyM, FONTS.fontSemiBold, { color: colors.gray100 }]}>Recommended</Text>
+                        <Text style={[FONTS.BodyM, FONTS.fontSemiBold, { color: colors.gray100 }]}>Top Properties</Text>
                         <TouchableOpacity
                             style={[GlobalStyleSheet.flexcenter, { gap: 2 }]}
                             onPress={() => navigation.navigate('Search_List', { filters: {} })}
