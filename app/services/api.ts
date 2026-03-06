@@ -14,6 +14,10 @@ export interface ApiError {
 }
 type ApiHeaders = Record<string, string>;
 type ApiRequestConfig = RequestInit & { timeout?: number };
+function isFormDataBody(body: unknown): body is FormData {
+  // RN provides global FormData
+  return typeof FormData !== 'undefined' && body instanceof FormData;
+}
 async function apiRequest<T = any>(
   endpoint: string,
   options: ApiRequestConfig = {}
@@ -21,7 +25,6 @@ async function apiRequest<T = any>(
   const url = `${API_CONFIG.BASE_URL}${endpoint}`;
 
   const defaultHeaders: ApiHeaders = {
-    'Content-Type': 'application/json',
     Accept: 'application/json',
   };
 
@@ -31,6 +34,14 @@ async function apiRequest<T = any>(
       ? (options.headers as ApiHeaders)
       : {}),
   };
+
+  // Only set JSON Content-Type when we are not sending FormData and caller didn't set it.
+  const hasContentType = Object.keys(mergedHeaders).some(
+    (k) => k.toLowerCase() === 'content-type'
+  );
+  if (!hasContentType && !isFormDataBody(options.body)) {
+    mergedHeaders['Content-Type'] = 'application/json';
+  }
 
   const config: ApiRequestConfig = {
     ...options,
@@ -89,9 +100,10 @@ export async function post<T = any>(
   data: any,
   headers?: ApiHeaders
 ): Promise<ApiResponse<T>> {
+  const body = isFormDataBody(data) ? data : JSON.stringify(data);
   return apiRequest<T>(endpoint, {
     method: 'POST',
-    body: JSON.stringify(data),
+    body,
     headers,
   });
 }
@@ -117,9 +129,10 @@ export async function put<T = any>(
   data: any,
   headers?: ApiHeaders
 ): Promise<ApiResponse<T>> {
+  const body = isFormDataBody(data) ? data : JSON.stringify(data);
   return apiRequest<T>(endpoint, {
     method: 'PUT',
-    body: JSON.stringify(data),
+    body,
     headers,
   });
 }

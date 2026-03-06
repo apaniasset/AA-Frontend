@@ -48,8 +48,8 @@ export type RootStackParamList = {
     PayrollPeople: undefined;
     SelectParty: undefined;
     AddTask: undefined;
-    SearchArea: undefined;
-    Search_List: undefined;
+    SearchArea: { search?: string; selectedCities?: { id: number; title: string }[]; propertyTypeId?: number; propertyTypeName?: string } | undefined;
+    Search_List: { filters?: Record<string, unknown> } | undefined;
     ContactOwner: undefined;
     BottomNavigation: undefined;
     Messages: undefined;
@@ -113,7 +113,7 @@ export type RootStackParamList = {
     Writereview: undefined;
     Profile: undefined;
     SaveJob: { data?: any };
-    Search: undefined;
+    Search: { propertyTypeId?: number; propertyTypeName?: string } | undefined;
     SearchResults: undefined;
     JobApplied: undefined;
     AboutCompany: { data?: any }; 

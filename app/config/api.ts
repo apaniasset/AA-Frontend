@@ -32,4 +32,5 @@ export const API_ENDPOINTS = {
   STATE_LIST: '/state/list',
   CITY_LIST: '/city/list',
   AREA_LIST: '/area/list',
+  PROPERTY_TYPE_LIST: '/property-type/list',
 };

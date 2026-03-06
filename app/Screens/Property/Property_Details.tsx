@@ -20,7 +20,7 @@ import { getPropertyDetails, PropertyDetailData } from '../../services/propertie
 const propertyHighlights = [
     {
         id: 1,
-        icon: IMAGES.house_building,  
+        icon: IMAGES.house_building,
         title: "2 BHK",
         subtitle: "and 2 Bath",
     },
@@ -51,36 +51,36 @@ const propertyHighlights = [
 ];
 
 const propertyDetails = [
-  { label: "Layout", value: "3 BHK, 2 Baths" },
-  { label: "Carpet Area", value: "1100 sq.ft. (102.19 sq.m.)" },
-  { label: "Furnishing", value: "Unfurnished" },
-  { label: "Floor number", value: "1" },
-  { label: "Flooring", value: "Marble" },
-  { label: "Company lease required", value: "Yes" },
-  { label: "Notice period", value: "1 months" },
-  { label: "Property ID", value: "I86287406" },
+    { label: "Layout", value: "3 BHK, 2 Baths" },
+    { label: "Carpet Area", value: "1100 sq.ft. (102.19 sq.m.)" },
+    { label: "Furnishing", value: "Unfurnished" },
+    { label: "Floor number", value: "1" },
+    { label: "Flooring", value: "Marble" },
+    { label: "Company lease required", value: "Yes" },
+    { label: "Notice period", value: "1 months" },
+    { label: "Property ID", value: "I86287406" },
 ];
 
 const ReviewData = [
     {
-        title:"5",
-        ratingwitdh:0,
+        title: "5",
+        ratingwitdh: 0,
     },
     {
-        title:"4",
-        ratingwitdh:50,
+        title: "4",
+        ratingwitdh: 50,
     },
     {
-        title:"3",
-        ratingwitdh:100,
+        title: "3",
+        ratingwitdh: 100,
     },
     {
-        title:"2",
-        ratingwitdh:150,
+        title: "2",
+        ratingwitdh: 150,
     },
     {
-        title:"1",
-        ratingwitdh:200,
+        title: "1",
+        ratingwitdh: 200,
     },
 ]
 
@@ -98,7 +98,7 @@ const reviews = [
             timeAgo: "5 Day ago",
         },
         colors: {
-            rating: "#0CB057",  
+            rating: "#0CB057",
             positiveBg: "#EFF8EF",
             negativeBg: "#F8EFF1",
         }
@@ -134,8 +134,8 @@ const propertyData = [
         tags: ["Family", "Furnished", "Garden View", "Lift"],
         area: "1,250 Sqft",
         time: "2m ago",
-        userName:"Ethan Walker",
-        userPic:IMAGES.small1
+        userName: "Ethan Walker",
+        userPic: IMAGES.small1
     },
     {
         id: "2",
@@ -147,12 +147,12 @@ const propertyData = [
         tags: ["Swimming Pool", "Gym", "Parking"],
         area: "1,850 Sqft",
         time: "10m ago",
-        userName:"Ethan Walker",
-        userPic:IMAGES.small1
+        userName: "Ethan Walker",
+        userPic: IMAGES.small1
     },
     {
-        id:"3",
-        images: [IMAGES.projectpic4, IMAGES.projectpic5, IMAGES.projectpic6,IMAGES.projectpic2],
+        id: "3",
+        images: [IMAGES.projectpic4, IMAGES.projectpic5, IMAGES.projectpic6, IMAGES.projectpic2],
         title: "Premium Studio Apartment with Lake View",
         location: "Chicago, Illinois",
         price: "$1,500",
@@ -160,8 +160,8 @@ const propertyData = [
         tags: ["Lake View", "Pet Friendly", "Security"],
         area: "750 Sqft",
         time: "30m ago",
-        userName:"Ethan Walker",
-        userPic:IMAGES.small1
+        userName: "Ethan Walker",
+        userPic: IMAGES.small1
     },
     {
         id: "4",
@@ -173,38 +173,38 @@ const propertyData = [
         tags: ["Swimming Pool", "Private Lift", "Sky Lounge", "Smart Home"],
         area: "3,500 Sqft",
         time: "1h ago",
-        userName:"Ethan Walker",
-        userPic:IMAGES.small1
+        userName: "Ethan Walker",
+        userPic: IMAGES.small1
     }
 ];
 
 const TabViewData = [
     {
-        title:"Overview",
+        title: "Overview",
         name: "Overview"
     },
     {
-        title:"Highlight",
+        title: "Highlight",
         name: "Highlight"
     },
     {
-        title:"Details",
+        title: "Details",
         name: "Details"
     },
     {
-        title:"Media",
+        title: "Media",
         name: "Media"
     },
     {
-        title:"Seller",
+        title: "Seller",
         name: "Seller"
     },
     {
-        title:"Location",
+        title: "Location",
         name: "Location"
     },
     {
-        title:"Explore",
+        title: "Explore",
         name: "Explore"
     },
 ]
@@ -229,7 +229,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
             .then((res) => {
                 if (!cancelled && res.success && res.data) setDetailData(res.data);
             })
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => {
                 if (!cancelled) setLoadingDetail(false);
             });
@@ -239,19 +239,19 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
     const data = detailData ?? passedData ?? {};
 
     const theme = useTheme();
-    const { colors } : {colors : any } = theme;
+    const { colors }: { colors: any } = theme;
 
     const dispatch = useDispatch();
-    
+
     const addItemTosaveProperty = (data: any) => {
         dispatch(addTosaveProperty(data));
     }
 
-    const saveProperty = useSelector((state:any) => state.saveProperty.saveProperty);
+    const saveProperty = useSelector((state: any) => state.saveProperty.saveProperty);
 
     const inSaveProperty = () => {
         var temp = [] as any;
-        saveProperty.forEach((data:any) => {
+        saveProperty.forEach((data: any) => {
             temp.push(data.id);
         });
         return temp;
@@ -266,7 +266,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
 
     const [selected, setSelected] = useState("yes");
 
-    const positivestabs =  [
+    const positivestabs = [
         "Good Public Transport",
         "Good Public Transport",
         "Markets at a Walkable Distance",
@@ -275,11 +275,11 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
         "Good Hospitals are Nearby"
     ];
 
-    const negativestabs =  [
+    const negativestabs = [
         "No Metro Connectivity",
         "Frequent Water Shortage"
     ];
-    
+
     const firstImage = data?.images?.[0];
     const imageSource = firstImage?.image_url
         ? { uri: firstImage.image_url }
@@ -331,7 +331,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
 
     const animateUnderline = (index: number) => {
         Animated.timing(underlinePosition, {
-            toValue: index * (SIZES.container / 10 ), 
+            toValue: index * (SIZES.container / 10),
             useNativeDriver: false,
             duration: 200
         }).start();
@@ -340,7 +340,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
     const [sectionHeights, setSectionHeights] = useState(new Array(TabViewData.length).fill(0));
     const scrollViewRef = useRef<any>(null);
 
-    const handleLayout = (index:any) => (event:any) => {
+    const handleLayout = (index: any) => (event: any) => {
         const { height } = event.nativeEvent.layout;
         setSectionHeights((prevHeights) => {
             const newHeights = [...prevHeights];
@@ -349,7 +349,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
         });
     };
 
-    const handleScroll = (event:any) => {
+    const handleScroll = (event: any) => {
         const { contentOffset } = event.nativeEvent;
 
         let totalHeight = -20;
@@ -383,16 +383,16 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
 
     const tabScrollRef = useRef(null);
 
-    const scrollTabToIndex = (index:any) => {
+    const scrollTabToIndex = (index: any) => {
         const tabWidth = SIZES.container / 10; // YOUR TAB WIDTH
 
-        tabScrollRef.current?.scrollTo({
+        (tabScrollRef.current as any)?.scrollTo({
             x: tabWidth * index - tabWidth * 2, // center alignment
             animated: true,
         });
     };
 
-    const scrollToSection = (index:any) => {
+    const scrollToSection = (index: any) => {
         const offset = sectionHeights
             .slice(0, index)
             .reduce((acc, height) => acc + height, 0);
@@ -434,31 +434,31 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
     ];
 
 
-    
+
     return (
-        <View style={[{flex:1,backgroundColor:colors.card}]}>
-            <View style={[GlobalStyleSheet.container,{padding:0,backgroundColor:colors.background}]}>
-                <View style={[GlobalStyleSheet.flexcenter,{paddingHorizontal:10,marginVertical:10}]}>
+        <View style={[{ flex: 1, backgroundColor: colors.card }]}>
+            <View style={[GlobalStyleSheet.container, { padding: 0, backgroundColor: colors.background }]}>
+                <View style={[GlobalStyleSheet.flexcenter, { paddingHorizontal: 10, marginVertical: 10 }]}>
                     <TouchableOpacity
-                        onPress={() => navigation.goBack()} 
-                        style={[GlobalStyleSheet.headerBtn,{height:36,width:36}]}
+                        onPress={() => navigation.goBack()}
+                        style={[GlobalStyleSheet.headerBtn, { height: 36, width: 36 }]}
                     >
-                        <FeatherIcon name='arrow-left' size={20} color={colors.gray90}/>
+                        <FeatherIcon name='arrow-left' size={20} color={colors.gray90} />
                     </TouchableOpacity>
-                    <View style={{flex:1,marginLeft:10,marginRight:5}}>
+                    <View style={{ flex: 1, marginLeft: 10, marginRight: 5 }}>
                         <TextInput
-                            style={[FONTS.BodyM,{
+                            style={[FONTS.BodyM, {
                                 ...FONTS.fontMedium,
-                                height:40,
-                                borderRadius:8,
-                                backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white,
-                                paddingHorizontal:20,
-                                paddingRight:45,
-                                color:colors.title,
-                                position:'relative',
-                                elevation:1,
-                                borderWidth:1,
-                                borderColor:colors.gray20
+                                height: 40,
+                                borderRadius: 8,
+                                backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
+                                paddingHorizontal: 20,
+                                paddingRight: 45,
+                                color: colors.title,
+                                position: 'relative',
+                                elevation: 1,
+                                borderWidth: 1,
+                                borderColor: colors.gray20
                             }]}
                             placeholder='Search Property'
                             placeholderTextColor={colors.gray50}
@@ -466,15 +466,15 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                         />
                         <View
                             style={[GlobalStyleSheet.headerBtn,
-                                {
-                                    borderRadius:15,
-                                    position:'absolute',
-                                    right:0,
-                                    top:-1,
-                                }
+                            {
+                                borderRadius: 15,
+                                position: 'absolute',
+                                right: 0,
+                                top: -1,
+                            }
                             ]}
                         >
-                            <FeatherIcon name='search' size={20} color={colors.gray40}/>
+                            <FeatherIcon name='search' size={20} color={colors.gray40} />
                         </View>
                     </View>
                     <Likebtn
@@ -504,7 +504,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                     marginHorizontal: 10,
                                 }}
                             >
-                                {TabViewData.map((item:any, index:any) => {
+                                {TabViewData.map((item: any, index: any) => {
                                     const isActive = item.name == activeIndex;
 
                                     return (
@@ -537,7 +537,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                 <Animated.View
                                     style={{
                                         height: 3,
-                                        backgroundColor:theme.dark ? '#9654F4' : COLORS.primary,
+                                        backgroundColor: theme.dark ? '#9654F4' : COLORS.primary,
                                         width: SIZES.container / 10,
                                         position: "absolute",
                                         bottom: 0,
@@ -551,28 +551,28 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
             </View>
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{flexGrow:1,paddingBottom:150}}
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 150 }}
                 ref={scrollViewRef}
-                onScroll={handleScroll} 
+                onScroll={handleScroll}
             >
-                <View style={[GlobalStyleSheet.container,{padding:0,flex:1}]}>
+                <View style={[GlobalStyleSheet.container, { padding: 0, flex: 1 }]}>
                     {loadingDetail && (
                         <View style={{ paddingVertical: 12, alignItems: 'center' }}>
                             <ActivityIndicator size="small" color={theme.dark ? '#9654F4' : COLORS.primary} />
                         </View>
                     )}
-                    {TabViewData.map((item,index) => { 
-                        if(item.name === 'Overview'){
-                            return(
-                                <View key={index} onLayout={handleLayout(index)}  style={{marginBottom:15}}>
+                    {TabViewData.map((item, index) => {
+                        if (item.name === 'Overview') {
+                            return (
+                                <View key={index} onLayout={handleLayout(index)} style={{ marginBottom: 15 }}>
                                     <View
                                         style={[GlobalStyleSheet.center, {
                                             width: '100%',
                                             aspectRatio: 1 / 0.55,
                                             borderRadius: 10,
                                             overflow: 'hidden',
-                                            padding:5,
-                                            marginBottom:5
+                                            padding: 5,
+                                            marginBottom: 5
                                         }]}
                                     >
                                         <View
@@ -615,13 +615,13 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                         }}>
                                             <View style={[GlobalStyleSheet.flexcenter, { flex: 1, alignItems: 'flex-start' }]}>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                                                    {data.userPic ? 
+                                                    {data.userPic ?
                                                         <Image
                                                             style={{ height: 22, width: 22, borderRadius: 30 }}
                                                             resizeMode='contain'
                                                             source={data.userPic}
                                                         />
-                                                    :
+                                                        :
                                                         <Image
                                                             style={{ height: 22, width: 22, borderRadius: 30 }}
                                                             resizeMode='contain'
@@ -647,7 +647,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                 <View
                                                     style={{
                                                         padding: 7,
-                                                        paddingVertical:5,
+                                                        paddingVertical: 5,
                                                         borderRadius: 30,
                                                         backgroundColor: '#FC3752'
                                                     }}
@@ -656,42 +656,42 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                         Rent
                                                     </Text>
                                                 </View>
-                    
+
                                                 <View
                                                     style={{
                                                         padding: 7,
-                                                        paddingVertical:5,
+                                                        paddingVertical: 5,
                                                         borderRadius: 30,
                                                         backgroundColor: colors.gray100
                                                     }}
                                                 >
-                                                    <Text style={[FONTS.fontSemiBold, { fontSize: 11, color:theme.dark ? COLORS.darkwhite : COLORS.white }]}>
+                                                    <Text style={[FONTS.fontSemiBold, { fontSize: 11, color: theme.dark ? COLORS.darkwhite : COLORS.white }]}>
                                                         {data.time}
                                                     </Text>
                                                 </View>
                                             </View>
                                         </View>
                                     </View>
-                                    <View style={[GlobalStyleSheet.flexcenter, { paddingVertical: 10,paddingHorizontal:10 }]}>
+                                    <View style={[GlobalStyleSheet.flexcenter, { paddingVertical: 10, paddingHorizontal: 10 }]}>
                                         <View style={{ width: '64%', paddingHorizontal: 10 }}>
                                             <Text numberOfLines={2} style={[FONTS.h6, FONTS.fontSemiBold, { color: colors.gray100 }]}>
-                                            {data.title}
+                                                {data.title}
                                             </Text>
                                             {data.location &&
-                                                <Text style={[FONTS.BodyXS,FONTS.fontRegular, { color: colors.gray50 }]}>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray50 }]}>
                                                     {data.location}
                                                 </Text>
                                             }
                                         </View>
-                    
+
                                         <View style={{ width: 1, height: 60, backgroundColor: colors.checkBoxborder }} />
-                    
-                                        <View style={[GlobalStyleSheet.center, { paddingHorizontal: 20,width:'35%' }]}>
+
+                                        <View style={[GlobalStyleSheet.center, { paddingHorizontal: 20, width: '35%' }]}>
                                             <Text style={[FONTS.h3, FONTS.fontSemiBold, { color: colors.gray100 }]}>{data.price}</Text>
-                                            {data.type ? 
-                                                <Text numberOfLines={2} style={[FONTS.BodyXS,FONTS.fontRegular, { color: colors.gray70,textAlign:'center' }]}>{data.type}</Text>
+                                            {data.type ?
+                                                <Text numberOfLines={2} style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray70, textAlign: 'center' }]}>{data.type}</Text>
                                                 :
-                                                <Text numberOfLines={2} style={[FONTS.BodyXS,FONTS.fontRegular, { color: colors.gray70,textAlign:'center' }]}>{data.status}</Text>
+                                                <Text numberOfLines={2} style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray70, textAlign: 'center' }]}>{data.status}</Text>
                                             }
                                         </View>
                                     </View>
@@ -723,38 +723,38 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                     </View>
                                 </View>
                             )
-                        }else if(item.name === 'Highlight'){
-                            return(
-                                <View key={index} onLayout={handleLayout(index)}  style={{backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white}}>
-                                    <View style={{paddingHorizontal:20,paddingTop:15}}>
-                                        <Text style={[FONTS.h5,FONTS.fontSemiBold,{color:colors.gray90}]}>Key Highlight</Text>
+                        } else if (item.name === 'Highlight') {
+                            return (
+                                <View key={index} onLayout={handleLayout(index)} style={{ backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white }}>
+                                    <View style={{ paddingHorizontal: 20, paddingTop: 15 }}>
+                                        <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Key Highlight</Text>
                                     </View>
                                     <ScrollView
                                         horizontal
                                         showsHorizontalScrollIndicator={false}
-                                        contentContainerStyle={{marginVertical:15,paddingHorizontal:20}}
+                                        contentContainerStyle={{ marginVertical: 15, paddingHorizontal: 20 }}
                                     >
-                                        <View style={{flexDirection:'row',alignItems:'center',gap:25}}>
-                                            {propertyHighlights.map((data,index) => {
-                                                return(
-                                                    <View key={index} style={{alignItems:'center'}}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 25 }}>
+                                            {propertyHighlights.map((data, index) => {
+                                                return (
+                                                    <View key={index} style={{ alignItems: 'center' }}>
                                                         <View
-                                                            style={[GlobalStyleSheet.headerBtn,{
-                                                                borderRadius:30,
-                                                                borderWidth:1,
-                                                                borderColor:colors.checkBoxborder
+                                                            style={[GlobalStyleSheet.headerBtn, {
+                                                                borderRadius: 30,
+                                                                borderWidth: 1,
+                                                                borderColor: colors.checkBoxborder
                                                             }]}
                                                         >
                                                             <Image
-                                                                style={{height:24,width:24}}
+                                                                style={{ height: 24, width: 24 }}
                                                                 resizeMode='contain'
                                                                 source={data.icon}
-                                                                tintColor={theme.dark ? '#9654F4': COLORS.primary}
+                                                                tintColor={theme.dark ? '#9654F4' : COLORS.primary}
                                                             />
                                                         </View>
-                                                        <View style={{marginTop:5,alignItems:'center'}}>
-                                                            <Text numberOfLines={1} style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray70,textAlign:'center'}]}>{data.title}</Text>
-                                                            <Text numberOfLines={1} style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray70,textAlign:'center'}]}>{data.subtitle}</Text>
+                                                        <View style={{ marginTop: 5, alignItems: 'center' }}>
+                                                            <Text numberOfLines={1} style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray70, textAlign: 'center' }]}>{data.title}</Text>
+                                                            <Text numberOfLines={1} style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray70, textAlign: 'center' }]}>{data.subtitle}</Text>
                                                         </View>
                                                     </View>
                                                 )
@@ -763,11 +763,11 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                     </ScrollView>
                                 </View>
                             )
-                        }else if(item.name === 'Details'){
-                            return(
-                                <View key={index} onLayout={handleLayout(index)}  style={{padding:20}}>
-                                    <Text style={[FONTS.h5,FONTS.fontSemiBold,{color:colors.gray90}]}>Key Highlight</Text>
-                                    <View style={{marginTop:5}}>
+                        } else if (item.name === 'Details') {
+                            return (
+                                <View key={index} onLayout={handleLayout(index)} style={{ padding: 20 }}>
+                                    <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Key Highlight</Text>
+                                    <View style={{ marginTop: 5 }}>
                                         {propertyDetails.map((item, index) => (
                                             <View
                                                 key={index}
@@ -782,7 +782,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                         FONTS.h4,
                                                         FONTS.fontRegular,
                                                         {
-                                                            fontSize:13,
+                                                            fontSize: 13,
                                                             color: colors.gray60,
                                                             width: '50%', // ensures alignment
                                                         },
@@ -796,10 +796,10 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                     style={[
                                                         FONTS.h4,
                                                         FONTS.fontRegular,
-                                                        { 
-                                                            flex: 1, 
-                                                            fontSize:13,
-                                                            color: colors.gray90 
+                                                        {
+                                                            flex: 1,
+                                                            fontSize: 13,
+                                                            color: colors.gray90
                                                         },
                                                     ]}
                                                 >
@@ -810,44 +810,44 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                     </View>
                                 </View>
                             )
-                        }else if(item.name === 'Media'){
-                            return(
-                                <View key={index} onLayout={handleLayout(index)}  style={{marginBottom:15}}>
-                                    <View style={{paddingHorizontal:20}}>
-                                        <Text style={[FONTS.h5,FONTS.fontSemiBold,{color:colors.gray90}]}>Photos</Text>
+                        } else if (item.name === 'Media') {
+                            return (
+                                <View key={index} onLayout={handleLayout(index)} style={{ marginBottom: 15 }}>
+                                    <View style={{ paddingHorizontal: 20 }}>
+                                        <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Photos</Text>
                                     </View>
-                                    <View style={{padding:5}}>
+                                    <View style={{ padding: 5 }}>
                                         <TouchableOpacity
                                             onPress={() => navigation.navigate('Galary')}
                                             activeOpacity={0.8}
                                             style={{
                                                 flexDirection: "row",
-                                                alignItems:'center',
-                                                gap:3,
+                                                alignItems: 'center',
+                                                gap: 3,
                                                 width: "100%",
                                                 aspectRatio: 1 / 0.55,
                                                 borderRadius: 6,
                                             }}
                                         >
-                                            <View style={{width:'50%',borderRadius:6}}>
+                                            <View style={{ width: '50%', borderRadius: 6 }}>
                                                 <Image
                                                     source={IMAGES.projectpic2}
-                                                    style={{ width: "100%", height: "100%",borderRadius:6 }}
+                                                    style={{ width: "100%", height: "100%", borderRadius: 6 }}
                                                     resizeMode="cover"
                                                 />
                                             </View>
-                                            <View style={{width:'50%',gap:3}}>
-                                                <View style={{height:'49%',borderRadius:6}}>
+                                            <View style={{ width: '50%', gap: 3 }}>
+                                                <View style={{ height: '49%', borderRadius: 6 }}>
                                                     <Image
                                                         source={IMAGES.projectpic1}
-                                                        style={{ width: "100%", height: "100%",borderRadius:6 }}
+                                                        style={{ width: "100%", height: "100%", borderRadius: 6 }}
                                                         resizeMode="cover"
                                                     />
                                                 </View>
-                                                <View style={{height:'50%',borderRadius:6}}>
+                                                <View style={{ height: '50%', borderRadius: 6 }}>
                                                     <Image
                                                         source={IMAGES.projectpic3}
-                                                        style={{ width: "100%", height: "100%",borderRadius:6 }}
+                                                        style={{ width: "100%", height: "100%", borderRadius: 6 }}
                                                         resizeMode="cover"
                                                     />
                                                 </View>
@@ -856,49 +856,49 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                     </View>
                                 </View>
                             )
-                        }else if(item.name === 'Seller'){
-                            return(
-                                <View key={index} onLayout={handleLayout(index)}  style={{paddingHorizontal:20,marginBottom:30}}>
-                                    <View style={{marginBottom:20}}>
-                                        <Text style={[FONTS.h5,FONTS.fontSemiBold,{color:colors.gray90}]}>Contact Owner</Text>
-                                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60}]}>Get a callback and resolve your queries</Text>
+                        } else if (item.name === 'Seller') {
+                            return (
+                                <View key={index} onLayout={handleLayout(index)} style={{ paddingHorizontal: 20, marginBottom: 30 }}>
+                                    <View style={{ marginBottom: 20 }}>
+                                        <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Contact Owner</Text>
+                                        <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray60 }]}>Get a callback and resolve your queries</Text>
                                     </View>
-                                    <View style={{flexDirection:'row',alignItems:'center',gap:15}}>
-                                        <View style={{alignItems:'center',marginBottom:10}}> 
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+                                        <View style={{ alignItems: 'center', marginBottom: 10 }}>
                                             <View
-                                                style={[GlobalStyleSheet.center,{
-                                                    height:50,
-                                                    width:50,
-                                                    borderRadius:50,
-                                                    backgroundColor:theme.dark ? '#3C0C81': '#E0CAFF'
+                                                style={[GlobalStyleSheet.center, {
+                                                    height: 50,
+                                                    width: 50,
+                                                    borderRadius: 50,
+                                                    backgroundColor: theme.dark ? '#3C0C81' : '#E0CAFF'
                                                 }]}
                                             >
                                                 <Image
-                                                    style={{height:30,width:30}}
+                                                    style={{ height: 30, width: 30 }}
                                                     resizeMode='contain'
-                                                    tintColor={theme.dark ? '#6B2DC5': '#B581FF'}
+                                                    tintColor={theme.dark ? '#6B2DC5' : '#B581FF'}
                                                     source={IMAGES.user2}
                                                 />
                                             </View>
                                             <View
                                                 style={{
-                                                    paddingHorizontal:5,
-                                                    paddingVertical:2,
-                                                    borderRadius:20,
-                                                    backgroundColor:theme.dark ? '#E0CAFF': '#3C0C81',
-                                                    position:'absolute',
-                                                    bottom:-5
+                                                    paddingHorizontal: 5,
+                                                    paddingVertical: 2,
+                                                    borderRadius: 20,
+                                                    backgroundColor: theme.dark ? '#E0CAFF' : '#3C0C81',
+                                                    position: 'absolute',
+                                                    bottom: -5
                                                 }}
                                             >
-                                                <Text style={[FONTS.BodyXS,FONTS.fontBold,{color:theme.dark ? COLORS.darkwhite : COLORS.white,lineHeight:15}]}>Owner</Text>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontBold, { color: theme.dark ? COLORS.darkwhite : COLORS.white, lineHeight: 15 }]}>Owner</Text>
                                             </View>
                                         </View>
                                         <View>
-                                            <Text style={[FONTS.h6,FONTS.fontSemiBold,{color:colors.gray90}]}>Ethan Walker</Text>
-                                            <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60}]}>+01 90XXXXXX12</Text>
+                                            <Text style={[FONTS.h6, FONTS.fontSemiBold, { color: colors.gray90 }]}>Ethan Walker</Text>
+                                            <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray60 }]}>+01 90XXXXXX12</Text>
                                         </View>
                                     </View>
-                                    <View style={{marginBottom:15}}>
+                                    <View style={{ marginBottom: 15 }}>
                                         <CustomInput
                                             placeholder={'Name'}
                                             value={'Daniel Brooks'}
@@ -908,12 +908,12 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                             value={'+01 123 456 7890'}
                                         />
                                     </View>
-                                    <View style={{marginBottom:15}}>
-                                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray90}]}>Are you Real Estate Agent</Text>
-                                        <View style={{flexDirection:'row',alignItems:'center',gap:7,marginTop:10}}>
+                                    <View style={{ marginBottom: 15 }}>
+                                        <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray90 }]}>Are you Real Estate Agent</Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10 }}>
                                             <TouchableOpacity
                                                 onPress={() => setSelected("yes")}
-                                                style={[GlobalStyleSheet.center,{
+                                                style={[GlobalStyleSheet.center, {
                                                     paddingHorizontal: 29.5,
                                                     paddingVertical: 8,
                                                     borderRadius: 10,
@@ -922,11 +922,11 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                     backgroundColor: selected === "yes" ? colors.gray20 : theme.dark ? COLORS.darkwhite : COLORS.white,
                                                 }]}
                                             >
-                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray90}]}>Yes</Text>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray90 }]}>Yes</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity
                                                 onPress={() => setSelected("no")}
-                                                style={[GlobalStyleSheet.center,{
+                                                style={[GlobalStyleSheet.center, {
                                                     paddingHorizontal: 29.5,
                                                     paddingVertical: 8,
                                                     borderRadius: 10,
@@ -935,7 +935,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                     backgroundColor: selected === "no" ? colors.gray20 : theme.dark ? COLORS.darkwhite : COLORS.white,
                                                 }]}
                                             >
-                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray90}]}>No</Text>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray90 }]}>No</Text>
                                             </TouchableOpacity>
                                         </View>
                                     </View>
@@ -947,24 +947,24 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                     />
                                 </View>
                             )
-                        }else if(item.name === 'Location'){
-                            return(
-                                <View key={index} onLayout={handleLayout(index)}  style={{marginBottom:20}}>
-                                    <View style={{paddingHorizontal:20,paddingRight:50,marginBottom:10}}>
-                                        <View style={{marginBottom:10}}>
-                                            <Text style={[FONTS.h5,FONTS.fontSemiBold,{color:colors.gray90}]}>About Property</Text>
-                                            <Text numberOfLines={1} style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray90}]}>Location: <Text style={{color:colors.gray60}}>South Shore, Chicago, IL</Text></Text>
+                        } else if (item.name === 'Location') {
+                            return (
+                                <View key={index} onLayout={handleLayout(index)} style={{ marginBottom: 20 }}>
+                                    <View style={{ paddingHorizontal: 20, paddingRight: 50, marginBottom: 10 }}>
+                                        <View style={{ marginBottom: 10 }}>
+                                            <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>About Property</Text>
+                                            <Text numberOfLines={1} style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray90 }]}>Location: <Text style={{ color: colors.gray60 }}>South Shore, Chicago, IL</Text></Text>
                                         </View>
-                                        <Text numberOfLines={2} style={[FONTS.BodyS,FONTS.fontMedium,{color:colors.gray70}]}>Spacious 3 BHK apartment with balcony, modular kitchen, and parking. Ideal for families.</Text>
+                                        <Text numberOfLines={2} style={[FONTS.BodyS, FONTS.fontMedium, { color: colors.gray70 }]}>Spacious 3 BHK apartment with balcony, modular kitchen, and parking. Ideal for families.</Text>
                                     </View>
-                                    <View style={{padding:5}}>
+                                    <View style={{ padding: 5 }}>
                                         <View
                                             style={[GlobalStyleSheet.center, {
                                                 width: '100%',
                                                 aspectRatio: 1 / 0.49,
                                                 borderRadius: 10,
                                                 overflow: 'hidden',
-                                                backgroundColor:colors.background
+                                                backgroundColor: colors.background
                                             }]}
                                         >
                                             <MapView
@@ -993,57 +993,57 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                         </View>
                                         <View
                                             style={{
-                                                paddingHorizontal:15,
-                                                paddingVertical:10,
-                                                borderRadius:20,
-                                                backgroundColor:COLORS.primary,
-                                                flexDirection:'row',
-                                                alignItems:'center',
-                                                gap:5,
-                                                position:'absolute',
-                                                bottom:15,
-                                                right:15
+                                                paddingHorizontal: 15,
+                                                paddingVertical: 10,
+                                                borderRadius: 20,
+                                                backgroundColor: COLORS.primary,
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                gap: 5,
+                                                position: 'absolute',
+                                                bottom: 15,
+                                                right: 15
                                             }}
                                         >
                                             <Image
                                                 style={{
-                                                    height:14,
-                                                    width:14
+                                                    height: 14,
+                                                    width: 14
                                                 }}
                                                 source={IMAGES.locationtrack}
                                             />
-                                            <Text style={[FONTS.BodyXS,FONTS.fontSemiBold,{color:COLORS.white}]}>Direction</Text>
+                                            <Text style={[FONTS.BodyXS, FONTS.fontSemiBold, { color: COLORS.white }]}>Direction</Text>
                                         </View>
                                     </View>
                                 </View>
                             )
-                        }else if(item.name === 'Explore'){
-                            return(
+                        } else if (item.name === 'Explore') {
+                            return (
                                 <View key={index} onLayout={handleLayout(index)} >
-                                    <View style={{paddingHorizontal:20,marginBottom:10}}>
+                                    <View style={{ paddingHorizontal: 20, marginBottom: 10 }}>
                                         <View style={[GlobalStyleSheet.flexcenter]}>
-                                            <Text style={[FONTS.h5,FONTS.fontSemiBold,{color:colors.gray90}]}>Locality Reviews</Text>
-                                            <TouchableOpacity 
-                                                style={[GlobalStyleSheet.flexcenter,{gap:2}]}
+                                            <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Locality Reviews</Text>
+                                            <TouchableOpacity
+                                                style={[GlobalStyleSheet.flexcenter, { gap: 2 }]}
                                                 activeOpacity={0.8}
                                                 onPress={() => navigation.navigate('Write_Review')}
                                             >
-                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9F5DFF': COLORS.primary}]}>View All</Text>
-                                                <FeatherIcon name='chevron-right' size={14} color={theme.dark ? '#9F5DFF': COLORS.primary}/>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: theme.dark ? '#9F5DFF' : COLORS.primary }]}>View All</Text>
+                                                <FeatherIcon name='chevron-right' size={14} color={theme.dark ? '#9F5DFF' : COLORS.primary} />
                                             </TouchableOpacity>
                                         </View>
-                                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60}]}>Get a callback and resolve your queries</Text>
+                                        <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray60 }]}>Get a callback and resolve your queries</Text>
                                     </View>
                                     <View
                                         style={{
-                                            backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white,
-                                            borderRadius:10,
-                                            marginHorizontal:5,
-                                            padding:12,
-                                            paddingVertical:20,
-                                            paddingRight:15,
-                                            flexDirection:'row',
-                                            alignItems:'center',
+                                            backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
+                                            borderRadius: 10,
+                                            marginHorizontal: 5,
+                                            padding: 12,
+                                            paddingVertical: 20,
+                                            paddingRight: 15,
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
                                             elevation: 4,
                                             shadowColor: 'rgba(0,0,0,0.5)',
                                             shadowOffset: {
@@ -1052,71 +1052,71 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                             },
                                             shadowOpacity: .10,
                                             shadowRadius: 30,
-                                            marginBottom:20
+                                            marginBottom: 20
                                         }}
                                     >
-                                        <View 
-                                            style={[GlobalStyleSheet.center,{
-                                                width:'40%',
+                                        <View
+                                            style={[GlobalStyleSheet.center, {
+                                                width: '40%',
                                             }]}
                                         >
-                                            <Text style={[FONTS.h1,FONTS.fontMedium,{color:colors.gray90}]}>4.5<Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60}]}>/5</Text></Text>
-                                            <View style={{marginVertical:10}}>
+                                            <Text style={[FONTS.h1, FONTS.fontMedium, { color: colors.gray90 }]}>4.5<Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray60 }]}>/5</Text></Text>
+                                            <View style={{ marginVertical: 10 }}>
                                                 <Image
-                                                    style={{width:120,height:24}}
+                                                    style={{ width: 120, height: 24 }}
                                                     resizeMode='contain'
                                                     source={IMAGES.reviewrating}
                                                 />
                                             </View>
-                                            <View style={{alignItems:'center'}}>
-                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray70}]}>Average Rating</Text>
-                                                <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray40,textAlign:'center'}]}>(135 Total Review)</Text>
+                                            <View style={{ alignItems: 'center' }}>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray70 }]}>Average Rating</Text>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray40, textAlign: 'center' }]}>(135 Total Review)</Text>
                                             </View>
                                         </View>
                                         <View
                                             style={{
-                                                width:'60%',
-                                                alignItems:'center',
+                                                width: '60%',
+                                                alignItems: 'center',
                                             }}
                                         >
-                                            {ReviewData.map((data,index) => {
-                                                return(
+                                            {ReviewData.map((data, index) => {
+                                                return (
                                                     <View
                                                         key={index}
                                                         style={{
-                                                            flexDirection:'row',
-                                                            alignItems:'center',
-                                                            gap:10,
-                                                            marginBottom:10
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                            gap: 10,
+                                                            marginBottom: 10
                                                         }}
                                                     >
                                                         <View
                                                             style={{
-                                                                height:8,
-                                                                borderRadius:2,
-                                                                flex:1,
-                                                                backgroundColor:colors.checkBoxborder,
-                                                                alignItems:'center',
-                                                                justifyContent:'center',
-                                                                overflow:'hidden'
+                                                                height: 8,
+                                                                borderRadius: 2,
+                                                                flex: 1,
+                                                                backgroundColor: colors.checkBoxborder,
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                overflow: 'hidden'
                                                             }}
                                                         >
                                                             <View
                                                                 style={{
-                                                                    width:'100%',
-                                                                    height:8,
-                                                                    borderRadius:2,
-                                                                    marginRight:data.ratingwitdh,
-                                                                    backgroundColor:COLORS.primary,
+                                                                    width: '100%',
+                                                                    height: 8,
+                                                                    borderRadius: 2,
+                                                                    marginRight: data.ratingwitdh,
+                                                                    backgroundColor: COLORS.primary,
                                                                 }}
                                                             />
                                                         </View>
-                                                        <View style={{flexDirection:'row',alignItems:'center'}}>
-                                                            <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray60}]}>{data.title}</Text>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray60 }]}>{data.title}</Text>
                                                             <Image
-                                                                style={{height:12,width:21}}
+                                                                style={{ height: 12, width: 21 }}
                                                                 resizeMode='contain'
-                                                                tintColor={data.title === '1' ? '#E2E4ED': colors.gray70}
+                                                                tintColor={data.title === '1' ? '#E2E4ED' : colors.gray70}
                                                                 source={IMAGES.star6}
                                                             />
                                                         </View>
@@ -1125,71 +1125,71 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                             })}
                                         </View>
                                     </View>
-                                    <View style={{paddingHorizontal:20,marginBottom:15}}>
-                                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Willing to rent out to</Text>
-                                        <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:7,paddingVertical:10}}>
+                                    <View style={{ paddingHorizontal: 20, marginBottom: 15 }}>
+                                        <Text style={[FONTS.BodyS, FONTS.fontSemiBold, { color: colors.gray90 }]}>Willing to rent out to</Text>
+                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 7, paddingVertical: 10 }}>
                                             {positivestabs.map((data, index) => {
-                                                return(
+                                                return (
                                                     <View
                                                         key={index}
-                                                        style={[GlobalStyleSheet.center,{
-                                                                paddingHorizontal: 10,
-                                                                paddingVertical: 6.5,
-                                                                borderRadius: 16,
-                                                                backgroundColor: colors.checkBoxborder,
-                                                            }
+                                                        style={[GlobalStyleSheet.center, {
+                                                            paddingHorizontal: 10,
+                                                            paddingVertical: 6.5,
+                                                            borderRadius: 16,
+                                                            backgroundColor: colors.checkBoxborder,
+                                                        }
                                                         ]}
                                                     >
-                                                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray100}]}>{data}</Text>
+                                                        <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray100 }]}>{data}</Text>
                                                     </View>
                                                 )
                                             })}
                                         </View>
                                     </View>
-                                    <View style={{paddingHorizontal:20,marginBottom:20}}>
-                                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>What are the negatives</Text>
-                                        <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:7,paddingVertical:10}}>
+                                    <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                                        <Text style={[FONTS.BodyS, FONTS.fontSemiBold, { color: colors.gray90 }]}>What are the negatives</Text>
+                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 7, paddingVertical: 10 }}>
                                             {negativestabs.map((data, index) => {
-                                                return(
+                                                return (
                                                     <View
                                                         key={index}
-                                                        style={[GlobalStyleSheet.center,{
-                                                                paddingHorizontal: 10,
-                                                                paddingVertical: 6.5,
-                                                                borderRadius: 16,
-                                                                backgroundColor: colors.checkBoxborder,
-                                                            }
+                                                        style={[GlobalStyleSheet.center, {
+                                                            paddingHorizontal: 10,
+                                                            paddingVertical: 6.5,
+                                                            borderRadius: 16,
+                                                            backgroundColor: colors.checkBoxborder,
+                                                        }
                                                         ]}
                                                     >
-                                                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray100}]}>{data}</Text>
+                                                        <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray100 }]}>{data}</Text>
                                                     </View>
                                                 )
                                             })}
                                         </View>
                                     </View>
-                                    <View style={{marginBottom:30}}>
-                                        <View style={[GlobalStyleSheet.flexcenter,{paddingHorizontal:20,marginBottom:10}]}>
-                                            <Text style={[FONTS.h5,FONTS.fontSemiBold,{color:colors.gray90}]}>Reviews by Residents</Text>
-                                            <TouchableOpacity style={[GlobalStyleSheet.flexcenter,{gap:2}]}>
-                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9F5DFF': COLORS.primary}]}>View All</Text>
-                                                <FeatherIcon name='chevron-right' size={14} color={theme.dark ? '#9F5DFF': COLORS.primary}/>
+                                    <View style={{ marginBottom: 30 }}>
+                                        <View style={[GlobalStyleSheet.flexcenter, { paddingHorizontal: 20, marginBottom: 10 }]}>
+                                            <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Reviews by Residents</Text>
+                                            <TouchableOpacity style={[GlobalStyleSheet.flexcenter, { gap: 2 }]}>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: theme.dark ? '#9F5DFF' : COLORS.primary }]}>View All</Text>
+                                                <FeatherIcon name='chevron-right' size={14} color={theme.dark ? '#9F5DFF' : COLORS.primary} />
                                             </TouchableOpacity>
                                         </View>
                                         <ScrollView
                                             horizontal
                                             showsHorizontalScrollIndicator={false}
-                                            contentContainerStyle={{paddingHorizontal:20,paddingBottom:20}}
+                                            contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
                                         >
-                                            <View style={{flexDirection:'row',alignItems:'center',gap:10}}>
-                                                {reviews.map((data,index) => {
-                                                    return(
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                                                {reviews.map((data, index) => {
+                                                    return (
                                                         <View
                                                             key={index}
                                                             style={{
-                                                                width:300,
-                                                                backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white,
-                                                                padding:5,
-                                                                borderRadius:10,
+                                                                width: 300,
+                                                                backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
+                                                                padding: 5,
+                                                                borderRadius: 10,
                                                                 elevation: 4,
                                                                 shadowColor: 'rgba(0,0,0,0.5)',
                                                                 shadowOffset: {
@@ -1200,124 +1200,124 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                                 shadowRadius: 30,
                                                             }}
                                                         >
-                                                            <View style={[GlobalStyleSheet.flexcenter,{padding:10,paddingBottom:15,gap:10}]}>
+                                                            <View style={[GlobalStyleSheet.flexcenter, { padding: 10, paddingBottom: 15, gap: 10 }]}>
                                                                 <View
                                                                     style={{
-                                                                        padding:4,
-                                                                        backgroundColor:data.colors.rating,
-                                                                        borderRadius:4,
-                                                                        flexDirection:'row',
-                                                                        alignItems:'center',
-                                                                        gap:4
+                                                                        padding: 4,
+                                                                        backgroundColor: data.colors.rating,
+                                                                        borderRadius: 4,
+                                                                        flexDirection: 'row',
+                                                                        alignItems: 'center',
+                                                                        gap: 4
                                                                     }}
                                                                 >
                                                                     <Image
-                                                                        style={{height:11,width:11}}
+                                                                        style={{ height: 11, width: 11 }}
                                                                         resizeMode='contain'
                                                                         source={IMAGES.star6}
                                                                         tintColor={theme.dark ? COLORS.darkwhite : COLORS.white}
                                                                     />
-                                                                    <Text style={[FONTS.BodyXS,FONTS.fontSemiBold,{color:theme.dark ? COLORS.darkwhite : COLORS.white}]}>{data.rating}</Text>
+                                                                    <Text style={[FONTS.BodyXS, FONTS.fontSemiBold, { color: theme.dark ? COLORS.darkwhite : COLORS.white }]}>{data.rating}</Text>
                                                                 </View>
-                                                                <Text style={[FONTS.BodyXS,FONTS.fontSemiBold,{color:colors.gray90,flex:1}]}>{data.category}</Text>
+                                                                <Text style={[FONTS.BodyXS, FONTS.fontSemiBold, { color: colors.gray90, flex: 1 }]}>{data.category}</Text>
                                                             </View>
                                                             <View
                                                                 style={{
-                                                                    padding:10,
-                                                                    borderRadius:6,
-                                                                    backgroundColor:theme.dark ? '#0B3C0D': data.colors.positiveBg,
-                                                                    marginBottom:6
+                                                                    padding: 10,
+                                                                    borderRadius: 6,
+                                                                    backgroundColor: theme.dark ? '#0B3C0D' : data.colors.positiveBg,
+                                                                    marginBottom: 6
                                                                 }}
                                                             >
-                                                                <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray80,marginBottom:10}]}>POSITIVES</Text>
-                                                                <Text numberOfLines={7} style={[FONTS.BodyXS,FONTS.fontRegular,{color:theme.dark ? '#F3FFF3': COLORS.success}]}>{data.positive}{" "}</Text>
+                                                                <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray80, marginBottom: 10 }]}>POSITIVES</Text>
+                                                                <Text numberOfLines={7} style={[FONTS.BodyXS, FONTS.fontRegular, { color: theme.dark ? '#F3FFF3' : COLORS.success }]}>{data.positive}{" "}</Text>
                                                                 <TouchableOpacity
                                                                     activeOpacity={0.5}
                                                                     style={{
-                                                                        position:'absolute',
-                                                                        bottom:10,
-                                                                        right:10
+                                                                        position: 'absolute',
+                                                                        bottom: 10,
+                                                                        right: 10
                                                                     }}
                                                                 >
-                                                                    <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9654F4': COLORS.primary,textDecorationLine:'underline',textDecorationColor:theme.dark ? '#9654F4': COLORS.primary}]}>show more</Text>
+                                                                    <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: theme.dark ? '#9654F4' : COLORS.primary, textDecorationLine: 'underline', textDecorationColor: theme.dark ? '#9654F4' : COLORS.primary }]}>show more</Text>
                                                                 </TouchableOpacity>
                                                             </View>
                                                             <View
                                                                 style={{
-                                                                    padding:10,
-                                                                    borderRadius:6,
-                                                                    backgroundColor:theme.dark ? '#480000' : data.colors.negativeBg
+                                                                    padding: 10,
+                                                                    borderRadius: 6,
+                                                                    backgroundColor: theme.dark ? '#480000' : data.colors.negativeBg
                                                                 }}
                                                             >
-                                                                <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray80,marginBottom:10}]}>NEGATIVES</Text>
-                                                                <Text numberOfLines={7} style={[FONTS.BodyXS,FONTS.fontRegular,{color:theme.dark ? '#FFEBEE':'#52000B'}]}>{data.negative}{" "}</Text>
+                                                                <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray80, marginBottom: 10 }]}>NEGATIVES</Text>
+                                                                <Text numberOfLines={7} style={[FONTS.BodyXS, FONTS.fontRegular, { color: theme.dark ? '#FFEBEE' : '#52000B' }]}>{data.negative}{" "}</Text>
                                                                 <TouchableOpacity
                                                                     activeOpacity={0.5}
                                                                     style={{
-                                                                        position:'absolute',
-                                                                        bottom:10,
-                                                                        right:10
+                                                                        position: 'absolute',
+                                                                        bottom: 10,
+                                                                        right: 10
                                                                     }}
                                                                 >
-                                                                    <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9654F4': COLORS.primary,textDecorationLine:'underline'}]}>show more</Text>
+                                                                    <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: theme.dark ? '#9654F4' : COLORS.primary, textDecorationLine: 'underline' }]}>show more</Text>
                                                                 </TouchableOpacity>
                                                             </View>
-                                                            <View style={[GlobalStyleSheet.flexcenter,{padding:10,paddingHorizontal:15}]}>
+                                                            <View style={[GlobalStyleSheet.flexcenter, { padding: 10, paddingHorizontal: 15 }]}>
                                                                 <View
-                                                                    style={[GlobalStyleSheet.center,{
-                                                                        height:35,
-                                                                        width:35,
-                                                                        borderRadius:30,
-                                                                        backgroundColor:theme.dark ? '#290B56': '#F5EFFF'
+                                                                    style={[GlobalStyleSheet.center, {
+                                                                        height: 35,
+                                                                        width: 35,
+                                                                        borderRadius: 30,
+                                                                        backgroundColor: theme.dark ? '#290B56' : '#F5EFFF'
                                                                     }]}
                                                                 >
                                                                     <Image
-                                                                        style={{height:16,width:16}}
+                                                                        style={{ height: 16, width: 16 }}
                                                                         resizeMode='contain'
                                                                         tintColor={COLORS.primary}
                                                                         source={data.user.avatar}
                                                                     />
                                                                 </View>
-                                                                <View style={{flex:1,marginLeft:10}}>
-                                                                    <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>{data.user.name}</Text>
-                                                                    <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60}]}>{data.user.role}</Text>
+                                                                <View style={{ flex: 1, marginLeft: 10 }}>
+                                                                    <Text style={[FONTS.BodyS, FONTS.fontSemiBold, { color: colors.gray90 }]}>{data.user.name}</Text>
+                                                                    <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray60 }]}>{data.user.role}</Text>
                                                                 </View>
-                                                                <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray40}]}>{data.user.timeAgo}</Text>
+                                                                <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray40 }]}>{data.user.timeAgo}</Text>
                                                             </View>
                                                         </View>
                                                     )
                                                 })}
                                             </View>
                                         </ScrollView>
-                                        <View style={{paddingHorizontal:20}}>
+                                        <View style={{ paddingHorizontal: 20 }}>
                                             <Button
                                                 title='Review your Society'
                                                 btnRounded
-                                                color={theme.dark ? '#3C0C81': '#E0CAFF'}
-                                                text={theme.dark ? '#E0CAFF' :'#3C0C81'}
+                                                color={theme.dark ? '#3C0C81' : '#E0CAFF'}
+                                                text={theme.dark ? '#E0CAFF' : '#3C0C81'}
                                                 onPress={() => navigation.navigate('Write_Review')}
                                             />
                                         </View>
                                     </View>
                                     <View>
-                                        <View style={[GlobalStyleSheet.flexcenter,{paddingHorizontal:20,marginBottom:10}]}>
-                                            <Text style={[FONTS.h5,FONTS.fontSemiBold,{color:colors.gray90}]}>Reviews by Residents</Text>
-                                            <TouchableOpacity style={[GlobalStyleSheet.flexcenter,{gap:2}]}>
-                                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9F5DFF': COLORS.primary}]}>View All</Text>
-                                                <FeatherIcon name='chevron-right' size={14} color={theme.dark ? '#9F5DFF': COLORS.primary}/>
+                                        <View style={[GlobalStyleSheet.flexcenter, { paddingHorizontal: 20, marginBottom: 10 }]}>
+                                            <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray90 }]}>Reviews by Residents</Text>
+                                            <TouchableOpacity style={[GlobalStyleSheet.flexcenter, { gap: 2 }]}>
+                                                <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: theme.dark ? '#9F5DFF' : COLORS.primary }]}>View All</Text>
+                                                <FeatherIcon name='chevron-right' size={14} color={theme.dark ? '#9F5DFF' : COLORS.primary} />
                                             </TouchableOpacity>
                                         </View>
                                         <ScrollView
                                             horizontal
                                             showsHorizontalScrollIndicator={false}
-                                            contentContainerStyle={{paddingHorizontal:15}}
+                                            contentContainerStyle={{ paddingHorizontal: 15 }}
                                         >
-                                            <View style={{flexDirection:'row',alignItems:'center',gap:10}}>
-                                                {propertyData.map((item, index) =>{
-                                                    return(
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                                                {propertyData.map((item, index) => {
+                                                    return (
                                                         <View
                                                             key={index}
-                                                            style={{width:350}}
+                                                            style={{ width: 350 }}
                                                         >
                                                             <PropertyCard
                                                                 id={item.id}
@@ -1331,8 +1331,8 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                                 tags={item.tags}
                                                                 userName={item.userName}
                                                                 userPic={item.userPic}
-                                                                onPress={() => navigation.navigate('SingleChat',{data : item })}
-                                                                PropertyDetailsonPress={() => navigation.navigate('Property_Details',{data : item })}
+                                                                onPress={() => navigation.navigate('SingleChat', { data: item })}
+                                                                PropertyDetailsonPress={() => navigation.navigate('Property_Details', { data: item })}
                                                                 SavePropertyonPress={() => addItemTosaveProperty(item)}
                                                             />
                                                         </View>
@@ -1347,28 +1347,28 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                     })}
                 </View>
             </ScrollView>
-            <View 
-                style={[GlobalStyleSheet.container,{padding:0}]}
-            >   
-                {data.progress ? 
+            <View
+                style={[GlobalStyleSheet.container, { padding: 0 }]}
+            >
+                {data.progress ?
                     <View
-                        style={[GlobalStyleSheet.flexcenter,{
+                        style={[GlobalStyleSheet.flexcenter, {
                             shadowColor: '#000',
                             shadowOffset: { width: 0, height: 0 },
                             shadowOpacity: .10,
                             shadowRadius: 30,
-                            backgroundColor:theme.dark ? COLORS.dark: COLORS.white,
-                            height:80,
-                            padding:10,
-                            paddingHorizontal:20,
-                            gap:10,
-                            alignItems:'flex-start'
+                            backgroundColor: theme.dark ? COLORS.dark : COLORS.white,
+                            height: 80,
+                            padding: 10,
+                            paddingHorizontal: 20,
+                            gap: 10,
+                            alignItems: 'flex-start'
                         },
                         Platform.OS === 'ios' && { backgroundColor: colors.card }]}
                     >
-                        <View style={[GlobalStyleSheet.flexcenter,{width:'35%',gap:5}]}>
+                        <View style={[GlobalStyleSheet.flexcenter, { width: '35%', gap: 5 }]}>
                             <Progresscircle progress={data.progress} />
-                            <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60,flex:1}]}>Posting Completion:</Text>
+                            <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray60, flex: 1 }]}>Posting Completion:</Text>
                         </View>
                         <TouchableOpacity
                             activeOpacity={0.8}
@@ -1389,70 +1389,70 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                         <TouchableOpacity
                             onPress={() => navigation.navigate('Edit_Listing')}
                             activeOpacity={0.8}
-                            style={[GlobalStyleSheet.flexcenter,{
-                                flex:1,
-                                padding:8,
-                                borderRadius:8,
-                                backgroundColor:COLORS.primary,
-                                justifyContent:'center',
-                                gap:10
+                            style={[GlobalStyleSheet.flexcenter, {
+                                flex: 1,
+                                padding: 8,
+                                borderRadius: 8,
+                                backgroundColor: COLORS.primary,
+                                justifyContent: 'center',
+                                gap: 10
                             }]}
                         >
                             <Image
-                                style={{height:15,width:15}}
+                                style={{ height: 15, width: 15 }}
                                 source={IMAGES.write}
                                 tintColor={COLORS.white}
                                 resizeMode='contain'
                             />
-                            <Text style={[FONTS.BodyS,FONTS.fontMedium,{color:COLORS.white}]}>Edit Listing</Text>
+                            <Text style={[FONTS.BodyS, FONTS.fontMedium, { color: COLORS.white }]}>Edit Listing</Text>
                         </TouchableOpacity>
                     </View>
-                :
+                    :
                     <View
-                        style={[GlobalStyleSheet.flexcenter,{
+                        style={[GlobalStyleSheet.flexcenter, {
                             shadowColor: '#000',
                             shadowOffset: { width: 0, height: 0 },
                             shadowOpacity: .10,
                             shadowRadius: 30,
-                            backgroundColor:theme.dark ? COLORS.dark: COLORS.white,
-                            height:80,
-                            padding:10,
-                            paddingHorizontal:20,
-                            gap:5,
-                            alignItems:'flex-start'
+                            backgroundColor: theme.dark ? COLORS.dark : COLORS.white,
+                            height: 80,
+                            padding: 10,
+                            paddingHorizontal: 20,
+                            gap: 5,
+                            alignItems: 'flex-start'
                         },
                         Platform.OS === 'ios' && { backgroundColor: colors.card }]}
                     >
                         <TouchableOpacity
                             activeOpacity={0.8}
-                            style={[GlobalStyleSheet.center,{
-                                flex:1,
-                                padding:8,
-                                borderRadius:8,
-                                backgroundColor:colors.checkBoxborder
+                            style={[GlobalStyleSheet.center, {
+                                flex: 1,
+                                padding: 8,
+                                borderRadius: 8,
+                                backgroundColor: colors.checkBoxborder
                             }]}
                             onPress={() => navigation.navigate('ContactOwner')}
                         >
-                            <Text style={[FONTS.BodyS,FONTS.fontMedium,{color:colors.gray90}]}>View Number</Text>
+                            <Text style={[FONTS.BodyS, FONTS.fontMedium, { color: colors.gray90 }]}>View Number</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             activeOpacity={0.8}
-                            style={[GlobalStyleSheet.flexcenter,{
-                                flex:1,
-                                padding:8,
-                                borderRadius:8,
-                                backgroundColor:colors.checkBoxborder,
-                                justifyContent:'center',
-                                gap:10
+                            style={[GlobalStyleSheet.flexcenter, {
+                                flex: 1,
+                                padding: 8,
+                                borderRadius: 8,
+                                backgroundColor: colors.checkBoxborder,
+                                justifyContent: 'center',
+                                gap: 10
                             }]}
-                            onPress={() => navigation.navigate('SingleChat',{data : data })}
+                            onPress={() => navigation.navigate('SingleChat', { data: data })}
                         >
                             <Image
-                                style={{height:15,width:15}}
+                                style={{ height: 15, width: 15 }}
                                 source={IMAGES.Messages2}
                                 resizeMode='contain'
                             />
-                            <Text style={[FONTS.BodyS,FONTS.fontMedium,{color:colors.gray90}]}>Message</Text>
+                            <Text style={[FONTS.BodyS, FONTS.fontMedium, { color: colors.gray90 }]}>Message</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             activeOpacity={0.8}

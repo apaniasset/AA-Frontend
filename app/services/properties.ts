@@ -236,6 +236,29 @@ export interface PropertiesListResponse {
 }
 
 /**
+ * Search/filter payload for POST /properties/list (matches backend applyFilters).
+ */
+export interface PropertyListFilters {
+  search?: string;
+  search_name?: string;
+  type?: 'buy' | 'rent';
+  listing_type?: string;
+  property_main_type?: string;
+  property_segment?: string;
+  property_type_id?: number;
+  city_id?: number;
+  locality_id?: number;
+  bedrooms?: number;
+  min_price?: number;
+  max_price?: number;
+  furnishing_status?: string;
+  possession_status?: string;
+  owner_only?: 0 | 1;
+  per_page?: number;
+  page?: number;
+}
+
+/**
  * Call GET /properties/list to fetch properties (paginated).
  * Uses stored merchant token for Authorization when available.
  */
@@ -249,6 +272,67 @@ export async function getPropertiesList(
   }
   const url = page > 1 ? `${API_ENDPOINTS.PROPERTIES_LIST}?page=${page}` : API_ENDPOINTS.PROPERTIES_LIST;
   return get<PropertiesListResponse>(url, headers);
+}
+
+/**
+ * Call POST /properties/list with search filters (dashboard/search).
+ * Uses stored merchant token when available.
+ */
+export async function searchPropertiesList(
+  filters: PropertyListFilters = {}
+): Promise<ApiResponse<PropertiesListResponse>> {
+  const auth = await loadAuth();
+  const headers: Record<string, string> = {};
+  if (auth?.token) {
+    headers.Authorization = `Bearer ${auth.token}`;
+  }
+  const body: Record<string, string | number> = {};
+  if (filters.search != null && filters.search !== '') body.search = filters.search;
+  if (filters.search_name != null && filters.search_name !== '') body.search_name = filters.search_name;
+  if (filters.type != null) body.type = filters.type;
+  if (filters.listing_type != null) body.listing_type = filters.listing_type;
+  if (filters.property_main_type != null) body.property_main_type = filters.property_main_type;
+  if (filters.property_segment != null) body.property_segment = filters.property_segment;
+  if (filters.property_type_id != null) body.property_type_id = filters.property_type_id;
+  if (filters.city_id != null) body.city_id = filters.city_id;
+  if (filters.locality_id != null) body.locality_id = filters.locality_id;
+  if (filters.bedrooms != null) body.bedrooms = filters.bedrooms;
+  if (filters.min_price != null) body.min_price = filters.min_price;
+  if (filters.max_price != null) body.max_price = filters.max_price;
+  if (filters.furnishing_status != null) body.furnishing_status = filters.furnishing_status;
+  if (filters.possession_status != null) body.possession_status = filters.possession_status;
+  if (filters.owner_only != null) body.owner_only = filters.owner_only;
+  if (filters.per_page != null) body.per_page = filters.per_page;
+  if (filters.page != null) body.page = filters.page;
+  // Backend examples use form-data; using FormData avoids content-type mismatches.
+  const form = new FormData();
+  Object.entries(body).forEach(([key, value]) => {
+    form.append(key, String(value));
+  });
+  return post<PropertiesListResponse>(API_ENDPOINTS.PROPERTIES_LIST, form, headers);
+}
+
+/** Property type from POST /property-type/list */
+export interface PropertyTypeItem {
+  id: number;
+  name: string;
+  is_active?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Call POST /property-type/list to fetch property types (for filters / home chips).
+ */
+export async function getPropertyTypes(
+  body?: { category?: number }
+): Promise<ApiResponse<PropertyTypeItem[]>> {
+  const auth = await loadAuth();
+  const headers: Record<string, string> = {};
+  if (auth?.token) {
+    headers.Authorization = `Bearer ${auth.token}`;
+  }
+  return post<PropertyTypeItem[]>(API_ENDPOINTS.PROPERTY_TYPE_LIST, body ?? {}, headers);
 }
 
 /**

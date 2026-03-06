@@ -159,7 +159,7 @@ const SearchArea = ({navigation ,route } : SearchAreaScreenProps) => {
 
     const [activeTab, setActiveTab] = useState(0);
 
-    const { selectedCities = [] } = route.params ?? {};
+    const { selectedCities = [], propertyTypeId, propertyTypeName } = route.params ?? {};
 
     const [selected, setSelected] = useState<any[]>([]);
 
@@ -600,7 +600,26 @@ const SearchArea = ({navigation ,route } : SearchAreaScreenProps) => {
                         <Button
                           title='Next'
                           btnRounded
-                          onPress={() => navigation.navigate('Search_List')}
+                          onPress={() => {
+                            const search = (route.params as any)?.search;
+                            const type = tabs[activeTab]?.title === 'Rent' ? 'rent' : tabs[activeTab]?.title === 'Buy' ? 'buy' : undefined;
+                            const cityId = selected?.[0] && typeof selected[0] === 'object' && 'id' in selected[0] ? Number((selected[0] as any).id) : undefined;
+                            const firstBhk = Bedrooms?.[0];
+                            const bedrooms = firstBhk && typeof firstBhk === 'object' && 'title' in firstBhk
+                              ? parseInt(String((firstBhk as any).title).replace(/\D/g, ''), 10) || undefined
+                              : undefined;
+                            const furnishing = Furnishing?.[0] && typeof Furnishing[0] === 'object' && 'title' in Furnishing[0] ? (Furnishing[0] as any).title : undefined;
+                            navigation.navigate('Search_List', {
+                              filters: {
+                                ...(search && { search }),
+                                ...(type && { type }),
+                                ...(cityId != null && !isNaN(cityId) && { city_id: cityId }),
+                                ...(bedrooms != null && !isNaN(bedrooms) && { bedrooms }),
+                                ...(furnishing && { furnishing_status: furnishing }),
+                                ...(propertyTypeId != null && propertyTypeId !== 0 && { property_type_id: propertyTypeId }),
+                              },
+                            });
+                          }}
                         />         
                     </View>
                 </View>
