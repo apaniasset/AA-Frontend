@@ -148,8 +148,7 @@ const Search = ({ navigation, route }: SearchScreenProps) => {
                                 right: 3,
                                 top: 3,
                             }
-                            ]}
-                        >
+                            ]}>
                             <FeatherIcon name='mic' size={20} color={theme.dark ? colors.gray60 : COLORS.primary} />
                         </View>
                     </View>
