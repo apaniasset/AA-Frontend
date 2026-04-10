@@ -4,7 +4,6 @@ import { GlobalStyleSheet } from '../../constants/StyleSheet'
 import { COLORS, FONTS } from '../../constants/theme'
 import { IMAGES } from '../../constants/Images'
 import { useNavigation, useTheme } from '@react-navigation/native'
-import FeatherIcon from "react-native-vector-icons/Feather";
 import Likebtn from '../Likebtn'
 import { useDispatch, useSelector } from 'react-redux'
 import { removeFromsaveProperty } from '../../redux/reducer/savePropertyReducer'

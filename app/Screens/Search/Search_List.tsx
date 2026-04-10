@@ -15,6 +15,7 @@ import { useDispatch } from 'react-redux';
 import { addTosaveProperty } from '../../redux/reducer/savePropertyReducer';
 import { searchPropertiesList } from '../../services/properties';
 import type { PropertyListItem, PropertyListFilters } from '../../services/properties';
+import { formatListingPrice } from '../../utils/formatPrice';
 
 const filterBtnData = [
     {
@@ -43,7 +44,7 @@ const filterBtnData = [
 ]
 
 function mapApiItemToCard(item: PropertyListItem) {
-    const price = item.rent_price ? `₹${Number(item.rent_price).toLocaleString()}/mo` : (item.sale_price ? `₹${Number(item.sale_price).toLocaleString()}` : '—');
+    const price = formatListingPrice(item.rent_price, item.sale_price);
     const imgUri = item.images?.[0]?.image_url;
     return {
         id: String(item.id),

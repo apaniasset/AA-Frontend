@@ -178,9 +178,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         right: 0,
-        zIndex: 1,
         top: 0,
-    }
+        zIndex: 10,
+    },
 })
 
 export default CustomInput;

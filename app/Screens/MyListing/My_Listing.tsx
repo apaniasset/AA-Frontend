@@ -11,6 +11,7 @@ import Progresscircle from '../../components/Progresscircle';
 import FilterSheet from '../../components/BottomSheet/FilterSheet';
 import SortSheet from '../../components/BottomSheet/SortSheet';
 import { getUserProperties, PropertyListItem } from '../../services/properties';
+import { formatListingPrice } from '../../utils/formatPrice';
 
 
 type My_ListingScreenProps = StackScreenProps<RootStackParamList, 'My_Listing'>;
@@ -151,7 +152,7 @@ const My_Listing = ({ navigation }: My_ListingScreenProps) => {
                     ) : (
                         propertyList.map((data) => {
                             const listType = data.listing_type === 'Sale' ? 'For Sell' : (data.listing_type || 'Rent');
-                            const price = data.rent_price ? `₹${Number(data.rent_price).toLocaleString()}` : (data.sale_price ? `₹${Number(data.sale_price).toLocaleString()}` : '—');
+                            const price = formatListingPrice(data.rent_price, data.sale_price, false);
                             const priceType = data.listing_type === 'Rent' ? 'Month' : '';
                             const areaText = data.carpet_area ? `${data.carpet_area} Sqft` : (data.area || '');
                             const imgUri = data.images?.[0]?.image_url;

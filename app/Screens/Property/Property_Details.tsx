@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addTosaveProperty, removeFromsaveProperty } from '../../redux/reducer/savePropertyReducer';
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { getPropertyDetails, PropertyDetailData } from '../../services/properties';
+import { formatListingPrice } from '../../utils/formatPrice';
 
 const propertyHighlights = [
     {
@@ -237,6 +238,13 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
     }, [passedData?.id]);
 
     const data = detailData ?? passedData ?? {};
+
+    const headerPrice =
+        (data as { price?: string }).price ??
+        formatListingPrice(
+            (data as PropertyDetailData).rent_price ?? undefined,
+            (data as PropertyDetailData).sale_price ?? undefined,
+        );
 
     const theme = useTheme();
     const { colors }: { colors: any } = theme;
@@ -687,7 +695,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                         <View style={{ width: 1, height: 60, backgroundColor: colors.checkBoxborder }} />
 
                                         <View style={[GlobalStyleSheet.center, { paddingHorizontal: 20, width: '35%' }]}>
-                                            <Text style={[FONTS.h3, FONTS.fontSemiBold, { color: colors.gray100 }]}>{data.price}</Text>
+                                            <Text style={[FONTS.h3, FONTS.fontSemiBold, { color: colors.gray100 }]}>{headerPrice}</Text>
                                             {data.type ?
                                                 <Text numberOfLines={2} style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray70, textAlign: 'center' }]}>{data.type}</Text>
                                                 :

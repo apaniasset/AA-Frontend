@@ -201,7 +201,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         >
-            <RBSheet
+            {/* <RBSheet
                 ref={refRBSheet}
                 height={300}
                 openDuration={300}
@@ -274,7 +274,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                         By moving forward, you allow us to access your profile info and confirm your acceptance of our <Text style={{ color: COLORS.primary }}>Privacy Policy</Text> and <Text style={{ color: COLORS.primary }}>Terms</Text> of use.
                     </Text>
                 </View>
-            </RBSheet>
+            </RBSheet> */}
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ flexGrow: 1 }}

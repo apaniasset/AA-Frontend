@@ -16,6 +16,7 @@ import { addTosaveProperty, removeFromsaveProperty } from '../../redux/reducer/s
 import Likebtn from '../../components/Likebtn';
 import { searchPropertiesList, getPropertyTypes } from '../../services/properties';
 import type { PropertyListItem } from '../../services/properties';
+import { formatListingPrice } from '../../utils/formatPrice';
 
 const PROPERTY_TYPE_ALL = { id: 0, name: 'All Type' };
 const FURNISHING_IMAGES = [IMAGES.projectpic4, IMAGES.projectpic3, IMAGES.projectpic6];
@@ -24,7 +25,7 @@ type FurnishingOption = { id: string; title: string; image: any; furnishing_stat
 type HomeScreenProps = StackScreenProps<RootStackParamList, 'Home'>;
 
 function mapListItemToCard(item: PropertyListItem) {
-    const price = item.rent_price ? `₹${Number(item.rent_price).toLocaleString()}/mo` : (item.sale_price ? `₹${Number(item.sale_price).toLocaleString()}` : '—');
+    const price = formatListingPrice(item.rent_price, item.sale_price);
     const imgUri = item.images?.[0]?.image_url;
     return {
         id: String(item.id),
