@@ -11,6 +11,7 @@ import { CountryPicker } from 'react-native-country-codes-picker';
 import FeatherIcon from "react-native-vector-icons/Feather";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Customotp from '../../components/Input/Customotp';
+import ApaniBrandLogo from '../../components/Brand/ApaniBrandLogo';
 import { merchantSendOtp, merchantVerifyOtp } from '../../services/auth';
 
 type OnbordingScreenProps = StackScreenProps<RootStackParamList, 'Onbording'>;
@@ -225,14 +226,10 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                     }}
                 >
                     <View style={[GlobalStyleSheet.flexcenter, { gap: 10 }]}>
-                        <Image
-                            style={{
-                                width: 41,
-                                height: 36
-                            }}
-                            resizeMode='contain'
-                            source={IMAGES.Profifylogo}
-                            tintColor={theme.dark ? '#9654F4' : COLORS.primary}
+                        <ApaniBrandLogo
+                            variant="card"
+                            style={{ paddingVertical: 8, paddingHorizontal: 10 }}
+                            imageStyle={{ width: 56, height: 34 }}
                         />
                         <View style={{ flex: 1 }}>
                             <Text style={[FONTS.h3, FONTS.fontBold, { color: colors.title }]}>Hi, Ethan Walker</Text>

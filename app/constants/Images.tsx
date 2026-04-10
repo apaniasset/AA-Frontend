@@ -1,8 +1,8 @@
 export const IMAGES = {
 
 	user: require('../assets/images/user.png'),
-	logo: require('../assets/images/logo.png'),
-	Darklogo: require('../assets/images/Darklogo.png'),
+	logo: require('../assets/images/apani-asset-logo.png'),
+	Darklogo: require('../assets/images/apani-asset-logo.png'),
 	SplashShap: require('../assets/images/SplashShap.png'),
 	tabselected: require('../assets/images/tab-selected.png'),
 	Rectangle: require('../assets/images/Rectangle.png'),
@@ -104,7 +104,7 @@ export const IMAGES = {
 	building: require('../assets/images/icons/building.png'),
 	Universitybuilding: require('../assets/images/icons/Universitybuilding.png'),
 	pdf: require('../assets/images/icons/pdf.png'),
-	Profifylogo: require('../assets/images/icons/logo.png'),
+	Profifylogo: require('../assets/images/apani-asset-logo.png'),
 	mapgps: require('../assets/images/icons/mapgps.png'),
 	clock: require('../assets/images/icons/clock.png'),
 	maximize: require('../assets/images/icons/maximize.png'),

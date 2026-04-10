@@ -94,10 +94,20 @@ const CustomInput = (props : any) => {
                     }, 
                     props.inputBorder && {
                         borderWidth: 1.5,
-                        borderColor: isFocused ? COLORS.primary : 'rgba(107,45,197,0.4)',
-                        backgroundColor: colors.card,
+                        borderColor: isFocused
+                            ? COLORS.primary
+                            : props.authChrome
+                              ? '#D1D1D1'
+                              : 'rgba(112,48,216,0.35)',
+                        backgroundColor: props.authChrome
+                            ? theme.dark
+                              ? COLORS.darkwhite
+                              : COLORS.white
+                            : colors.card,
+                        borderRadius: props.authChrome ? 8 : SIZES.radius_sm,
                         paddingLeft: props.lefticon ? 55 : 20,
                         paddingRight:props.type === "password" ? 45 :20,
+                        minHeight: props.authChrome ? 50 : undefined,
                     },props.style && {
                     ...props.style
                     }]}

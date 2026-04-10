@@ -2,20 +2,20 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  Image,
   ScrollView,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import ApaniBrandLogo from '../../../components/Brand/ApaniBrandLogo';
 import { useTheme } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { useDispatch } from 'react-redux';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
 import { COLORS, FONTS } from '../../../constants/theme';
-import { IMAGES } from '../../../constants/Images';
 import CustomInput from '../../../components/Input/CustomInput';
 import { User, Lock } from 'lucide-react-native';
 import {
@@ -39,6 +39,7 @@ interface FormErrors {
 const Login = ({ navigation }: LoginScreenProps) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
   const { colors }: { colors: any } = theme;
   const styles = loginStyles(theme, colors);
 
@@ -141,7 +142,17 @@ const Login = ({ navigation }: LoginScreenProps) => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <View
+        style={[
+          styles.brandHeader,
+          { paddingTop: Math.max(insets.top, 12) },
+        ]}
+      >
+        <ApaniBrandLogo variant="header" />
+      </View>
+      <SafeAreaView style={styles.safeBelowHeader} edges={['bottom']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -154,12 +165,6 @@ const Login = ({ navigation }: LoginScreenProps) => {
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
         >
-        {/* Logo - full screen reference */}
-        <Image
-          source={theme.dark ? IMAGES.Darklogo : IMAGES.logo}
-          style={styles.logo}
-          resizeMode="contain"
-        />
         <View style={styles.cardContainer}>
           {/* Header - Welcome Back style from reference */}
           <View style={styles.headerContainer}>
@@ -206,6 +211,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.userId && (
                 <Text style={styles.errorText}>{errors.userId}</Text>
@@ -228,6 +234,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.password && (
                 <Text style={styles.errorText}>{errors.password}</Text>
@@ -282,7 +289,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
                     FONTS.fontSemiBold,
                     styles.registerLink,
                     {
-                      color: COLORS.danger,
+                      color: COLORS.brandAccent,
                     },
                   ]}
                 >
@@ -293,7 +300,8 @@ const Login = ({ navigation }: LoginScreenProps) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 };
 

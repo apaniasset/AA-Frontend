@@ -3,9 +3,11 @@ const { width, height } = Dimensions.get('screen');
 
 export const COLORS = {
 	
-	primary: "#6B2DC5", 
-	primaryLight: "rgba(107,45,197,0.10)",
-	primary60: "#8744E7",
+	primary: "#7030D8",
+	primaryLight: "rgba(112,48,216,0.10)",
+	primary60: "#8B52E8",
+	/** Register / Login footer accent (reddish orange) */
+	brandAccent: "#C04030",
 	secondary: "#74AA47",
 	success: "#175319",
 	danger: "#D23131",

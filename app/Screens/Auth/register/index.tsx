@@ -1,6 +1,8 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, TextInput, StatusBar } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@react-navigation/native';
+import ApaniBrandLogo from '../../../components/Brand/ApaniBrandLogo';
 import { StackScreenProps } from '@react-navigation/stack';
 import { useDispatch } from 'react-redux';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
@@ -27,6 +29,7 @@ interface FormErrors {
 const Register = ({ navigation, route }: RegisterScreenProps) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
   const { colors }: { colors: any } = theme;
   const styles = registerStyles(theme, colors);
   const emailRef = useRef<TextInput>(null);
@@ -200,17 +203,28 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={50}
-    >
-      <View style={styles.container}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+    <View style={{ flex: 1, backgroundColor: theme.dark ? COLORS.darkCard : COLORS.white }}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <View
+        style={[
+          styles.brandHeader,
+          { paddingTop: Math.max(insets.top, 12) },
+        ]}
+      >
+        <ApaniBrandLogo variant="header" />
+      </View>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={50}
         >
-          <View style={styles.cardContainer}>
+          <View style={styles.container}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              <View style={styles.cardContainer}>
             {/* Header */}
             <View style={styles.headerContainer}>
               <Text
@@ -254,6 +268,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.name && (
                 <Text style={styles.errorText}>{errors.name}</Text>
@@ -277,6 +292,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.email && (
                 <Text style={styles.errorText}>{errors.email}</Text>
@@ -300,6 +316,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.phone && (
                 <Text style={styles.errorText}>{errors.phone}</Text>
@@ -322,6 +339,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.password && (
                 <Text style={styles.errorText}>{errors.password}</Text>
@@ -346,6 +364,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.confirmPassword && (
                 <Text style={styles.errorText}>{errors.confirmPassword}</Text>
@@ -372,6 +391,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.referral_code && (
                 <Text style={styles.errorText}>{errors.referral_code}</Text>
@@ -417,7 +437,7 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
                     FONTS.fontSemiBold,
                     styles.loginLink,
                     {
-                      color: COLORS.danger,
+                      color: COLORS.brandAccent,
                     },
                   ]}
                 >
@@ -425,10 +445,12 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
                 </Text>
               </TouchableOpacity>
             </View>
+              </View>
+            </ScrollView>
           </View>
-        </ScrollView>
-      </View>
-    </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 };
 
