@@ -46,13 +46,11 @@ const Login = ({ navigation }: LoginScreenProps) => {
   const [loader, setLoader] = useState(false);
 
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
-    // Update form data immediately
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
 
-    // Clear error for this field when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -145,11 +143,13 @@ const Login = ({ navigation }: LoginScreenProps) => {
           keyboardDismissMode="on-drag"
         >
         {/* Logo - full screen reference */}
-        <Image
-          source={theme.dark ? IMAGES.Darklogo : IMAGES.logo}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <View style={styles.logoWrapper}>
+          <Image
+            source={theme.dark ? IMAGES.Darklogo : IMAGES.logo}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
         <View style={styles.cardContainer}>
           {/* Header - Welcome Back style from reference */}
           <View style={styles.headerContainer}>

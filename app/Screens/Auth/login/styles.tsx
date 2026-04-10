@@ -17,8 +17,18 @@ export const loginStyles = (theme: any, colors: any) => StyleSheet.create({
     height: 80,
     resizeMode: 'contain',
     alignSelf: 'center',
+  },
+  logoWrapper: {
+    alignSelf: 'center',
     marginTop: 40,
     marginBottom: 24,
+    width: 104,
+    height: 104,
+    borderRadius: 18,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
   },
   cardContainer: {
     flex: 1,
@@ -33,12 +43,14 @@ export const loginStyles = (theme: any, colors: any) => StyleSheet.create({
   },
   headerContainer: {
     marginBottom: 28,
+    alignItems: 'center',
   },
   title: {
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
-    // Styles applied via FONTS.BodyM
+    textAlign: 'center',
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',

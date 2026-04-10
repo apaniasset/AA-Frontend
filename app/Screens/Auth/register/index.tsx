@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, TextInput } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, TextInput, Image } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
@@ -8,8 +9,10 @@ import CustomInput from '../../../components/Input/CustomInput';
 import { User, Mail, Lock, MapPin, Map, Home, Phone } from 'lucide-react-native';
 import { registerSchema, type RegisterFormData, validateRegisterForm, validateRegisterField } from '../../../utils/validation/registerValidation';
 import { registerStyles } from './styles';
-import { createUser } from '../../../services/auth';
-import { ApiError } from '../../../services/api';
+import { merchantRegister } from '../../../services/auth';
+import { saveAuth } from '../../../utils/authStorage';
+import { setUser } from '../../../redux/reducer/user';
+import { IMAGES } from '../../../constants/Images';
 
 type RegisterScreenProps = StackScreenProps<RootStackParamList, 'Register'>;
 
@@ -24,8 +27,9 @@ interface FormErrors {
   address?: string;
 }
 
-const Register = ({ navigation }: RegisterScreenProps) => {
+const Register = ({ navigation, route }: RegisterScreenProps) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { colors }: { colors: any } = theme;
   const styles = registerStyles(theme, colors);
   const emailRef = useRef<TextInput>(null);
@@ -33,7 +37,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
   const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',
-    phone: '',
+    phone: route.params?.phone ?? '',
     password: '',
     confirmPassword: '',
     city: '',
@@ -130,27 +134,36 @@ const Register = ({ navigation }: RegisterScreenProps) => {
       // Parse and validate with Zod schema
       const validatedData = registerSchema.parse(formData);
 
-      // Prepare API request data
       const apiData = {
-        name: validatedData.name,
+        name: validatedData.name.trim(),
         email: validatedData.email.toLowerCase().trim(),
         phone: validatedData.phone.trim(),
         password: validatedData.password,
-        role: 'merchant', // Default role - can be made dynamic later
+        confirm_password: validatedData.confirmPassword,
+        company_name: [validatedData.city, validatedData.state].filter(Boolean).join(', ') || '—',
       };
 
-      // Call registration API
-      const response = await createUser(apiData);
+      const response = await merchantRegister(apiData);
 
       if (response.success && response.data) {
-        // Registration successful
-        console.log('Registration successful:', response.data);
-        
-        // Navigate to login screen
-        navigation.navigate('Login');
-        
-        // Optional: Show success message
-        // You can add a toast/alert here if needed
+        const payload = response.data as {
+          merchant?: unknown;
+          token?: string;
+          access_token?: string;
+          user?: unknown;
+        };
+        const token = payload.token ?? payload.access_token;
+        const merchant = (payload.merchant ?? payload.user ?? payload) as Record<string, unknown>;
+        if (token && merchant) {
+          await saveAuth(merchant, token);
+          dispatch(setUser({ merchant, token } as any));
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'DrawerNavigation' }],
+          });
+        } else {
+          navigation.navigate('Login');
+        }
       } else {
         throw new Error(response.message || 'Registration failed');
       }
@@ -212,6 +225,13 @@ const Register = ({ navigation }: RegisterScreenProps) => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          <View style={styles.logoWrapper}>
+            <Image
+              source={theme.dark ? IMAGES.Darklogo : IMAGES.logo}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
           <View style={styles.cardContainer}>
             {/* Header */}
             <View style={styles.headerContainer}>

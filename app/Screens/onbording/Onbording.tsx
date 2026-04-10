@@ -88,8 +88,19 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
 
         try {
             setSendingOtp(true);
-            await merchantSendOtpRegistration({ phone });
-            setOtpCode('');
+            const response = await merchantSendOtpRegistration({ phone });
+            const otpFromApi =
+                response.data &&
+                typeof response.data === 'object' &&
+                'otp' in response.data &&
+                (response.data as { otp?: string }).otp != null
+                    ? String((response.data as { otp?: string }).otp)
+                    : '';
+            if (otpFromApi) {
+                setOtpCode(otpFromApi);
+            } else {
+                setOtpCode('');
+            }
             setShowOtp(true);
         } catch (e: any) {
             setOtpError(e?.message || 'Failed to send OTP. Please try again.');
@@ -118,7 +129,7 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
         try {
             setVerifyingOtp(true);
             await merchantVerifyOtpRegistration({ phone, otp: code });
-            handleContinue();
+            navigation.navigate('Register', { phone });
         } catch (e: any) {
             setOtpError(e?.message || 'OTP verification failed. Please try again.');
         } finally {
@@ -192,19 +203,30 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
                         borderColor:colors.border
                     }}
                 >
-                    <View style={[GlobalStyleSheet.flexcenter,{gap:10}]}>
-                        <Image
+                    <View style={[GlobalStyleSheet.flexcenter, { gap: 10 }]}>
+                        <View
                             style={{
-                                width:41,
-                                height:36
+                                width: 54,
+                                height: 54,
+                                borderRadius: 12,
+                                backgroundColor: COLORS.primary,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: 8,
                             }}
-                            resizeMode='contain'
-                            source={IMAGES.Profifylogo}
-                            tintColor={theme.dark ? '#9654F4' : COLORS.primary}
-                        />
-                        <View style={{flex:1}}>
-                            <Text style={[FONTS.h3,FONTS.fontBold,{color:colors.title}]}>Hi, Ethan Walker</Text>
-                            <Text style={[FONTS.BodyS,FONTS.fontMedium,{color:colors.text}]}>Verify your mobile number to begin.</Text>
+                        >
+                            <Image
+                                style={{
+                                    width: 41,
+                                    height: 36
+                                }}
+                                resizeMode='contain'
+                                source={IMAGES.Profifylogo}
+                            />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[FONTS.h3, FONTS.fontBold, { color: colors.title }]}>Hi, Ethan Walker</Text>
+                            <Text style={[FONTS.BodyS, FONTS.fontMedium, { color: colors.text }]}>Verify your mobile number to begin.</Text>
                         </View>
                     </View>
                     <View style={{paddingVertical:16}}>
@@ -560,8 +582,8 @@ const Onbording = ({ navigation } : OnbordingScreenProps) => {
                                     <Text style={[FONTS.h3,FONTS.fontBold,{color:colors.gray100}]}>Confirm Your Number</Text>
                                     <Text style={[FONTS.BodyM,{color:colors.gray60}]}>Enter the code we sent to <Text style={{color:colors.gray100}}>{countryCode} {phoneNumber}</Text></Text>
                                 </View>
-                                <View style={{marginVertical:14}}>
-                                    <Customotp onChange={setOtpCode} />
+                                <View style={{ marginVertical: 14 }}>
+                                    <Customotp onOtpChange={setOtpCode} value={otpCode} />
                                 </View>
                                 <View style={{marginBottom:15}}>
                                     <Text style={[FONTS.BodyS,{color:colors.gray50}]}>

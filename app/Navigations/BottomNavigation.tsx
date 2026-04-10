@@ -15,6 +15,7 @@ const BottomNavigation = () => {
 
     return (
         <Tab.Navigator
+            id="MainTabs"
             initialRouteName='Home'
             screenOptions={{
                 headerShown : false

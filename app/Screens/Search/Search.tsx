@@ -212,9 +212,11 @@ const Search = ({navigation} : SearchScreenProps) => {
                     <Button
                         title='Next'
                         btnRounded
-                        onPress={() => navigation.navigate('SearchArea', {
-                            selectedCities: selected  
-                        })}
+                        onPress={() =>
+                            navigation.navigate('SearchArea', {
+                                selectedCities: selected,
+                            })
+                        }
                     />
                 </View>
             </Animated.View>

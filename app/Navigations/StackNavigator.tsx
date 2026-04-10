@@ -53,6 +53,7 @@ const StackNavigator = () => {
         barStyle={'light-content'}
       />
       <Stack.Navigator
+        id="RootStack"
         initialRouteName={"splash"}
         screenOptions={{
           headerShown: false,

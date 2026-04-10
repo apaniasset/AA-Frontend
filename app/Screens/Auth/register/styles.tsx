@@ -10,9 +10,27 @@ export const registerStyles = (theme: any, colors: any) => StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
+  logo: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+  },
+  logoWrapper: {
+    alignSelf: 'center',
+    marginTop: 40,
+    marginBottom: 24,
+    width: 104,
+    height: 104,
+    borderRadius: 18,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+  },
   cardContainer: {
     ...GlobalStyleSheet.container,
-    paddingTop: 40,
+    paddingTop: 8,
     paddingBottom: 30,
     backgroundColor: theme.dark ? COLORS.darkCard : COLORS.white,
     marginHorizontal: 0,
@@ -21,12 +39,14 @@ export const registerStyles = (theme: any, colors: any) => StyleSheet.create({
   },
   headerContainer: {
     marginBottom: 30,
+    alignItems: 'center',
   },
   title: {
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
-    // Styles applied via FONTS.BodyM
+    textAlign: 'center',
   },
   buttonContainer: {
     marginTop: 25,

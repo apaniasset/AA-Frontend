@@ -1,4 +1,6 @@
 import { useNavigation, useTheme } from "@react-navigation/native";
+import type { StackNavigationProp } from "@react-navigation/stack";
+import type { RootStackParamList } from "../../Navigations/RootStackParamList";
 import React, { forwardRef } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
@@ -15,7 +17,7 @@ const SidebarSheet = ({}, ref : any) => {
   const theme = useTheme();
   const { colors } : {colors : any } = theme;
   
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <RBSheet

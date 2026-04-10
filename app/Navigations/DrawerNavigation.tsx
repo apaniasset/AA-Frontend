@@ -17,6 +17,7 @@ const DrawerNavigation = () => {
             edges={['bottom']}
         >
             <Drawer.Navigator
+                id="RootDrawer"
                 initialRouteName='BottomNavigation'
                 screenOptions={{
                     headerShown: false,
