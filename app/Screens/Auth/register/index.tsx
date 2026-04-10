@@ -14,6 +14,7 @@ import { registerStyles } from './styles';
 import { merchantRegister } from '../../../services/auth';
 import { saveAuth } from '../../../utils/authStorage';
 import { setUser } from '../../../redux/reducer/user';
+import { flashError } from '../../../utils/flash';
 
 type RegisterScreenProps = StackScreenProps<RootStackParamList, 'Register'>;
 
@@ -159,27 +160,30 @@ const Register = ({ navigation, route }: RegisterScreenProps) => {
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-      
-      // Handle API errors
+
       if (error.status === 400 || error.status === 422) {
-        // Validation errors from server
-        const errorMessage = error.message || 'Invalid data. Please check your inputs.';
+        const errorMessage =
+          error.message || 'Invalid data. Please check your inputs.';
         setErrors((prev) => ({
           ...prev,
           email: errorMessage,
         }));
+        flashError({ title: 'Registration failed', body: errorMessage });
       } else if (error.status === 409) {
-        // Conflict - email/phone already exists
+        const errorMessage = 'Email or phone number already exists';
         setErrors((prev) => ({
           ...prev,
-          email: 'Email or phone number already exists',
+          email: errorMessage,
         }));
+        flashError({ title: 'Registration failed', body: errorMessage });
       } else {
-        // Generic error
+        const errorMessage =
+          error.message || 'Registration failed. Please try again.';
         setErrors((prev) => ({
           ...prev,
-          email: error.message || 'Registration failed. Please try again.',
+          email: errorMessage,
         }));
+        flashError({ title: 'Registration failed', body: errorMessage });
       }
     } finally {
       setLoader(false);

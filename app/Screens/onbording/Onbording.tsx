@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, ScrollView, Image, Animated, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, Text, ImageBackground, ScrollView, Image, Animated, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTheme } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -13,6 +13,7 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import Customotp from '../../components/Input/Customotp';
 import ApaniBrandLogo from '../../components/Brand/ApaniBrandLogo';
 import { merchantSendOtp, merchantVerifyOtp } from '../../services/auth';
+import { flashError, flashSuccess } from '../../utils/flash';
 
 type OnbordingScreenProps = StackScreenProps<RootStackParamList, 'Onbording'>;
 
@@ -114,12 +115,15 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
         const otpToSend = (serverOtp || otpValue).trim();
 
         if (!trimmedPhone) {
-            Alert.alert('Error', 'Phone number is missing. Please go back and enter your phone number.');
+            flashError({
+                title: 'Error',
+                body: 'Phone number is missing. Please go back and enter your phone number.',
+            });
             return;
         }
 
         if (!otpToSend) {
-            Alert.alert('Error', 'Please enter the OTP.');
+            flashError({ title: 'Error', body: 'Please enter the OTP.' });
             return;
         }
 
@@ -131,23 +135,23 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
             });
 
             if (response.success) {
-                Alert.alert(
-                    'Success',
-                    response.message || 'Your mobile number is verified. You can now register.',
-                );
+                flashSuccess({
+                    title: 'Success',
+                    body: response.message || 'OTP verified. Proceed to register.',
+                });
                 navigation.navigate('Register', { phone: trimmedPhone });
             } else {
-                Alert.alert(
-                    'Error',
-                    response.message || 'Invalid OTP. Please try again.',
-                );
+                flashError({
+                    title: 'Error',
+                    body: response.message || 'Invalid OTP. Please try again.',
+                });
             }
         } catch (error: any) {
             const message =
                 error?.message ||
                 error?.data?.message ||
                 'Failed to verify OTP. Please try again.';
-            Alert.alert('Error', message);
+            flashError({ title: 'Error', body: message });
         } finally {
             setVerifyingOtp(false);
         }
@@ -157,7 +161,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
         const trimmedPhone = phoneNumber.trim();
 
         if (!trimmedPhone) {
-            Alert.alert('Error', 'Please enter your phone number.');
+            flashError({ title: 'Error', body: 'Please enter your phone number.' });
             return;
         }
 
@@ -167,21 +171,25 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
 
             if (response.success) {
                 if (response.data?.otp) {
-                    setServerOtp(response.data.otp);
-                    Alert.alert('OTP', `Your OTP is ${response.data.otp}`);
+                    const digits = String(response.data.otp).replace(/\D/g, '').slice(0, 6);
+                    setServerOtp(digits);
+                    setOtpValue(digits);
                 } else if (response.message) {
-                    Alert.alert('Success', response.message);
+                    flashSuccess({ title: 'Success', body: response.message });
                 }
                 setShowOtp(true);
             } else {
-                Alert.alert('Error', response.message || 'Failed to send OTP. Please try again.');
+                flashError({
+                    title: 'Error',
+                    body: response.message || 'Failed to send OTP. Please try again.',
+                });
             }
         } catch (error: any) {
             const message =
                 error?.message ||
                 error?.data?.message ||
                 'Failed to send OTP. Please try again.';
-            Alert.alert('Error', message);
+            flashError({ title: 'Error', body: message });
         } finally {
             setSendingOtp(false);
         }
@@ -584,7 +592,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                                     <Text style={[FONTS.BodyM, { color: colors.gray60 }]}>Enter the code we sent to <Text style={{ color: colors.gray100 }}>{countryCode} {phoneNumber}</Text></Text>
                                 </View>
                                 <View style={{ marginVertical: 14 }}>
-                                    <Customotp onOtpChange={setOtpValue} />
+                                    <Customotp value={otpValue} onOtpChange={setOtpValue} />
                                 </View>
                                 <View style={{ marginBottom: 15 }}>
                                     <Text style={[FONTS.BodyS, { color: colors.gray50 }]}>

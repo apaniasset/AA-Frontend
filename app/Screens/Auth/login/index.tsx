@@ -28,6 +28,7 @@ import { loginStyles } from './styles';
 import { merchantLogin } from '../../../services/auth';
 import { saveAuth } from '../../../utils/authStorage';
 import { setUser } from '../../../redux/reducer/user';
+import { flashError } from '../../../utils/flash';
 
 type LoginScreenProps = StackScreenProps<RootStackParamList, 'Login'>;
 
@@ -111,10 +112,13 @@ const Login = ({ navigation }: LoginScreenProps) => {
           routes: [{ name: 'DrawerNavigation' }],
         });
       } else {
+        const msg =
+          response.message || 'Invalid credentials. Please try again.';
         setErrors((prev) => ({
           ...prev,
-          password: response.message || 'Invalid credentials. Please try again.',
+          password: msg,
         }));
+        flashError({ title: 'Login failed', body: msg });
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -126,6 +130,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
         ...prev,
         password: message,
       }));
+      flashError({ title: 'Login failed', body: message });
     } finally {
       setLoader(false);
     }
