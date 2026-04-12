@@ -25,7 +25,7 @@ export const API_ENDPOINTS = {
 
   // Properties
   PROPERTIES_STORE: '/properties/store',
-  PROPERTIES_LIST: '/properties/list',
+  PROPERTIES_LIST: '/all-properties',
   PROPERTIES_SHOW: '/properties/show',
 
   // Master Data
