@@ -14,7 +14,11 @@ import FilterSheet from '../../components/BottomSheet/FilterSheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTosaveProperty, removeFromsaveProperty } from '../../redux/reducer/savePropertyReducer';
 import Likebtn from '../../components/Likebtn';
-import { searchPropertiesList, getPropertyTypes } from '../../services/properties';
+import {
+  searchPropertiesList,
+  getPropertyTypes,
+  extractPropertyListItems,
+} from '../../services/properties';
 import type { PropertyListItem } from '../../services/properties';
 import { formatListingPrice } from '../../utils/formatPrice';
 
@@ -94,7 +98,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
         searchPropertiesList({ per_page: 100, page: 1 })
             .then((res) => {
                 if (cancelled) return;
-                const list = res.success && res.data?.data ? res.data.data : [];
+                const list = res.success ? extractPropertyListItems(res.data) : [];
                 const seen = new Set<string>();
                 const options: FurnishingOption[] = [];
                 list.forEach((item: PropertyListItem) => {
@@ -125,10 +129,11 @@ const Home = ({ navigation }: HomeScreenProps) => {
         setRentLoading(true);
         searchPropertiesList({ type: 'rent', per_page: 10, page: 1 })
             .then((res) => {
-                if (!cancelled && res.success && res.data?.data) {
-                    setRentList(res.data.data.map(mapListItemToPropertyCard));
-                } else {
-                    if (!cancelled) setRentList([]);
+                if (!cancelled && res.success) {
+                    const list = extractPropertyListItems(res.data);
+                    setRentList(list.map(mapListItemToPropertyCard));
+                } else if (!cancelled) {
+                    setRentList([]);
                 }
             })
             .catch(() => {
@@ -145,8 +150,9 @@ const Home = ({ navigation }: HomeScreenProps) => {
         setRecommendedLoading(true);
         searchPropertiesList({ per_page: 10, page: 1 })
             .then((res) => {
-                if (!cancelled && res.success && res.data?.data) {
-                    setRecommendedList(res.data.data.map(mapListItemToCard));
+                if (!cancelled && res.success) {
+                    const list = extractPropertyListItems(res.data);
+                    setRecommendedList(list.map(mapListItemToCard));
                 }
             })
             .catch(() => {

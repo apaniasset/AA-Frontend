@@ -13,7 +13,7 @@ import FilterSheet from '../../components/BottomSheet/FilterSheet';
 import SortSheet from '../../components/BottomSheet/SortSheet';
 import { useDispatch } from 'react-redux';
 import { addTosaveProperty } from '../../redux/reducer/savePropertyReducer';
-import { searchPropertiesList } from '../../services/properties';
+import { searchPropertiesList, extractPropertyListItems } from '../../services/properties';
 import type { PropertyListItem, PropertyListFilters } from '../../services/properties';
 import { formatListingPrice } from '../../utils/formatPrice';
 
@@ -98,8 +98,9 @@ const Search_List = ({ navigation, route }: Search_ListScreenProps) => {
         }
         searchPropertiesList(payload)
             .then((res) => {
-                if (!cancelled && res.success && res.data?.data) {
-                    setPropertyList(res.data.data.map(mapApiItemToCard));
+                if (!cancelled && res.success) {
+                    const list = extractPropertyListItems(res.data);
+                    setPropertyList(list.map(mapApiItemToCard));
                 } else if (!cancelled) {
                     setPropertyList([]);
                 }

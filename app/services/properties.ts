@@ -260,7 +260,7 @@ export interface PropertyListFilters {
 }
 
 /**
- * Call GET /properties/list to fetch properties (paginated).
+ * Call GET /all-properties to fetch properties (paginated).
  * Uses stored merchant token for Authorization when available.
  */
 export async function getPropertiesList(
@@ -275,9 +275,72 @@ export async function getPropertiesList(
   return get<PropertiesListResponse>(url, headers);
 }
 
+/** Normalize list API payload: paginator `{ data: [] }` or raw `[]`. */
+export function extractPropertyListItems(
+  payload: PropertiesListResponse | PropertyListItem[] | null | undefined,
+): PropertyListItem[] {
+  if (payload == null) {
+    return [];
+  }
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  if (typeof payload === 'object' && Array.isArray(payload.data)) {
+    return payload.data;
+  }
+  return [];
+}
+
+function buildAllPropertiesQuery(filters: PropertyListFilters): string {
+  const params = new URLSearchParams();
+  const set = (key: string, value: string | number | undefined | null) => {
+    if (value === undefined || value === null || value === '') {
+      return;
+    }
+    params.append(key, String(value));
+  };
+  set('search', filters.search);
+  set('search_name', filters.search_name);
+  set('type', filters.type);
+  set('listing_type', filters.listing_type);
+  set('property_main_type', filters.property_main_type);
+  set('property_segment', filters.property_segment);
+  if (filters.property_type_id != null) {
+    set('property_type_id', filters.property_type_id);
+  }
+  if (filters.city_id != null) {
+    set('city_id', filters.city_id);
+  }
+  if (filters.locality_id != null) {
+    set('locality_id', filters.locality_id);
+  }
+  if (filters.bedrooms != null) {
+    set('bedrooms', filters.bedrooms);
+  }
+  if (filters.min_price != null) {
+    set('min_price', filters.min_price);
+  }
+  if (filters.max_price != null) {
+    set('max_price', filters.max_price);
+  }
+  set('furnishing_status', filters.furnishing_status);
+  set('possession_status', filters.possession_status);
+  if (filters.owner_only != null) {
+    set('owner_only', filters.owner_only);
+  }
+  if (filters.per_page != null) {
+    set('per_page', filters.per_page);
+  }
+  if (filters.page != null) {
+    set('page', filters.page);
+  }
+  const q = params.toString();
+  return q ? `?${q}` : '';
+}
+
 /**
- * Call POST /properties/list with search filters (dashboard/search).
- * Uses stored merchant token when available.
+ * GET /all-properties with query filters (matches Postman / typical Laravel route).
+ * Previously used POST + FormData; many backends only allow GET here, which left lists empty.
  */
 export async function searchPropertiesList(
   filters: PropertyListFilters = {}
@@ -287,30 +350,8 @@ export async function searchPropertiesList(
   if (auth?.token) {
     headers.Authorization = `Bearer ${auth.token}`;
   }
-  const body: Record<string, string | number> = {};
-  if (filters.search != null && filters.search !== '') body.search = filters.search;
-  if (filters.search_name != null && filters.search_name !== '') body.search_name = filters.search_name;
-  if (filters.type != null) body.type = filters.type;
-  if (filters.listing_type != null) body.listing_type = filters.listing_type;
-  if (filters.property_main_type != null) body.property_main_type = filters.property_main_type;
-  if (filters.property_segment != null) body.property_segment = filters.property_segment;
-  if (filters.property_type_id != null) body.property_type_id = filters.property_type_id;
-  if (filters.city_id != null) body.city_id = filters.city_id;
-  if (filters.locality_id != null) body.locality_id = filters.locality_id;
-  if (filters.bedrooms != null) body.bedrooms = filters.bedrooms;
-  if (filters.min_price != null) body.min_price = filters.min_price;
-  if (filters.max_price != null) body.max_price = filters.max_price;
-  if (filters.furnishing_status != null) body.furnishing_status = filters.furnishing_status;
-  if (filters.possession_status != null) body.possession_status = filters.possession_status;
-  if (filters.owner_only != null) body.owner_only = filters.owner_only;
-  if (filters.per_page != null) body.per_page = filters.per_page;
-  if (filters.page != null) body.page = filters.page;
-  // Backend examples use form-data; using FormData avoids content-type mismatches.
-  const form = new FormData();
-  Object.entries(body).forEach(([key, value]) => {
-    form.append(key, String(value));
-  });
-  return post<PropertiesListResponse>(API_ENDPOINTS.PROPERTIES_LIST, form, headers);
+  const query = buildAllPropertiesQuery(filters);
+  return get<PropertiesListResponse>(`${API_ENDPOINTS.PROPERTIES_LIST}${query}`, headers);
 }
 
 /** Property type from POST /property-type/list */
