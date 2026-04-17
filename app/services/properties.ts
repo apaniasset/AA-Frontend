@@ -3,20 +3,30 @@ import { API_ENDPOINTS } from '../config/api';
 import { ApiResponse } from './api';
 import { loadAuth } from '../utils/authStorage';
 
+/** When the UI does not ask for country yet — matches typical Postman `country: 1`. */
+export const DEFAULT_PROPERTY_COUNTRY_ID = 1;
+
 /**
- * Request body for POST /properties/store (property posting API)
+ * Request body for POST /properties/store (property posting API).
+ * Field names align with working Postman `multipart/form-data` (e.g. `property_type_id`, `neighborhood`, `amenity_ids[]`, `images[]`).
  */
 export interface PropertyStoreRequest {
   title: string;
   listing_type: string;
   property_segment: string;
+  /** Legacy string label; send together with `property_type_id` when API expects an ID. */
   property_type: string;
+  /** Backend ID from `/property-type/list` (Postman: property_type_id). */
+  property_type_id?: number;
   description: string;
   address: string;
   address_line2?: string;
   landmark?: string;
+  country?: number;
   city: number;
   state: number;
+  /** Postman: neighborhood (area / locality id). */
+  neighborhood?: number;
   zip_code: string;
   location?: string;
   sale_price?: number;
@@ -38,12 +48,18 @@ export interface PropertyStoreRequest {
   carpet_area?: number;
   area_sqft?: number;
   area?: number;
+  /** Some DB columns map from this key instead of `area`. */
+  built_up_area?: number;
   land_area?: number;
   no_brokerage?: number;
   video_url?: string;
   property_id_custom?: string;
+  /** Prefer sending as one comma-separated field (Postman style); see `appendPropertyStorePayload`. */
   nearby_areas?: string[];
+  /** Legacy name-based chips — omit when `amenity_ids` is set. */
   amenity?: string[];
+  /** Postman: amenity_ids[] numeric IDs. */
+  amenity_ids?: number[];
   rera_number?: string;
   possession_date?: string;
   construction_start_date?: string;
@@ -76,7 +92,8 @@ export interface PropertyStoreRequest {
   soil_type?: string;
   water_source?: string;
   road_access?: number;
-  distance_from_highway?: number;
+  /** Postman may send text like `2km`. */
+  distance_from_highway?: number | string;
   land_type?: string;
   authority_approved?: string;
   approved_by?: string;
@@ -85,6 +102,80 @@ export interface PropertyStoreRequest {
   private_garden?: number;
   servant_room?: number;
   store_room?: number;
+  available_from?: string;
+  agreement_duration?: string;
+  notice_period?: string;
+  electricity_charges?: string;
+  water_charges?: string;
+  ownership_type?: string;
+  transaction_type?: string;
+  flooring_type?: string;
+}
+
+/** Local image asset for multipart `images[]` on property create */
+export type PropertyImageAsset = {
+  uri: string;
+  type?: string;
+  fileName?: string;
+};
+
+/** RN `fetch` multipart needs a real URI scheme; bare `/data/...` paths often fail with `Network request failed`. */
+function ensureMultipartFileUri(uri: string): string {
+  const t = String(uri).trim();
+  if (!t) return t;
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(t)) return t;
+  if (t.startsWith('/')) return `file://${t}`;
+  return t;
+}
+
+function safeUploadFileName(name: string, index: number): string {
+  const raw = String(name || '').trim() || `property_${index}.jpg`;
+  const base = raw.replace(/[^a-zA-Z0-9._-]+/g, '_') || `property_${index}.jpg`;
+  if (base.length <= 120) return base;
+  return `property_${index}.jpg`;
+}
+
+/** Same fields the wire request sends — omits `undefined` / `null` so DevTools logs match JSON/multipart reality. */
+function propertyStorePayloadForLog(data: PropertyStoreRequest): Record<string, unknown> {
+  return Object.fromEntries(
+    (Object.entries(data) as [keyof PropertyStoreRequest, unknown][]).filter(
+      ([, value]) => value !== undefined && value !== null
+    )
+  ) as Record<string, unknown>;
+}
+
+function appendPropertyStorePayload(form: FormData, data: PropertyStoreRequest) {
+  (Object.entries(data) as [keyof PropertyStoreRequest, unknown][]).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    const k = String(key);
+
+    if (k === 'amenity_ids' && Array.isArray(value)) {
+      (value as number[]).forEach((id) => {
+        if (id != null && Number.isFinite(Number(id))) {
+          form.append('amenity_ids[]', String(id));
+        }
+      });
+      return;
+    }
+
+    if (k === 'nearby_areas' && Array.isArray(value)) {
+      const parts = (value as string[]).map((x) => String(x).trim()).filter(Boolean);
+      if (parts.length) {
+        form.append('nearby_areas', parts.join(', '));
+      }
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      (value as string[]).forEach((item) => {
+        if (item != null && String(item).length > 0) {
+          form.append(`${k}[]`, String(item));
+        }
+      });
+      return;
+    }
+    form.append(k, String(value));
+  });
 }
 
 /**
@@ -188,14 +279,64 @@ export interface CreatedProperty {
  * Returns the created property on success (201).
  */
 export async function storeProperty(
-  data: PropertyStoreRequest
+  data: PropertyStoreRequest,
+  imageAssets?: PropertyImageAsset[]
 ): Promise<ApiResponse<CreatedProperty>> {
   const auth = await loadAuth();
   const headers: Record<string, string> = {};
   if (auth?.token) {
     headers.Authorization = `Bearer ${auth.token}`;
   }
-  return post<CreatedProperty>(API_ENDPOINTS.PROPERTIES_STORE, data, headers);
+
+  const files = imageAssets?.filter((a) => a?.uri) ?? [];
+  if (__DEV__) {
+    console.warn('[properties/store] request', {
+      endpoint: API_ENDPOINTS.PROPERTIES_STORE,
+      mode: 'multipart/form-data',
+      body: propertyStorePayloadForLog(data),
+      imageCount: files.length,
+      imageFormKeys: files.map(() => 'images[]'),
+      images: files.map((f, i) => ({
+        index: i,
+        type: f.type,
+        fileName: f.fileName,
+        uriPreview:
+          typeof f.uri === 'string'
+            ? f.uri.length > 60
+              ? `${f.uri.slice(0, 56)}…`
+              : f.uri
+            : f.uri,
+      })),
+    });
+  }
+
+  const form = new FormData();
+  const payload: PropertyStoreRequest = { ...data };
+  if (payload.amenity_ids?.length) {
+    delete (payload as { amenity?: string[] }).amenity;
+  }
+  appendPropertyStorePayload(form, payload);
+
+  files.forEach((asset, index) => {
+    const part = {
+      uri: ensureMultipartFileUri(asset.uri),
+      type: asset.type || 'image/jpeg',
+      name: safeUploadFileName(asset.fileName || `property_${index}.jpg`, index),
+    } as any;
+    // Backend / working Postman uses `images[]` per file (including a single upload).
+    form.append('images[]', part);
+  });
+  const res = await post<CreatedProperty>(API_ENDPOINTS.PROPERTIES_STORE, form, headers);
+
+  if (__DEV__) {
+    console.warn('[properties/store] response', {
+      success: res.success,
+      message: res.message,
+      error: res.error,
+      data: res.data,
+    });
+  }
+  return res;
 }
 
 /** Single property item in list API response */

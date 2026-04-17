@@ -66,7 +66,8 @@ export type RootStackParamList = {
     Property_Response: undefined;
     My_Listing: undefined;
     Edit_Listing: undefined;
-    Edit_Property_Details: undefined;
+    /** Optional `tabIndex` opens `Edit_Property_Details` on a specific tab. */
+    Edit_Property_Details: { tabIndex?: number };
 
     QrCodeScanner: undefined;
     SignUp: undefined;

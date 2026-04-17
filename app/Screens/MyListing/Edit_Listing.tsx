@@ -57,7 +57,7 @@ const Edit_Listing = ({navigation } : Edit_ListingScreenProps) => {
                         resizeMode='contain'
                     />
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('Edit_Property_Details')}
+                        onPress={() => navigation.navigate({ name: 'Edit_Property_Details', params: {} })}
                         activeOpacity={0.8}
                         style={[GlobalStyleSheet.center,{
                             width:34,
@@ -98,7 +98,7 @@ const Edit_Listing = ({navigation } : Edit_ListingScreenProps) => {
                             <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray40}]}>Goals, Kind of Property, Property Type, Number of Apartments.</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('Edit_Property_Details', { tabIndex: 0 })}
+                            onPress={() => navigation.navigate({ name: 'Edit_Property_Details', params: { tabIndex: 0 } })}
                             activeOpacity={0.8}
                             style={[GlobalStyleSheet.headerBtn,style.icon]}
                         >
@@ -121,7 +121,7 @@ const Edit_Listing = ({navigation } : Edit_ListingScreenProps) => {
                             <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray40,paddingRight:40}]}>Location, Room Details, Area Details, Minimum Leasable Area, Shop facade size.</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('Edit_Property_Details', { tabIndex: 1 })}
+                            onPress={() => navigation.navigate({ name: 'Edit_Property_Details', params: { tabIndex: 1 } })}
                             activeOpacity={0.8}
                             style={[GlobalStyleSheet.headerBtn,style.icon]}
                         >
@@ -167,7 +167,7 @@ const Edit_Listing = ({navigation } : Edit_ListingScreenProps) => {
                             <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray40,paddingRight:40}]}>Photo Status (Missing/Added), Importance (Attracts buyers), Action (Add Photos).</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('Edit_Property_Details', { tabIndex: 2 })}
+                            onPress={() => navigation.navigate({ name: 'Edit_Property_Details', params: { tabIndex: 2 } })}
                             activeOpacity={0.8}
                             style={[GlobalStyleSheet.headerBtn,style.icon,{backgroundColor:theme.dark ? colors.card: '#F5EFFF'}]}
                         >
@@ -185,7 +185,7 @@ const Edit_Listing = ({navigation } : Edit_ListingScreenProps) => {
                             <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray40,paddingRight:40}]}>Amenities, Other Features, Power Back up, Property facing, Type of flooring, Width of facing road.</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('Edit_Property_Details', { tabIndex: 3 })}
+                            onPress={() => navigation.navigate({ name: 'Edit_Property_Details', params: { tabIndex: 3 } })}
                             activeOpacity={0.8}
                             style={[GlobalStyleSheet.headerBtn,style.icon]}
                         >

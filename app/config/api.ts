@@ -1,7 +1,9 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'https://apaniasset.com/api',
+  BASE_URL: 'https://qa.apaniasset.com/api',
   TIMEOUT: 30000, // 30 seconds
+  /** Multipart uploads often need longer than JSON calls on slow networks. */
+  FORM_UPLOAD_TIMEOUT_MS: 120000,
 };
 
 export const API_ENDPOINTS = {

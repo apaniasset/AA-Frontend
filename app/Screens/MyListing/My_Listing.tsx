@@ -30,20 +30,40 @@ const My_Listing = ({ navigation }: My_ListingScreenProps) => {
     useEffect(() => {
         let cancelled = false;
         setLoading(true);
+        if (__DEV__) console.warn('[My_Listing] fetching user properties (page 1)');
         getUserProperties(1)
             .then((res) => {
-                if (!cancelled && res.success && res.data) {
+                if (cancelled) return;
+                if (res.success && res.data) {
                     const list = Array.isArray(res.data) ? res.data : (res.data as { data?: PropertyListItem[] }).data;
-                    setPropertyList(list || []);
+                    const next = list || [];
+                    setPropertyList(next);
+                    if (__DEV__) console.warn('[My_Listing] loaded', { count: next.length });
+                } else {
+                    setPropertyList([]);
+                    if (__DEV__) {
+                        console.warn('[My_Listing] getUserProperties unsuccessful', {
+                            message: res.message,
+                            error: res.error,
+                        });
+                    }
                 }
             })
-            .catch(() => {
-                if (!cancelled) setPropertyList([]);
+            .catch((err: unknown) => {
+                if (cancelled) return;
+                setPropertyList([]);
+                if (__DEV__) {
+                    const e = err as { message?: string; status?: number };
+                    console.warn('[My_Listing] getUserProperties failed', {
+                        message: e?.message,
+                        status: e?.status,
+                    });
+                }
             })
             .finally(() => {
                 if (!cancelled) setLoading(false);
             });
-        return () => { cancelled = true; };
+        return () => {cancelled = true; };
     }, []);
 
     return (

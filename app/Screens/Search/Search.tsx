@@ -92,11 +92,10 @@ const Search = ({ navigation, route }: SearchScreenProps) => {
 
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: colors.card }} edges={[]}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.card }}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ flexGrow: 1 }}
-            >
+                contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={[GlobalStyleSheet.container, { padding: 20, flex: 1 }]}>
                     {propertyTypeName ? (
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8 }}>
@@ -176,8 +175,7 @@ const Search = ({ navigation, route }: SearchScreenProps) => {
                                     paddingBottom: 10,
                                     borderColor: colors.checkBoxborder,
                                     marginBottom: 10
-                                }]}
-                            >
+                                }]}>
                                 <View style={{ flexDirection: 'row', gap: 8 }}>
                                     <Image
                                         style={{ height: 14, width: 14 }}

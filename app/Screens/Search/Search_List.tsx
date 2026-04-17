@@ -166,7 +166,7 @@ const Search_List = ({ navigation, route }: Search_ListScreenProps) => {
 
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: colors.card }} edges={[]}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.card }}>
             <View style={[GlobalStyleSheet.container, { paddingHorizontal: 0, backgroundColor: colors.background }]}>
                 <View style={[GlobalStyleSheet.flexcenter, { gap: 14, marginBottom: 10, paddingHorizontal: 20, paddingLeft: 10 }]}>
                     <TouchableOpacity

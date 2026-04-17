@@ -14,11 +14,7 @@ import FilterSheet from '../../components/BottomSheet/FilterSheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTosaveProperty, removeFromsaveProperty } from '../../redux/reducer/savePropertyReducer';
 import Likebtn from '../../components/Likebtn';
-import {
-  searchPropertiesList,
-  getPropertyTypes,
-  extractPropertyListItems,
-} from '../../services/properties';
+import { searchPropertiesList, getPropertyTypes,  extractPropertyListItems} from '../../services/properties';
 import type { PropertyListItem } from '../../services/properties';
 import { formatListingPrice } from '../../utils/formatPrice';
 
@@ -183,7 +179,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
     }
 
     return (
-        <SafeAreaView style={{ backgroundColor: colors.card, flex: 1 }} edges={[]}>
+        <SafeAreaView style={{ backgroundColor: colors.card, flex: 1 }} edges={['bottom']}>
             <View style={[GlobalStyleSheet.container, {
                 backgroundColor: colors.background,
                 paddingHorizontal: 0,
@@ -360,8 +356,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                         <ScrollView
                             horizontal
                             showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{ marginHorizontal: 20 }}
-                        >
+                            contentContainerStyle={{ marginHorizontal: 20 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 40 }}>
                                 {recommendedLoading ? (
                                     <View style={{ paddingVertical: 24, minWidth: 280 }}>
@@ -376,8 +371,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                                     return (
                                         <View
                                             key={data.id || index}
-                                            style={[styles.card, { backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white }]}
-                                        >
+                                            style={[styles.card, { backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white }]}>
                                             <View
                                                 style={{
                                                     width: "100%",
@@ -385,8 +379,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                                                     aspectRatio: 1 / 0.5,
                                                     borderRadius: 6,
                                                     overflow: "hidden",
-                                                }}
-                                            >
+                                                }}>
                                                 <Image
                                                     source={imgSrc || IMAGES.projectpic1}
                                                     style={{ width: "100%", height: "100%" }}
@@ -439,7 +432,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                                                             </Text>
                                                         </View>
 
-                                                        <View
+                                                        {/* <View
                                                             style={{
                                                                 padding: 7,
                                                                 borderRadius: 30,
@@ -449,7 +442,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                                                             <Text style={[FONTS.fontSemiBold, { fontSize: 11, color: theme.dark ? COLORS.darkwhite : COLORS.white }]}>
                                                                 {data.time}
                                                             </Text>
-                                                        </View>
+                                                        </View> */}
                                                     </View>
                                                 </View>
                                             </View>
