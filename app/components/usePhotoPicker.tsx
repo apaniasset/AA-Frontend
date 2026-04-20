@@ -36,9 +36,9 @@ export const pickPhotos = async (limit: number) => {
         includeBase64: false,
         // Prefer JPEG-compatible representation; avoids HEIC / odd reps that break some uploads.
         assetRepresentationMode: "compatible",
-        quality: 0.8,
-        maxWidth: 1600,
-        maxHeight: 1600,
+        quality: 0.7,        // reduced from 0.8 — avoids large payloads that cause network errors
+        maxWidth: 1280,       // reduced from 1600 — keeps file sizes manageable for mobile upload
+        maxHeight: 1280,
       },
       (response) => {
         if (response.didCancel) {

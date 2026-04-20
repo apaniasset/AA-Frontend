@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Config — allows cleartext only for local debug hosts.
+    The production QA host (qa.apaniasset.com) uses HTTPS; no special rule needed.
+    For older Android devices (API < 24) that reject the QA server's cert chain,
+    we trust the system + user CAs in debug builds.
+-->
+<network-security-config>
+    <!-- Allow system + user-added CAs in debug (catches self-signed / staging certs) -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+
+    <!-- Production QA backend — full TLS, trust system CAs only -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">qa.apaniasset.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+    <!-- React Native dev server runs over HTTP — allow cleartext for localhost only -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">10.0.3.2</domain>
+    </domain-config>
+</network-security-config>

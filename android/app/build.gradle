@@ -104,6 +104,7 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [usesCleartextTraffic: true]
         }
         release {
             signingConfig signingConfigs.release
@@ -112,6 +113,7 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            manifestPlaceholders = [usesCleartextTraffic: false]
         }
     }
 }

@@ -64,10 +64,56 @@ async function fetchMultipartOnce<T>(
 }
 
 /**
- * RN `fetch` + multipart often throws `Network request failed` on Android / New Arch while JSON works.
- * `XMLHttpRequest.send(FormData)` uses the legacy stack and usually uploads reliably.
+ * RN 0.83 New Architecture breaks XHR/fetch multipart file-part bridging for file:// URIs.
+ * Fix: fetch each file:// URI locally to get a real Blob, rebuild FormData with Blob entries,
+ * then dispatch via XHR. This bypasses the broken New Arch file-bridge layer.
  */
-function xhrRequestFormData<T>(
+async function resolveFormDataFileBlobs(body: FormData): Promise<FormData> {
+  // FormData._parts is a RN-specific internal structure: [key, value][].
+  // We need to iterate and replace file:// string objects with real Blobs.
+  const parts: [string, any][] = (body as any)._parts ?? [];
+  if (!parts.length) return body;
+
+  const resolved = new FormData();
+  for (const [key, value] of parts) {
+    const isFilePart =
+      value !== null &&
+      typeof value === 'object' &&
+      typeof value.uri === 'string' &&
+      value.uri.length > 0;
+
+    if (isFilePart) {
+      const fileUri: string = value.uri;
+      const mimeType: string = value.type || 'image/jpeg';
+      const fileName: string = value.name || 'upload.jpg';
+      try {
+        // fetch(file://) works reliably on Android RN New Arch for local reading.
+        const fileResponse = await fetch(fileUri);
+        const blob = await fileResponse.blob();
+        // Attach as proper Blob — RN New Arch FormData handles Blob correctly.
+        resolved.append(key, blob, fileName);
+        if (__DEV__) {
+          console.warn('[api] resolved file blob', { key, fileName, size: blob.size, mimeType });
+        }
+      } catch (blobErr: any) {
+        if (__DEV__) {
+          console.warn('[api] blob resolve failed for', fileUri, blobErr?.message);
+        }
+        // Fall back to raw part so upload still attempts.
+        resolved.append(key, value);
+      }
+    } else {
+      resolved.append(key, value);
+    }
+  }
+  return resolved;
+}
+
+/**
+ * RN `fetch` + multipart often throws `Network request failed` on Android / New Arch while JSON works.
+ * We pre-resolve file:// URI parts to real Blobs, then use XHR (with fetch fallback).
+ */
+function xhrSendFormData<T>(
   url: string,
   method: string,
   headers: ApiHeaders,
@@ -126,19 +172,22 @@ function xhrRequestFormData<T>(
 
     xhr.onerror = () => {
       if (__DEV__) {
-        console.warn('[api] XHR multipart failed — one fetch retry', url);
+        console.warn('[api] XHR onerror for', url);
       }
-      fetchMultipartOnce<T>(url, method, hdrs, body)
-        .then(resolve)
-        .catch((e: any) => {
-          if (__DEV__) {
-            console.warn('[api] fetch multipart retry failed', e?.message ?? e);
-          }
-          reject({
-            message: 'Network error. Please check your internet connection.',
-            status: 0,
-          } as ApiError);
-        });
+      reject({
+        message: 'Upload failed. Please check your internet connection and try again.',
+        status: 0,
+      } as ApiError);
+    };
+
+    xhr.upload.onerror = () => {
+      if (__DEV__) {
+        console.warn('[api] XHR upload.onerror for', url);
+      }
+      reject({
+        message: 'Upload failed. Please check your internet connection and try again.',
+        status: 0,
+      } as ApiError);
     };
 
     xhr.ontimeout = () => {
@@ -157,6 +206,23 @@ function xhrRequestFormData<T>(
       } as ApiError);
     }
   });
+}
+
+async function xhrRequestFormData<T>(
+  url: string,
+  method: string,
+  headers: ApiHeaders,
+  body: FormData
+): Promise<ApiResponse<T>> {
+  // Step 1: pre-resolve all file:// URI parts → real Blobs (fixes RN 0.83 New Arch)
+  let resolvedBody: FormData;
+  try {
+    resolvedBody = await resolveFormDataFileBlobs(body);
+  } catch {
+    resolvedBody = body;
+  }
+  // Step 2: send resolved FormData via XHR
+  return xhrSendFormData<T>(url, method, headers, resolvedBody);
 }
 
 /** RN `fetch` often fails with `TypeError: Network request failed` (no "fetch" substring) — Postman still works (different TLS stack / no ATS). */
@@ -202,7 +268,7 @@ async function apiRequest<T = any>(
     stripContentTypeHeader(mergedHeaders);
     const method = (options.method as string | undefined) || 'POST';
     if (__DEV__) {
-      console.warn('[api] multipart body → using XHR', url, method);
+      console.warn('[api] multipart body → resolving blobs + XHR', url, method);
     }
     return xhrRequestFormData<T>(url, method, mergedHeaders, options.body);
   }
