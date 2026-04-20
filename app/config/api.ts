@@ -1,16 +1,38 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'https://nodeapi.apaniasset.in/api',
+  BASE_URL: 'https://qa.apaniasset.com/api',
   TIMEOUT: 30000, // 30 seconds
+  /** Multipart uploads often need longer than JSON calls on slow networks. */
+  FORM_UPLOAD_TIMEOUT_MS: 120000,
 };
 
 export const API_ENDPOINTS = {
   // Admin
   ADMIN_USERS_CREATE: '/admin/users/create',
   ADMIN_LOGIN: '/admin/login',
-  
+
   // Merchant
   MERCHANT_REGISTER: '/merchant/register',
   MERCHANT_LOGIN: '/merchant/login',
   MERCHANT_FORGOT_PASSWORD: '/merchant/forgot-password',
+  MERCHANT_SEND_OTP: '/merchant/send-otp',
+  MERCHANT_VERIFY_OTP: '/merchant/verify-otp',
+  MERCHANT_PROFILE_UPDATE: '/merchant/profile',
+
+  // User
+  USER_REGISTER: '/user/register',
+  USER_LOGIN: '/user/login',
+  USER_FORGOT_PASSWORD: '/user/forgot-password',
+  USER_PROPERTIES: '/user/properties',
+
+  // Properties
+  PROPERTIES_STORE: '/properties/store',
+  PROPERTIES_LIST: '/all-properties',
+  PROPERTIES_SHOW: '/properties/show',
+
+  // Master Data
+  STATE_LIST: '/state/list',
+  CITY_LIST: '/city/list',
+  AREA_LIST: '/area/list',
+  PROPERTY_TYPE_LIST: '/property-type/list',
 };

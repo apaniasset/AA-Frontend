@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, ScrollView, Image, Animated } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { useTheme } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import LinearGradient from 'react-native-linear-gradient';
 import { COLORS, FONTS } from '../../constants/theme';
@@ -10,20 +11,23 @@ import CustomInput from '../../components/Input/CustomInput';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../Navigations/RootStackParamList';
+import { RootState } from '../../redux/reducer';
+import type { MerchantData } from '../../services/auth';
 
 type ProfileScreenProps = StackScreenProps<RootStackParamList, 'Profile'>;
 
-const Profile = ({ navigation } : ProfileScreenProps) => {
-
+const Profile = ({ navigation }: ProfileScreenProps) => {
     const theme = useTheme();
-    const { colors } : {colors : any } = theme;
+    const { colors }: { colors: any } = theme;
+    const userData = useSelector((state: RootState) => state.user?.userData) as { merchant?: MerchantData; token?: string } | undefined;
+    const merchant = userData?.merchant;
 
-    const [imageUri, setImageUri] = useState<any>(null);
+    const [imageUri, setImageUri] = useState<string | null>(null);
     
     const pickImage = () => {
         launchImageLibrary({ mediaType: 'photo' }, (response) => {
         if (!response.didCancel && response.assets && response.assets.length > 0) {
-            setImageUri(response.assets[0].uri);
+            setImageUri(response.assets[0].uri ?? null);
         }
         });
     };
@@ -128,35 +132,40 @@ const Profile = ({ navigation } : ProfileScreenProps) => {
                   source={IMAGES.user2}
                 />
               </View>
-              <Text style={[FONTS.BodyM,FONTS.fontSemiBold,{color:colors.gray90}]}>Ethan Walker</Text>
-              <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray60}]}>info@example.com</Text>
+              <Text style={[FONTS.BodyM, FONTS.fontSemiBold, { color: colors.gray90 }]}>{merchant?.name || '—'}</Text>
+              <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray60 }]}>{merchant?.email || '—'}</Text>
             </View>
-            <View style={{marginBottom:10}}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('EditProfile')}
+              style={{ marginBottom: 12 }}
+            >
+              <Text style={[FONTS.BodyS, FONTS.fontSemiBold, { color: COLORS.primary }]}>Edit Profile</Text>
+            </TouchableOpacity>
+            <View style={{ marginBottom: 10 }}>
                 <CustomInput
                   placeholder={'Your Name'}
-                  value={'Ethan Walker'}
+                  value={merchant?.name ?? ''}
                   icon={<Image source={IMAGES.write} tintColor={colors.gray70} style={{height:16,width:16}} resizeMode='contain'/>}
                   editable={false}
                 />
                 <CustomInput
                   placeholder={'Your Email Address'}
-                  value={'info@example.com'}
+                  value={merchant?.email ?? ''}
                   icon={<Image source={IMAGES.write} tintColor={colors.gray70} style={{height:16,width:16}} resizeMode='contain'/>}
+                  editable={false}
                 />
                 <CustomInput
-                  placeholder={'Primary Number 1'}
-                  value={'01-123 456 7890'}
+                  placeholder={'Company Name'}
+                  value={merchant?.company_name ?? ''}
                   icon={<Image source={IMAGES.write} tintColor={colors.gray70} style={{height:16,width:16}} resizeMode='contain'/>}
+                  editable={false}
                 />
                 <CustomInput
-                  placeholder={'Primary Number 2'}
-                  value={'+01 123 456 7890'}
+                  placeholder={'Phone Number'}
+                  value={merchant?.phone ?? ''}
                   icon={<Image source={IMAGES.write} tintColor={colors.gray70} style={{height:16,width:16}} resizeMode='contain'/>}
-                />
-                <CustomInput
-                  placeholder={'Landline'}
-                  value={'+01 123 456 7890'}
-                  icon={<Image source={IMAGES.write} tintColor={colors.gray70} style={{height:16,width:16}} resizeMode='contain'/>}
+                  editable={false}
                 />
             </View>
             <View>

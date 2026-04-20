@@ -12,6 +12,9 @@ import { RootStackParamList } from '../../Navigations/RootStackParamList';
 import { IMAGES } from '../../constants/Images';
 import RentSelectBottomSheet, { BottomSheetRef } from '../../components/RentSelectBottomSheet';
 import BottomSheetUnitSelect, { BottomSheetUnitRef } from '../../components/BottomSheetUnitSelect';
+import LocationDropdowns from '../../components/LocationDropdowns';
+import { PROPERTY_FIELD_MAX, getStep2FieldErrors, type Step2FieldErrors, clampLength, digitsOnly } from '../../utils/propertyFormValidation';
+import { DEFAULT_PROPERTY_COUNTRY_ID } from '../../services/properties';
 
 const areaUnits = [
   { label: 'sq.ft.', value: 'sqft' },
@@ -23,14 +26,46 @@ const areaUnits = [
 
 type PropertyDetailsStep2ScreenProps = StackScreenProps<RootStackParamList, 'PropertyDetailsStep2'>;
 
-const PropertyDetailsStep2 = ({navigation } : PropertyDetailsStep2ScreenProps) => {
+const FURNISH_MAP: Record<string, string> = { 'Furnished': 'Furnished', 'Semi-furnished': 'Semi-Furnished', 'Unfurnished': 'Unfurnished' };
+const PROP_AGE_MAP: Record<string, string> = { '0-1 Year': '0-1', '1-5 Year': '1-5', '5-10 Year': '5-10', '10+ Year': '10+' };
+const PREFERRED_TENANTS_MAP: Record<string, string> = { 'Family': 'Family', 'Single Women': 'Single Women', 'Single Men': 'Single Men' };
+const inputStyle = (colors: any, theme: any) => [FONTS.BodyM, { color: colors.title, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth: 1, borderColor: colors.checkBoxborder, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginTop: 6 }];
 
-    const theme = useTheme();
-    const { colors }: { colors: any } = theme;
+const PropertyDetailsStep2 = ({ navigation, route }: PropertyDetailsStep2ScreenProps) => {
 
-    const bedroomstabs = ["1", "2", "3", "4", "5", "6", "7+"];
+  const theme = useTheme();
+  const { colors }: { colors: any } = theme;
+  const step1Draft = route.params?.propertyDraft ?? {};
 
-    const [activeTab, setActiveTab] = useState(bedroomstabs[0]);
+  const [address, setAddress] = useState('');
+  const [addressLine2, setAddressLine2] = useState('');
+  const [landmark, setLandmark] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [locationText, setLocationText] = useState('');
+  const [stateId, setStateId] = useState<number | null>(null);
+  const [cityId, setCityId] = useState<number | null>(null);
+  const [areaId, setAreaId] = useState<number | null>(null);
+  const [salePrice, setSalePrice] = useState('');
+  const [totalFloors, setTotalFloors] = useState('');
+  const [floorNumber, setFloorNumber] = useState('');
+  const [builtUpArea, setBuiltUpArea] = useState('');
+  const [priceNegotiable, setPriceNegotiable] = useState(0);
+  const [rentNegotiable, setRentNegotiable] = useState(0);
+  const [maintenanceIncluded, setMaintenanceIncluded] = useState(0);
+  const [securityDeposit, setSecurityDeposit] = useState('');
+  const [maintenance, setMaintenance] = useState('');
+  const [facing, setFacing] = useState('');
+  const [constructionStatus, setConstructionStatus] = useState('');
+  const [landArea, setLandArea] = useState('');
+  const [nearbyAreasText, setNearbyAreasText] = useState('');
+  const [plotLength, setPlotLength] = useState('');
+  const [plotBreadth, setPlotBreadth] = useState('');
+  const [cornerPlot, setCornerPlot] = useState(0);
+  const [fencingDone, setFencingDone] = useState(0);
+
+  const bedroomstabs = ["1", "2", "3", "4", "5", "6", "7+"];
+
+  const [activeTab, setActiveTab] = useState(bedroomstabs[0]);
 
     const bathroomstabs = ["1", "2", "3", "4+"];
 
@@ -77,6 +112,7 @@ const PropertyDetailsStep2 = ({navigation } : PropertyDetailsStep2ScreenProps) =
     const [carpetArea, setCarpetArea] = useState("");
     const [selectedUnit, setSelectedUnit] = useState(areaUnits[0]);
 
+    const [fieldErrors, setFieldErrors] = useState<Step2FieldErrors>({});
 
     return (
         <View style={[{flex:1,backgroundColor:colors.card}]}>
@@ -145,47 +181,53 @@ const PropertyDetailsStep2 = ({navigation } : PropertyDetailsStep2ScreenProps) =
                     </View>
                     <Text style={[FONTS.h4,FONTS.fontMedium,{color:colors.gray100}]}>Add Property Details</Text>
                     <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray70,fontSize:11}]}>STEP 2 OF 3</Text>
-                    <View style={{marginTop:30}}>
-                        <TextInput
-                            style={[FONTS.BodyM,{
-                                ...FONTS.fontMedium,
-                                height:50,
-                                borderRadius:8,
-                                backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white,
-                                paddingHorizontal:20,
-                                paddingRight:45,
-                                color:colors.title,
-                                position:'relative',
-                                elevation:1,
-                                borderWidth:1,
-                                borderColor:colors.gray20
-                            }]}
-                            placeholder='Enter Location'
-                            placeholderTextColor={colors.gray50}
-                            autoFocus
-                        />
-                        <View
-                            style={[GlobalStyleSheet.headerBtn,
-                                {
-                                    borderRadius:15,
-                                    position:'absolute',
-                                    right:3,
-                                    top:3,
-                                }
-                            ]}
-                        >
-                            <FeatherIcon name='mic' size={20} color={colors.gray60}/>
-                        </View>
+                    <View style={{marginTop:20}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Address <Text style={{ color: COLORS.danger }}>*</Text></Text>
+                        <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray50,marginTop:2}]}>Max {PROPERTY_FIELD_MAX.ADDRESS} characters</Text>
+                        <TextInput placeholder="e.g. Plot No. 12 Baner Road" placeholderTextColor={colors.gray50} value={address} onChangeText={(t) => { setAddress(clampLength(t, PROPERTY_FIELD_MAX.ADDRESS)); setFieldErrors((p) => ({ ...p, address: undefined })); }} maxLength={PROPERTY_FIELD_MAX.ADDRESS}
+                            style={[FONTS.BodyM,{ color:colors.title, backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth:1, borderColor: fieldErrors.address ? COLORS.danger : colors.checkBoxborder, borderRadius:10, paddingHorizontal:14, paddingVertical:12, marginTop:6 }]} />
+                        {fieldErrors.address ? <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:COLORS.danger,marginTop:4}]}>{fieldErrors.address}</Text> : null}
                     </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Address line 2</Text>
+                        <TextInput placeholder="e.g. Opposite Metro Station" placeholderTextColor={colors.gray50} value={addressLine2} onChangeText={(t) => setAddressLine2(clampLength(t, PROPERTY_FIELD_MAX.ADDRESS_LINE2))} maxLength={PROPERTY_FIELD_MAX.ADDRESS_LINE2}
+                            style={[FONTS.BodyM,{ color:colors.title, backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth:1, borderColor:colors.checkBoxborder, borderRadius:10, paddingHorizontal:14, paddingVertical:12, marginTop:6 }]} />
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Landmark</Text>
+                        <TextInput placeholder="e.g. Main Chowk" placeholderTextColor={colors.gray50} value={landmark} onChangeText={(t) => setLandmark(clampLength(t, PROPERTY_FIELD_MAX.LANDMARK))} maxLength={PROPERTY_FIELD_MAX.LANDMARK}
+                            style={[FONTS.BodyM,{ color:colors.title, backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth:1, borderColor:colors.checkBoxborder, borderRadius:10, paddingHorizontal:14, paddingVertical:12, marginTop:6 }]} />
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>State & city <Text style={{ color: COLORS.danger }}>*</Text></Text>
+                        <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray50,marginBottom:6}]}>Select both before continuing</Text>
+                        <LocationDropdowns onValuesChange={(v) => { setStateId(v.stateId); setCityId(v.cityId); setAreaId(v.areaId); setFieldErrors((p) => ({ ...p, locationStateCity: undefined })); }} />
+                        {fieldErrors.locationStateCity ? <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:COLORS.danger,marginTop:4}]}>{fieldErrors.locationStateCity}</Text> : null}
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Zip / Pincode <Text style={{ color: COLORS.danger }}>*</Text></Text>
+                        <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray50,marginTop:2}]}>6 digits only</Text>
+                        <TextInput placeholder="e.g. 411045" placeholderTextColor={colors.gray50} value={zipCode} onChangeText={(t) => { setZipCode(digitsOnly(t, PROPERTY_FIELD_MAX.PINCODE)); setFieldErrors((p) => ({ ...p, zipCode: undefined })); }} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.PINCODE}
+                            style={[FONTS.BodyM,{ color:colors.title, backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth:1, borderColor: fieldErrors.zipCode ? COLORS.danger : colors.checkBoxborder, borderRadius:10, paddingHorizontal:14, paddingVertical:12, marginTop:6 }]} />
+                        {fieldErrors.zipCode ? <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:COLORS.danger,marginTop:4}]}>{fieldErrors.zipCode}</Text> : null}
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Location (area description)</Text>
+                        <TextInput placeholder="e.g. Near Baner Bridge" placeholderTextColor={colors.gray50} value={locationText} onChangeText={(t) => setLocationText(clampLength(t, PROPERTY_FIELD_MAX.LOCATION))} maxLength={PROPERTY_FIELD_MAX.LOCATION}
+                            style={[FONTS.BodyM,{ color:colors.title, backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth:1, borderColor:colors.checkBoxborder, borderRadius:10, paddingHorizontal:14, paddingVertical:12, marginTop:6 }]} />
+                    </View>
+                    <View style={{marginTop:15}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Sale price (₹) {(String(step1Draft.listing_type || 'Sale') === 'Sale') ? <Text style={{ color: COLORS.danger }}>*</Text> : null}</Text>
+                        <TextInput placeholder="e.g. 9500000" placeholderTextColor={colors.gray50} value={salePrice} onChangeText={(t) => { setSalePrice(digitsOnly(t, PROPERTY_FIELD_MAX.PRICE_DIGITS)); setFieldErrors((p) => ({ ...p, salePrice: undefined })); }} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.PRICE_DIGITS}
+                            style={[FONTS.BodyM,{ color:colors.title, backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth:1, borderColor: fieldErrors.salePrice ? COLORS.danger : colors.checkBoxborder, borderRadius:10, paddingHorizontal:14, paddingVertical:12, marginTop:6 }]} />
+                        {fieldErrors.salePrice ? <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:COLORS.danger,marginTop:4}]}>{fieldErrors.salePrice}</Text> : null}
+                    </View>
+                    {/* body me nahi - Use my current location
                     <View style={{marginTop:5,flexDirection:'row',alignItems:'center',gap:5}}>
-                        <Image
-                            style={{height:16,width:16}}
-                            source={IMAGES.mapgps}
-                            resizeMode='contain'
-                            tintColor={theme.dark ? '#9654F4': COLORS.primary}
-                        />
+                        <Image style={{height:16,width:16}} source={IMAGES.mapgps} resizeMode='contain' tintColor={theme.dark ? '#9654F4': COLORS.primary} />
                         <Text style={[FONTS.BodyS,FONTS.fontRegular,{color:theme.dark ? '#9654F4': COLORS.primary}]}>Use my current location</Text>
                     </View>
+                    */}
                     <View style={{marginTop:15}}>
                         <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>No. of bedrooms</Text>
                         <View style={{flexDirection:'row',alignItems:'center',gap:7,paddingVertical:10}}>
@@ -271,51 +313,34 @@ const PropertyDetailsStep2 = ({navigation } : PropertyDetailsStep2ScreenProps) =
                         </View>
                     </View>
                     <View style={{marginTop:5}}>
-                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Add Area Details</Text>
-                        <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray50}]}>At least one area type is mandatory</Text>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Add area details <Text style={{ color: COLORS.danger }}>*</Text></Text>
+                        <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray50}]}>Enter carpet area and/or built-up (at least one, digits only)</Text>
                         <View style={{marginVertical:10}}>
-                            <View style={[styles.wrapper, {  backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderColor: colors.checkBoxborder}]}>
+                            <View style={[styles.wrapper, {  backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderColor: fieldErrors.area ? COLORS.danger : colors.checkBoxborder}]}>
                                 <TextInput
-                                    placeholder="Carpet Are"
+                                    placeholder="Carpet area (sq.ft.)"
                                     value={carpetArea}
-                                    onChangeText={setCarpetArea}
+                                    onChangeText={(t) => { setCarpetArea(digitsOnly(t, PROPERTY_FIELD_MAX.AREA_DIGITS)); setFieldErrors((p) => ({ ...p, area: undefined })); }}
                                     placeholderTextColor={colors.gray40}
                                     style={[styles.input, { color: colors.title }]}
-                                    keyboardType="numeric"
+                                    keyboardType="number-pad"
+                                    maxLength={PROPERTY_FIELD_MAX.AREA_DIGITS}
                                 />
-    
+                                {/* body me unit nahi - unit selector
                                 <View style={[styles.divider, { backgroundColor: colors.checkBoxborder }]} />
-    
-                                <TouchableOpacity
-                                    activeOpacity={0.7}
-                                    onPress={() => sheetRef.current?.open()}
-                                    style={{ flexDirection: "row", alignItems: "center" }}
-                                >
-                                    <Text style={[FONTS.BodyM, FONTS.fontRegular, { color: colors.gray40 }]}>
-                                        {selectedUnit.label}
-                                    </Text>
+                                <TouchableOpacity activeOpacity={0.7} onPress={() => sheetRef.current?.open()} style={{ flexDirection: "row", alignItems: "center" }}>
+                                    <Text style={[FONTS.BodyM, FONTS.fontRegular, { color: colors.gray40 }]}>{selectedUnit.label}</Text>
                                     <FeatherIcon name="chevron-down" size={16} color={colors.gray40} style={{ marginLeft: 15 }} />
                                 </TouchableOpacity>
+                                */}
                             </View>
                         </View>
-                        <View style={{marginBottom:10}}>
-                            <TouchableOpacity
-                                // onPress={() => refRBSheet.current.open()} 
-                                activeOpacity={0.5}
-                                style={{flexDirection:'row',alignItems:'center',gap:3}}
-                            >
-                                <FeatherIcon color={theme.dark ? '#9654F4': COLORS.primary} size={14} name='plus'/>
-                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9654F4': COLORS.primary}]}>Add Built-up Area</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                // onPress={() => refRBSheet.current.open()} 
-                                activeOpacity={0.5}
-                                style={{flexDirection:'row',alignItems:'center',gap:3,marginTop:5}}
-                            >
-                                <FeatherIcon color={theme.dark ? '#9654F4': COLORS.primary} size={14} name='plus'/>
-                                <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9654F4': COLORS.primary}]}>Add Super Built-up Area </Text>
-                            </TouchableOpacity>
+                        <View style={{marginTop:8}}>
+                            <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Built-up / Super built-up area (sq.ft.)</Text>
+                            <TextInput placeholder="e.g. 1350" placeholderTextColor={colors.gray40} value={builtUpArea} onChangeText={(t) => { setBuiltUpArea(digitsOnly(t, PROPERTY_FIELD_MAX.AREA_DIGITS)); setFieldErrors((p) => ({ ...p, area: undefined })); }} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.AREA_DIGITS}
+                                style={[styles.wrapper, styles.input, { backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderColor: fieldErrors.area ? COLORS.danger : colors.checkBoxborder, marginTop:6 }]} />
                         </View>
+                        {fieldErrors.area ? <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:COLORS.danger,marginTop:4}]}>{fieldErrors.area}</Text> : null}
                     </View>
                     <View style={{marginTop:5}}>
                         <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Furnishing status</Text>
@@ -377,161 +402,208 @@ const PropertyDetailsStep2 = ({navigation } : PropertyDetailsStep2ScreenProps) =
                         <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Floor Details</Text>
                         <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray50}]}>Total no of floors and your floor details</Text>
                         <View style={[styles.wrapper, { backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderColor: colors.checkBoxborder,marginVertical:10}]}>
-                            <TextInput
-                                placeholder="Total Floors"
-                                placeholderTextColor={colors.gray40}
-                                style={[
-                                styles.input,
-                                    {...FONTS.BodyM,...FONTS.fontRegular, color: colors.title}
-                                ]}
-                                keyboardType="numeric"
-                            />
+                            <TextInput placeholder="Total Floors" placeholderTextColor={colors.gray40} value={totalFloors} onChangeText={(t) => setTotalFloors(digitsOnly(t, PROPERTY_FIELD_MAX.FLOOR_DIGITS))}
+                                style={[styles.input,{...FONTS.BodyM,...FONTS.fontRegular, color: colors.title}]} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.FLOOR_DIGITS} />
                         </View>
+                        <View style={[styles.wrapper, { backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderColor: colors.checkBoxborder,marginTop:8}]}>
+                            <TextInput placeholder="Your floor number" placeholderTextColor={colors.gray40} value={floorNumber} onChangeText={(t) => setFloorNumber(digitsOnly(t, PROPERTY_FIELD_MAX.FLOOR_DIGITS))}
+                                style={[styles.input,{...FONTS.BodyM,...FONTS.fontRegular, color: colors.title}]} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.FLOOR_DIGITS} />
+                        </View>
+                        {/* body me nahi - Add area touchables
                         <View style={{marginBottom:10}}>
-                            <TouchableOpacity
-                                // onPress={() => refRBSheet.current.open()} 
-                                activeOpacity={0.5}
-                                style={{flexDirection:'row',alignItems:'center',gap:3}}
-                            >
+                            <TouchableOpacity activeOpacity={0.5} style={{flexDirection:'row',alignItems:'center',gap:3}}>
                                 <FeatherIcon color={COLORS.primary} size={14} name='plus'/>
                                 <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:COLORS.primary}]}>Add Built-up Area</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                // onPress={() => refRBSheet.current.open()} 
-                                activeOpacity={0.5}
-                                style={{flexDirection:'row',alignItems:'center',gap:3,marginTop:5}}
-                            >
+                            <TouchableOpacity activeOpacity={0.5} style={{flexDirection:'row',alignItems:'center',gap:3,marginTop:5}}>
                                 <FeatherIcon color={COLORS.primary} size={14} name='plus'/>
                                 <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:COLORS.primary}]}>Add Super Built-up Area </Text>
                             </TouchableOpacity>
-                        </View>    
+                        </View>
+                        */}
                     </View>
+                    {/* body me preferred_tenants hai but abhi draft me nahi bhej rahe - Willing to rent out to
                     <View style={{marginTop:5}}>
                         <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Willing to rent out to</Text>
                         <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:7,paddingVertical:10}}>
-                            {Willingtabs.map((data, index) => {
-                                return(
-                                    <TouchableOpacity
-                                        key={index}
-                                        onPress={() => setActiveTab5(data)}
-                                        style={[GlobalStyleSheet.center,{
-                                            paddingHorizontal: 12,
-                                            paddingVertical: 10,
-                                            borderRadius: 10,
-                                            borderWidth: 1,
-                                            borderColor:colors.checkBoxborder,
-                                            backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white,
-                                            },activeTab5 === data && {
-                                            backgroundColor:colors.gray20,
-                                            borderColor:colors.gray30
-                                        }]}
-                                    >
-                                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray90},activeTab5 === data && {
-                                        color:colors.gray80
-                                        }]}>{data}</Text>
-                                    </TouchableOpacity>
-                                )
-                            })}
-                        </View>
-                    </View>
-                    <View style={{marginTop:5}}>
-                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Rent Details</Text>
-                        <View style={[styles.wrapper, { backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderColor: colors.checkBoxborder,marginVertical:10}]}>
-                            <TextInput
-                                placeholder="Expected Rent"
-                                placeholderTextColor={colors.gray40}
-                                style={[
-                                styles.input,
-                                    {...FONTS.BodyM,...FONTS.fontRegular, color: colors.title}
-                                ]}
-                                value={expectedRent}
-                                onChangeText={setExpectedRent}
-                            />
-                        </View>
-                        <View style={{ flexDirection: "row", flexWrap: "wrap"}}>
-                            {rentTags.map((tag, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    activeOpacity={0.7}
-                                    onPress={() => setExpectedRent(tag)} 
-                                    style={[
-                                        GlobalStyleSheet.center,
-                                        {
-                                            paddingHorizontal: 12,
-                                            paddingVertical: 10,
-                                            borderRadius: 10,
-                                            borderWidth: 1,
-                                            borderColor: colors.checkBoxborder,
-                                            backgroundColor: COLORS.white,
-                                            marginBottom:7,
-                                            marginRight:7
-                                        }
-                                    ]}
-                                >
-                                    <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray90 }]}>
-                                        {tag}
-                                    </Text>
+                            {Willingtabs.map((data, index) => (
+                                <TouchableOpacity key={index} onPress={() => setActiveTab5(data)}
+                                    style={[GlobalStyleSheet.center,{ paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor:colors.checkBoxborder, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white },activeTab5 === data && { backgroundColor:colors.gray20, borderColor:colors.gray30 }]}>
+                                    <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray90},activeTab5 === data && { color:colors.gray80 }]}>{data}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
-                        <TouchableOpacity
-                            onPress={() => addMoreSheetRef.current?.open()}
-                            activeOpacity={0.8}
-                            style={[GlobalStyleSheet.center,{
-                                flexDirection:'row',
-                                paddingHorizontal: 12,
-                                paddingVertical: 10,
-                                borderRadius: 10,
-                                borderWidth: 1,
-                                borderColor:colors.checkBoxborder,
-                                backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white,
-                                gap:5,
-                                width:95
-                            }]}
-                        >
-                            <FeatherIcon name='plus' size={12} color={theme.dark ? '#9654F4': COLORS.primary}/>
-                            <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9654F4': COLORS.primary}]}>Add more</Text>
-                        </TouchableOpacity>
                     </View>
+                    */}
+                    <View style={{marginTop:5}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Rent details {(String(step1Draft.listing_type || 'Sale') !== 'Sale') ? <Text style={{ color: COLORS.danger }}>*</Text> : <Text style={[FONTS.BodyXS,{color:colors.gray50}]}>(optional for sale)</Text>}</Text>
+                        <View style={[styles.wrapper, { backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderColor: colors.checkBoxborder,marginVertical:10}]}>
+                            <TextInput placeholder="Expected Rent (₹)" placeholderTextColor={colors.gray40} value={expectedRent} onChangeText={(t) => { setExpectedRent(digitsOnly(t, PROPERTY_FIELD_MAX.PRICE_DIGITS)); setFieldErrors((p) => ({ ...p, expectedRent: undefined })); }}
+                                style={[styles.input,{...FONTS.BodyM,...FONTS.fontRegular, color: colors.title}]} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.PRICE_DIGITS} />
+                        </View>
+                        {fieldErrors.expectedRent ? <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:COLORS.danger,marginTop:4}]}>{fieldErrors.expectedRent}</Text> : null}
+                        <View style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:6}}>
+                            <TouchableOpacity onPress={() => setPriceNegotiable(p => p ? 0 : 1)} style={[GlobalStyleSheet.center,{ paddingHorizontal:12, paddingVertical:8, borderRadius:8, borderWidth:1, borderColor:colors.checkBoxborder, backgroundColor: priceNegotiable ? (theme.dark ? '#3C0C81' : COLORS.primary) : (theme.dark ? COLORS.darkwhite : COLORS.white) }]}>
+                                <Text style={[FONTS.BodyXS,{ color: priceNegotiable ? COLORS.white : colors.gray90 }]}>Price negotiable</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setRentNegotiable(p => p ? 0 : 1)} style={[GlobalStyleSheet.center,{ paddingHorizontal:12, paddingVertical:8, borderRadius:8, borderWidth:1, borderColor:colors.checkBoxborder, backgroundColor: rentNegotiable ? (theme.dark ? '#3C0C81' : COLORS.primary) : (theme.dark ? COLORS.darkwhite : COLORS.white) }]}>
+                                <Text style={[FONTS.BodyXS,{ color: rentNegotiable ? COLORS.white : colors.gray90 }]}>Rent negotiable</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setMaintenanceIncluded(p => p ? 0 : 1)} style={[GlobalStyleSheet.center,{ paddingHorizontal:12, paddingVertical:8, borderRadius:8, borderWidth:1, borderColor:colors.checkBoxborder, backgroundColor: maintenanceIncluded ? (theme.dark ? '#3C0C81' : COLORS.primary) : (theme.dark ? COLORS.darkwhite : COLORS.white) }]}>
+                                <Text style={[FONTS.BodyXS,{ color: maintenanceIncluded ? COLORS.white : colors.gray90 }]}>Maintenance included</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View style={{marginTop:12}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Security deposit (₹)</Text>
+                        <TextInput placeholder="e.g. 100000" placeholderTextColor={colors.gray50} value={securityDeposit} onChangeText={(t) => setSecurityDeposit(digitsOnly(t, PROPERTY_FIELD_MAX.PRICE_DIGITS))} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.PRICE_DIGITS} style={inputStyle(colors, theme)} />
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Maintenance (₹)</Text>
+                        <TextInput placeholder="e.g. 3000" placeholderTextColor={colors.gray50} value={maintenance} onChangeText={(t) => setMaintenance(digitsOnly(t, PROPERTY_FIELD_MAX.PRICE_DIGITS))} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.PRICE_DIGITS} style={inputStyle(colors, theme)} />
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Facing <Text style={{ color: COLORS.danger }}>*</Text></Text>
+                        <TextInput placeholder="e.g. East, North-East" placeholderTextColor={colors.gray50} value={facing} onChangeText={(t) => { setFacing(clampLength(t, PROPERTY_FIELD_MAX.FACING)); setFieldErrors((p) => ({ ...p, facing: undefined })); }} maxLength={PROPERTY_FIELD_MAX.FACING} style={[...inputStyle(colors, theme), { borderColor: fieldErrors.facing ? COLORS.danger : colors.checkBoxborder }]} />
+                        {fieldErrors.facing ? <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:COLORS.danger,marginTop:4}]}>{fieldErrors.facing}</Text> : null}
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Construction status <Text style={{ color: COLORS.danger }}>*</Text></Text>
+                        <TextInput placeholder="e.g. Ready to Move" placeholderTextColor={colors.gray50} value={constructionStatus} onChangeText={(t) => { setConstructionStatus(clampLength(t, PROPERTY_FIELD_MAX.CONSTRUCTION_STATUS)); setFieldErrors((p) => ({ ...p, constructionStatus: undefined })); }} maxLength={PROPERTY_FIELD_MAX.CONSTRUCTION_STATUS} style={[...inputStyle(colors, theme), { borderColor: fieldErrors.constructionStatus ? COLORS.danger : colors.checkBoxborder }]} />
+                        {fieldErrors.constructionStatus ? <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:COLORS.danger,marginTop:4}]}>{fieldErrors.constructionStatus}</Text> : null}
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Land area (sq.ft.)</Text>
+                        <TextInput placeholder="e.g. 500" placeholderTextColor={colors.gray50} value={landArea} onChangeText={(t) => setLandArea(digitsOnly(t, PROPERTY_FIELD_MAX.AREA_DIGITS))} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.AREA_DIGITS} style={inputStyle(colors, theme)} />
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Nearby areas (comma-separated)</Text>
+                        <TextInput placeholder="e.g. Aundh, Balewadi" placeholderTextColor={colors.gray50} value={nearbyAreasText} onChangeText={(t) => setNearbyAreasText(clampLength(t, PROPERTY_FIELD_MAX.NEARBY))} maxLength={PROPERTY_FIELD_MAX.NEARBY} style={inputStyle(colors, theme)} />
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Plot length (ft)</Text>
+                        <TextInput placeholder="e.g. 50" placeholderTextColor={colors.gray50} value={plotLength} onChangeText={(t) => setPlotLength(digitsOnly(t, PROPERTY_FIELD_MAX.AREA_DIGITS))} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.AREA_DIGITS} style={inputStyle(colors, theme)} />
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Plot breadth (ft)</Text>
+                        <TextInput placeholder="e.g. 40" placeholderTextColor={colors.gray50} value={plotBreadth} onChangeText={(t) => setPlotBreadth(digitsOnly(t, PROPERTY_FIELD_MAX.AREA_DIGITS))} keyboardType="number-pad" maxLength={PROPERTY_FIELD_MAX.AREA_DIGITS} style={inputStyle(colors, theme)} />
+                    </View>
+                    <View style={{marginTop:10}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Corner plot / Fencing</Text>
+                        <View style={{flexDirection:'row',flexWrap:'wrap',gap:8,marginTop:6}}>
+                            <TouchableOpacity onPress={() => setCornerPlot(p => p ? 0 : 1)} style={[GlobalStyleSheet.center,{ paddingHorizontal:12, paddingVertical:8, borderRadius:8, borderWidth:1, borderColor:colors.checkBoxborder, backgroundColor: cornerPlot ? (theme.dark ? '#3C0C81' : COLORS.primary) : (theme.dark ? COLORS.darkwhite : COLORS.white) }]}>
+                                <Text style={[FONTS.BodyXS,{ color: cornerPlot ? COLORS.white : colors.gray90 }]}>Corner plot</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setFencingDone(p => p ? 0 : 1)} style={[GlobalStyleSheet.center,{ paddingHorizontal:12, paddingVertical:8, borderRadius:8, borderWidth:1, borderColor:colors.checkBoxborder, backgroundColor: fencingDone ? (theme.dark ? '#3C0C81' : COLORS.primary) : (theme.dark ? COLORS.darkwhite : COLORS.white) }]}>
+                                <Text style={[FONTS.BodyXS,{ color: fencingDone ? COLORS.white : colors.gray90 }]}>Fencing done</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View style={{marginTop:12}}>
+                        <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>Willing to rent out to <Text style={{ color: COLORS.danger }}>*</Text></Text>
+                        <View style={{flexDirection:'row',flexWrap:'wrap',gap:7,paddingVertical:10}}>
+                            {Willingtabs.map((data) => (
+                                <TouchableOpacity key={data} onPress={() => setActiveTab5(data)}
+                                    style={[GlobalStyleSheet.center,{ paddingHorizontal:12, paddingVertical:10, borderRadius:10, borderWidth:1, borderColor:colors.checkBoxborder, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white },activeTab5 === data && { backgroundColor:colors.gray20, borderColor:colors.gray30 }]}>
+                                    <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray90},activeTab5 === data && { color:colors.gray80 }]}>{data}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                    {/* body me nahi - rent tags, Add more, extra description
+                    <View style={{ flexDirection: "row", flexWrap: "wrap"}}>
+                        {rentTags.map((tag, index) => (
+                            <TouchableOpacity key={index} activeOpacity={0.7} onPress={() => setExpectedRent(tag)}
+                                style={[GlobalStyleSheet.center,{ paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: colors.checkBoxborder, backgroundColor: COLORS.white, marginBottom:7, marginRight:7 }]}>
+                                <Text style={[FONTS.BodyXS, FONTS.fontMedium, { color: colors.gray90 }]}>{tag}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                    <TouchableOpacity onPress={() => addMoreSheetRef.current?.open()} activeOpacity={0.8}
+                        style={[GlobalStyleSheet.center,{ flexDirection:'row', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor:colors.checkBoxborder, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white, gap:5, width:95 }]}>
+                        <FeatherIcon name='plus' size={12} color={theme.dark ? '#9654F4': COLORS.primary}/>
+                        <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:theme.dark ? '#9654F4': COLORS.primary}]}>Add more</Text>
+                    </TouchableOpacity>
                     <View style={{marginTop:5}}>
                         <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>What makes your property unique </Text>
                         <Text style={[FONTS.BodyXS,FONTS.fontRegular,{color:colors.gray50}]}>Adding description will increase your listing visibility</Text>
                         <View style={[styles.wrapper, {height:null,backgroundColor:theme.dark ? COLORS.darkwhite : COLORS.white, borderColor: colors.checkBoxborder,marginVertical:10}]}>
-                            <TextInput
-                                placeholder="Expected Rent"
-                                placeholderTextColor={colors.gray40}
-                                style={[
-                                    styles.input,
-                                        {
-                                            ...FONTS.BodyM,
-                                            ...FONTS.fontRegular, 
-                                            color: colors.title,
-                                            textAlignVertical: "top",
-                                            paddingTop: 12, 
-                                            height:120
-                                        }
-                                    ]}
-                                multiline
-                            />
+                            <TextInput placeholder="Expected Rent" placeholderTextColor={colors.gray40} style={[styles.input,{...FONTS.BodyM,...FONTS.fontRegular, color: colors.title, textAlignVertical: "top", paddingTop: 12, height:120 }]} multiline />
                         </View>
                     </View>
+                    */}
                 </View>
             </Animated.ScrollView>
-            <RentSelectBottomSheet
-                ref={addMoreSheetRef}
-                data={addMoreOptions}
-                onSelect={(item) => setRentTags(prev => [...prev, item.label])}
-            />
-            <BottomSheetUnitSelect
-                ref={sheetRef}
-                data={areaUnits}
-                onSelect={(item) => setSelectedUnit(item)}
-            />
+            {/* body me nahi - Add more / Unit select sheets
+            <RentSelectBottomSheet ref={addMoreSheetRef} data={addMoreOptions} onSelect={(item) => setRentTags(prev => [...prev, item.label])} />
+            <BottomSheetUnitSelect ref={sheetRef} data={areaUnits} onSelect={(item) => setSelectedUnit(item)} />
+            */}
             <View style={[GlobalStyleSheet.container,{paddingBottom:25,paddingHorizontal:20}]}>
                 <Button
                     title='Save and Continue'
                     btnRounded
-                    onPress={() => navigation.navigate('PropertyDetailsStep3')}
+                    onPress={() => {
+                      const listingType = String(step1Draft.listing_type || 'Sale');
+                      const nextErr = getStep2FieldErrors({
+                        address,
+                        stateId,
+                        cityId,
+                        zipCode,
+                        carpetArea,
+                        builtUpArea,
+                        listingType,
+                        salePrice,
+                        expectedRent,
+                        facing,
+                        constructionStatus,
+                      });
+                      setFieldErrors(nextErr);
+                      if (Object.values(nextErr).some(Boolean)) return;
+                      const parseNum = (s: string) => (s ? parseInt(s, 10) : undefined);
+                      const bed = activeTab === '7+' ? 7 : parseNum(activeTab);
+                      const bath = activeTab1 === '4+' ? 4 : parseNum(activeTab1);
+                      const balc = activeTab2 === '4+' ? 4 : parseNum(activeTab2);
+                      const step2Draft: Record<string, unknown> = {
+                        ...step1Draft,
+                        address: address.trim() || undefined,
+                        address_line2: addressLine2.trim() || undefined,
+                        landmark: landmark.trim() || undefined,
+                        country: DEFAULT_PROPERTY_COUNTRY_ID,
+                        state: stateId ?? undefined,
+                        city: cityId ?? undefined,
+                        neighborhood: areaId ?? undefined,
+                        zip_code: zipCode.trim() || undefined,
+                        location: locationText.trim() || undefined,
+                        sale_price: parseNum(salePrice),
+                        rent_price: parseNum(expectedRent),
+                        bedrooms: bed,
+                        bathrooms: bath,
+                        balconies: balc,
+                        floor_number: parseNum(floorNumber),
+                        total_floors: parseNum(totalFloors),
+                        furnishing_status: FURNISH_MAP[activeTab3],
+                        property_age: PROP_AGE_MAP[activeTab4],
+                        carpet_area: parseNum(carpetArea),
+                        area_sqft: parseNum(carpetArea) || parseNum(builtUpArea),
+                        area: parseNum(builtUpArea),
+                        built_up_area: parseNum(builtUpArea),
+                        price_negotiable: priceNegotiable,
+                        rent_negotiable: rentNegotiable,
+                        maintenance_included: maintenanceIncluded,
+                        security_deposit: parseNum(securityDeposit),
+                        maintenance: parseNum(maintenance),
+                        facing: facing.trim() || undefined,
+                        construction_status: constructionStatus.trim() || undefined,
+                        land_area: parseNum(landArea),
+                        nearby_areas: nearbyAreasText.trim() ? nearbyAreasText.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+                        plot_length: parseNum(plotLength),
+                        plot_breadth: parseNum(plotBreadth),
+                        corner_plot: cornerPlot,
+                        fencing_done: fencingDone,
+                        preferred_tenants: PREFERRED_TENANTS_MAP[activeTab5] || undefined,
+                      };
+                      navigation.navigate('PropertyDetailsStep3', { propertyDraft: step2Draft });
+                    }}
                 />
             </View>
         </View>

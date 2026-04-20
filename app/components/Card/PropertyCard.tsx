@@ -4,7 +4,6 @@ import { GlobalStyleSheet } from '../../constants/StyleSheet'
 import { COLORS, FONTS } from '../../constants/theme'
 import { IMAGES } from '../../constants/Images'
 import { useNavigation, useTheme } from '@react-navigation/native'
-import FeatherIcon from "react-native-vector-icons/Feather";
 import Likebtn from '../Likebtn'
 import { useDispatch, useSelector } from 'react-redux'
 import { removeFromsaveProperty } from '../../redux/reducer/savePropertyReducer'
@@ -350,13 +349,13 @@ const PropertyCard = ({
                             
                             {/* User + Name */}
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                                {userPic &&
+                                {/* {userPic &&
                                     <Image
                                         style={{ height: 22, width: 22, borderRadius: 30 }}
                                         resizeMode='contain'
                                         source={userPic}
                                     />
-                                }
+                                } */}
                                 {userName &&
                                     <Text style={[FONTS.BodyXS, FONTS.fontBold, { color: COLORS.white }]}>
                                         {userName}
@@ -387,7 +386,7 @@ const PropertyCard = ({
                                 </Text>
                             </View>
 
-                            <View
+                            {/* <View
                                 style={{
                                     padding: 7,
                                     paddingVertical:5,
@@ -398,7 +397,7 @@ const PropertyCard = ({
                                 <Text style={[FONTS.fontSemiBold, { fontSize: 11, color:theme.dark ? COLORS.darkwhite : COLORS.white }]}>
                                     {time}
                                 </Text>
-                            </View>
+                            </View> */}
                         </View>
                     </View>
                 </View>
@@ -422,7 +421,7 @@ const PropertyCard = ({
                     <View style={{ width: 1, height: 60, backgroundColor: colors.checkBoxborder }} />
 
                     <View style={[GlobalStyleSheet.center, { paddingHorizontal: 20,width:'35%' }]}>
-                        <Text style={[FONTS.h4, FONTS.fontSemiBold, { color: colors.gray100 }]}>{price}</Text>
+                        <Text style={[FONTS.h5, FONTS.fontSemiBold, { color: colors.gray100 }]}>{price}</Text>
                         <Text numberOfLines={2} style={[FONTS.BodyXS, { color: colors.gray70,textAlign:'center' }]}>{status}</Text>
                     </View>
                 </View>

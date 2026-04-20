@@ -1,58 +1,76 @@
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image } from 'react-native'
-import React, { useRef, useState } from 'react'
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native'
+import React, { useRef, useState, useEffect } from 'react'
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../Navigations/RootStackParamList';
 import { useTheme } from '@react-navigation/native';
-import * as Progress from 'react-native-progress';
+import { useDispatch, useSelector } from 'react-redux';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import Button from '../../components/Button/Button';
 import FeatherIcon from "react-native-vector-icons/Feather";
 import CustomInput from '../../components/Input/CustomInput';
-import RBSheet from 'react-native-raw-bottom-sheet';
 import Header from '../../layout/Header';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { updateUser } from '../../redux/reducer/user';
+import { saveAuth } from '../../utils/authStorage';
+import { updateMerchantProfile } from '../../services/auth';
+import { RootState } from '../../redux/reducer';
+import type { MerchantData } from '../../services/auth';
 
 type EditProfileScreenProps = StackScreenProps<RootStackParamList, 'EditProfile'>;
 
-const EditProfile = ({ navigation } : EditProfileScreenProps) => {
-
-    const designations = [
-        "Business Owner / Founder / CXO",
-        "Contractor",
-        "Architect / Interior Designer",
-        "Chief Financial Officer (CFO)",
-        "Project Manager",
-        "Labor Contractor",
-        "Site Engineer",
-        "Super viser",
-        "Planing Manager",
-        "Planing Manager",
-    ];
-
-
+const EditProfile = ({ navigation }: EditProfileScreenProps) => {
     const theme = useTheme();
-    const { colors } : {colors : any } = theme;
+    const { colors }: { colors: any } = theme;
+    const dispatch = useDispatch();
+    const userData = useSelector((state: RootState) => state.user?.userData) as { merchant?: MerchantData; token?: string } | undefined;
+    const merchant = userData?.merchant;
+    const token = userData?.token;
 
-    const progress = 0.5;
+    const [name, setName] = useState('');
+    const [companyName, setCompanyName] = useState('');
+    const [imageUri, setImageUri] = useState<string | null>(null);
+    const [saving, setSaving] = useState(false);
 
-    const refRBSheet = useRef<any>();
+    useEffect(() => {
+        if (merchant) {
+            setName(merchant.name || '');
+            setCompanyName(merchant.company_name || '');
+        }
+    }, [merchant]);
 
-    const [selectedValue, setSelectedValue] = useState('');
-
-    const handleSelect = (value:any) => {
-        setSelectedValue(value);
-        refRBSheet.current.close();
-    };
-
-    const [imageUri, setImageUri] = useState<any>(null);
-    
     const pickImage = () => {
         launchImageLibrary({ mediaType: 'photo' }, (response) => {
-        if (!response.didCancel && response.assets && response.assets.length > 0) {
-            setImageUri(response.assets[0].uri);
-        }
+            if (!response.didCancel && response.assets && response.assets.length > 0) {
+                setImageUri(response.assets[0].uri ?? null);
+            }
         });
+    };
+
+    const handleSave = async () => {
+        const trimmedName = name.trim();
+        if (!trimmedName) {
+            Alert.alert('Validation', 'Please enter your name.');
+            return;
+        }
+        try {
+            setSaving(true);
+            const response = await updateMerchantProfile({
+                name: trimmedName,
+                company_name: companyName.trim() || undefined,
+            });
+            if (response.success && response.data && token) {
+                dispatch(updateUser({ merchant: response.data }));
+                await saveAuth(response.data as unknown as Record<string, unknown>, token);
+                navigation.goBack();
+            } else {
+                Alert.alert('Error', response.message || 'Failed to update profile.');
+            }
+        } catch (error: any) {
+            Alert.alert('Error', error?.message || 'Failed to update profile. Please try again.');
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -90,123 +108,52 @@ const EditProfile = ({ navigation } : EditProfileScreenProps) => {
                                     )}
                                 </TouchableOpacity>
                             </View>
-                            <View style={{marginTop: 35,marginBottom:15 }}>
-                                <Text style={{ ...FONTS.fontMedium, fontSize: 14, color: colors.text,marginBottom:10 }}>User Name</Text>
+                            <View style={{ marginTop: 35, marginBottom: 15 }}>
+                                <Text style={{ ...FONTS.fontMedium, fontSize: 14, color: colors.text, marginBottom: 10 }}>Name *</Text>
                                 <CustomInput
                                     inputBorder
+                                    placeholder="Your name"
+                                    value={name}
+                                    onChangeText={setName}
+                                    editable={!saving}
                                 />
                             </View>
-                            <View style={{marginBottom:15 }}>
-                                <Text style={{ ...FONTS.fontMedium, fontSize: 14, color: colors.text,marginBottom:10 }}>Phone Number*</Text>
+                            <View style={{ marginBottom: 15 }}>
+                                <Text style={{ ...FONTS.fontMedium, fontSize: 14, color: colors.text, marginBottom: 10 }}>Company Name</Text>
                                 <CustomInput
                                     inputBorder
-                                    keyboardType={'number-pad'}
-                                    maxLength={15}
+                                    placeholder="Company name (optional)"
+                                    value={companyName}
+                                    onChangeText={setCompanyName}
+                                    editable={!saving}
                                 />
                             </View>
-                            <View style={{marginBottom:15 }}>
-                                <Text style={{ ...FONTS.fontMedium, fontSize: 14, color: colors.text,marginBottom:10 }}>Designation*</Text>
-                                <View style={{position:'relative'}}>
+                            {merchant?.phone ? (
+                                <View style={{ marginBottom: 15 }}>
+                                    <Text style={{ ...FONTS.fontMedium, fontSize: 14, color: colors.text, marginBottom: 10 }}>Phone Number</Text>
                                     <CustomInput
                                         inputBorder
-                                        placeholder={'Select'}
-                                        value={selectedValue}
-                                        style={{
-                                            ...FONTS.fontRegular,
-                                        }}
-                                        icon={<FeatherIcon color={colors.text} size={18} name="chevron-down"/>}
+                                        value={merchant.phone}
+                                        editable={false}
                                     />
-                                    <TouchableOpacity
-                                        onPress={() => refRBSheet.current.open()} 
-                                        activeOpacity={0.5}
-                                        style={{
-                                            flex:1,
-                                            backgroundColor:'transparent',
-                                            width:'100%',
-                                            borderRadius:8,
-                                            height:50,
-                                            position:'absolute',
-                                            zIndex:99
-                                        }}
-                                    />
-                                    <RBSheet
-                                        ref={refRBSheet}
-                                        height={450}
-                                        openDuration={250}
-                                        customStyles={{
-                                            container: {
-                                                backgroundColor:colors.card,
-                                                borderTopLeftRadius: 20,
-                                                borderTopRightRadius: 20,
-                                            },
-                                            draggableIcon: {
-                                                backgroundColor: '#ccc', // make sure it's visible
-                                                width: 60,
-                                                height: 6,
-                                                borderRadius: 3,
-                                                alignSelf: 'center',
-                                                marginVertical: 10
-                                            }
-                                        }}
-                                    >
-                                        <View style={[GlobalStyleSheet.container,]}>
-                                            <View style={[GlobalStyleSheet.flexcenter,{justifyContent:'flex-start',gap:10,marginBottom:20}]}>
-                                                <TouchableOpacity
-                                                    onPress={() => refRBSheet.current.close()}
-                                                    style={{
-                                                        height:40,
-                                                        width:40,
-                                                        backgroundColor:'transparent',
-                                                        alignItems:'center',
-                                                        justifyContent:'center',
-                                                        borderRadius:30,
-                                                        position:'absolute',
-                                                        left:-10,
-                                                        zIndex:99
-                                                    }}
-                                                >
-                                                    <FeatherIcon name='chevron-left' size={24} color={colors.title}/>
-                                                </TouchableOpacity>
-                                                <Text style={[FONTS.h6,{color:colors.title,lineHeight:20,paddingLeft:30}]}>Designation</Text>
-                                            </View>
-                                            <ScrollView showsVerticalScrollIndicator={false}>
-                                                <View style={{flex:1,marginBottom:20}}>
-                                                    {designations.map((item:any,index:any) => {
-                                                        return(
-                                                            <TouchableOpacity
-                                                                onPress={() => handleSelect(item)}
-                                                                key={index}
-                                                                style={[GlobalStyleSheet.flexcenter,{
-                                                                    borderBottomWidth:1,
-                                                                    borderColor:colors.border,
-                                                                    paddingBottom:10,
-                                                                    marginBottom:10,
-                                                                    paddingRight:10
-                                                                }]}
-                                                            >
-                                                                <Text style={[FONTS.font,{color:colors.text}]}>{item}</Text>
-                                                                {selectedValue === item && (
-                                                                    <FeatherIcon name="check" size={18} color={colors.primary} />
-                                                                )}
-                                                            </TouchableOpacity>
-                                                        )
-                                                    })}
-                                                </View>
-                                            </ScrollView>
-                                        </View>
-                                    </RBSheet>
                                 </View>
-                            </View>
+                            ) : null}
                         </View>
                     </View>
                 </ScrollView>
-                <View style={[GlobalStyleSheet.container,{paddingHorizontal:20}]}>
+                <View style={[GlobalStyleSheet.container, { paddingHorizontal: 20 }]}>
                     <Button
-                        title={'Continue'}
-                        onPress={() => {navigation.goBack()}}
-                        color={theme.dark ? COLORS.white :COLORS.primary}
+                        title={saving ? 'Saving...' : 'Save Profile'}
+                        onPress={handleSave}
+                        disabled={saving}
+                        color={theme.dark ? COLORS.white : COLORS.primary}
                         text={colors.card}
                     />
+                    {saving && (
+                        <View style={{ alignSelf: 'center', marginTop: 8 }}>
+                            <ActivityIndicator size="small" color={COLORS.primary} />
+                        </View>
+                    )}
                 </View>
             </View>
         </SafeAreaView>

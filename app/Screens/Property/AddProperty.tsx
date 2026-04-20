@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Image, TextInput } from 'react-native'
+import React, { useState, useEffect } from 'react'
 import { useTheme } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
@@ -9,33 +9,61 @@ import Button from '../../components/Button/Button';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../Navigations/RootStackParamList';
 import { IMAGES } from '../../constants/Images';
+import { PROPERTY_FIELD_MAX, getStep1FieldErrors, clampLength } from '../../utils/propertyFormValidation';
+import { getPropertyTypes, type PropertyTypeItem } from '../../services/properties';
+
+const LISTING_MAP: Record<string, string> = { Sell: 'Sale', Rent: 'Rent', 'Paying Guest': 'Paying Guest' };
+const PROPERTY_TYPE_MAP: Record<string, string> = {
+  'Flat/Apartment': 'Apartment/Flat',
+  'Builder Floor': 'Builder Floor',
+  'Farm House': 'Farm House',
+  'Independent House/Villa': 'Independent House/Villa',
+  'Serviced Apartment': 'Serviced Apartment',
+  'Studio Apartment': 'Studio Apartment',
+  'Other': 'Other',
+};
 
 type AddPropertyScreenProps = StackScreenProps<RootStackParamList, 'AddProperty'>;
 
-const AddProperty = ({navigation } : AddPropertyScreenProps) => {
+const AddProperty = ({ navigation }: AddPropertyScreenProps) => {
 
-    const theme = useTheme();
-    const { colors }: { colors: any } = theme;
+  const theme = useTheme();
+  const { colors }: { colors: any } = theme;
 
-    const Lookingtabs = ["Sell", "Rent", "Paying Guest"];
+  const Lookingtabs = ['Sell', 'Rent', 'Paying Guest'];
+  const [activeTab, setActiveTab] = useState(Lookingtabs[0]);
 
-    const [activeTab, setActiveTab] = useState(Lookingtabs[0]);
+  const PropertyLokingtabs = ['Residential', 'Commercial'];
+  const [activeTab1, setActiveTab1] = useState(PropertyLokingtabs[0]);
 
-    const PropertyLokingtabs = ["Residential", "Commercial"];
+  const PropertyTypestabs = [
+    'Flat/Apartment',
+    'Builder Floor',
+    'Farm House',
+    'Independent House/Villa',
+    'Serviced Apartment',
+    'Studio Apartment',
+    'Other',
+  ];
+  const [activeTab2, setActiveTab2] = useState(PropertyTypestabs[0]);
 
-    const [activeTab1, setActiveTab1] = useState(PropertyLokingtabs[0]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ title?: string; description?: string }>({});
+  const [propertyTypes, setPropertyTypes] = useState<PropertyTypeItem[]>([]);
 
-    const PropertyTypestabs = [
-      "Flat/Apartment", 
-      "Builder Floor", 
-      "Farm House", 
-      "Independent House/Villa", 
-      "Serviced Apartment", 
-      "Studio Apartment", 
-      "Other"
-    ];
-
-    const [activeTab2, setActiveTab2] = useState(PropertyTypestabs[0]);
+  useEffect(() => {
+    let cancelled = false;
+    getPropertyTypes()
+      .then((res) => {
+        if (cancelled || !res.success || !res.data) return;
+        setPropertyTypes(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
 
 
@@ -88,6 +116,44 @@ const AddProperty = ({navigation } : AddPropertyScreenProps) => {
             <View style={[GlobalStyleSheet.container,{paddingHorizontal:20,paddingTop:55}]}>
               <Text style={[FONTS.h4,FONTS.fontMedium,{color:colors.gray100}]}>Add Basic Details</Text>
               <Text style={[FONTS.BodyXS,FONTS.fontMedium,{color:colors.gray70,fontSize:11}]}>STEP 1 OF 3</Text>
+              <View style={{ marginTop: 20 }}>
+                <Text style={[FONTS.BodyS, FONTS.fontSemiBold, { color: colors.gray90 }]}>Title <Text style={[FONTS.BodyXS, { color: COLORS.danger }]}>*</Text></Text>
+                <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray50, marginTop: 2 }]}>3–{PROPERTY_FIELD_MAX.TITLE} characters</Text>
+                <TextInput
+                  placeholder="e.g. 3BHK Apartment in Baner"
+                  placeholderTextColor={colors.gray50}
+                  value={title}
+                  onChangeText={(t) => {
+                    setTitle(clampLength(t, PROPERTY_FIELD_MAX.TITLE));
+                    setFieldErrors((prev) => ({ ...prev, title: undefined }));
+                  }}
+                  maxLength={PROPERTY_FIELD_MAX.TITLE}
+                  style={[FONTS.BodyM, { color: colors.title, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth: 1, borderColor: fieldErrors.title ? COLORS.danger : colors.checkBoxborder, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginTop: 6 }]}
+                />
+                {fieldErrors.title ? (
+                  <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: COLORS.danger, marginTop: 4 }]}>{fieldErrors.title}</Text>
+                ) : null}
+              </View>
+              <View style={{ marginTop: 12 }}>
+                <Text style={[FONTS.BodyS, FONTS.fontSemiBold, { color: colors.gray90 }]}>Description <Text style={[FONTS.BodyXS, { color: COLORS.danger }]}>*</Text></Text>
+                <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: colors.gray50, marginTop: 2 }]}>10–{PROPERTY_FIELD_MAX.DESCRIPTION} characters</Text>
+                <TextInput
+                  placeholder="e.g. Spacious 3BHK apartment with all amenities"
+                  placeholderTextColor={colors.gray50}
+                  value={description}
+                  onChangeText={(t) => {
+                    setDescription(clampLength(t, PROPERTY_FIELD_MAX.DESCRIPTION));
+                    setFieldErrors((prev) => ({ ...prev, description: undefined }));
+                  }}
+                  maxLength={PROPERTY_FIELD_MAX.DESCRIPTION}
+                  multiline
+                  numberOfLines={3}
+                  style={[FONTS.BodyM, { color: colors.title, backgroundColor: theme.dark ? COLORS.darkwhite : COLORS.white, borderWidth: 1, borderColor: fieldErrors.description ? COLORS.danger : colors.checkBoxborder, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, marginTop: 6, minHeight: 80, textAlignVertical: 'top' }]}
+                />
+                {fieldErrors.description ? (
+                  <Text style={[FONTS.BodyXS, FONTS.fontRegular, { color: COLORS.danger, marginTop: 4 }]}>{fieldErrors.description}</Text>
+                ) : null}
+              </View>
               <View style={{marginTop:20}}>
                 <Text style={[FONTS.BodyS,FONTS.fontSemiBold,{color:colors.gray90}]}>You’re Looking to?</Text>
                 <View style={{flexDirection:'row',alignItems:'center',gap:7,paddingVertical:10}}>
@@ -178,7 +244,23 @@ const AddProperty = ({navigation } : AddPropertyScreenProps) => {
             <Button
               title='Next'
               btnRounded
-              onPress={() => navigation.navigate('PropertyDetailsStep2')}
+              onPress={() => {
+                const next = getStep1FieldErrors(title, description);
+                setFieldErrors(next);
+                if (Object.keys(next).length > 0) return;
+                const apiTypeName = PROPERTY_TYPE_MAP[activeTab2] || activeTab2;
+                const typeRow = propertyTypes.find((t) => t.name === apiTypeName || t.name === activeTab2);
+                navigation.navigate('PropertyDetailsStep2', {
+                  propertyDraft: {
+                    title: title.trim(),
+                    description: description.trim(),
+                    listing_type: LISTING_MAP[activeTab] || activeTab,
+                    property_segment: activeTab1,
+                    property_type: apiTypeName,
+                    ...(typeof typeRow?.id === 'number' ? { property_type_id: typeRow.id } : {}),
+                  },
+                });
+              }}
             />
           </View>
         </View>

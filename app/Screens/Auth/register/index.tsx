@@ -1,15 +1,20 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, TextInput, StatusBar } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@react-navigation/native';
+import ApaniBrandLogo from '../../../components/Brand/ApaniBrandLogo';
 import { StackScreenProps } from '@react-navigation/stack';
+import { useDispatch } from 'react-redux';
 import { RootStackParamList } from '../../../Navigations/RootStackParamList';
 import { COLORS, FONTS } from '../../../constants/theme';
 import CustomInput from '../../../components/Input/CustomInput';
-import { User, Mail, Lock, MapPin, Map, Home, Phone } from 'lucide-react-native';
+import { User, Mail, Lock, Phone } from 'lucide-react-native';
 import { registerSchema, type RegisterFormData, validateRegisterForm, validateRegisterField } from '../../../utils/validation/registerValidation';
 import { registerStyles } from './styles';
-import { createUser } from '../../../services/auth';
-import { ApiError } from '../../../services/api';
+import { merchantRegister } from '../../../services/auth';
+import { saveAuth } from '../../../utils/authStorage';
+import { setUser } from '../../../redux/reducer/user';
+import { flashError } from '../../../utils/flash';
 
 type RegisterScreenProps = StackScreenProps<RootStackParamList, 'Register'>;
 
@@ -19,13 +24,13 @@ interface FormErrors {
   phone?: string;
   password?: string;
   confirmPassword?: string;
-  city?: string;
-  state?: string;
-  address?: string;
+  referral_code?: string;
 }
 
-const Register = ({ navigation }: RegisterScreenProps) => {
+const Register = ({ navigation, route }: RegisterScreenProps) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
   const { colors }: { colors: any } = theme;
   const styles = registerStyles(theme, colors);
   const emailRef = useRef<TextInput>(null);
@@ -33,12 +38,10 @@ const Register = ({ navigation }: RegisterScreenProps) => {
   const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',
-    phone: '',
+    phone: route.params?.phone || '',
     password: '',
     confirmPassword: '',
-    city: '',
-    state: '',
-    address: '',
+    referral_code: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -56,8 +59,8 @@ const Register = ({ navigation }: RegisterScreenProps) => {
       formattedValue = value.replace(/[^0-9]/g, '').slice(0, 10);
     } else if (field === 'password' || field === 'confirmPassword') {
       formattedValue = value.slice(0, 24);
-    } else if (field === 'city' || field === 'state') {
-      formattedValue = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 30);
+    } else if (field === 'referral_code') {
+      formattedValue = value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
     }
 
     setFormData((prev) => ({
@@ -130,53 +133,57 @@ const Register = ({ navigation }: RegisterScreenProps) => {
       // Parse and validate with Zod schema
       const validatedData = registerSchema.parse(formData);
 
-      // Prepare API request data
+      // Prepare API request data for merchant register (matches POST /merchant/register)
       const apiData = {
-        name: validatedData.name,
-        email: validatedData.email.toLowerCase().trim(),
+        name: validatedData.name.trim(),
         phone: validatedData.phone.trim(),
+        email: validatedData.email.toLowerCase().trim(),
+        company_name: '', // optional for backend; add field to form if required
         password: validatedData.password,
-        role: 'merchant', // Default role - can be made dynamic later
+        confirm_password: validatedData.confirmPassword,
+        ...(validatedData.referral_code && { referral_code: validatedData.referral_code }),
       };
 
-      // Call registration API
-      const response = await createUser(apiData);
+      // Call merchant registration API
+      const response = await merchantRegister(apiData);
 
       if (response.success && response.data) {
-        // Registration successful
-        console.log('Registration successful:', response.data);
-        
-        // Navigate to login screen
-        navigation.navigate('Login');
-        
-        // Optional: Show success message
-        // You can add a toast/alert here if needed
+        const { merchant, token } = response.data;
+        await saveAuth(merchant as unknown as Record<string, unknown>, token);
+        dispatch(setUser({ merchant, token } as any));
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'DrawerNavigation' }],
+        });
       } else {
         throw new Error(response.message || 'Registration failed');
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-      
-      // Handle API errors
+
       if (error.status === 400 || error.status === 422) {
-        // Validation errors from server
-        const errorMessage = error.message || 'Invalid data. Please check your inputs.';
+        const errorMessage =
+          error.message || 'Invalid data. Please check your inputs.';
         setErrors((prev) => ({
           ...prev,
           email: errorMessage,
         }));
+        flashError({ title: 'Registration failed', body: errorMessage });
       } else if (error.status === 409) {
-        // Conflict - email/phone already exists
+        const errorMessage = 'Email or phone number already exists';
         setErrors((prev) => ({
           ...prev,
-          email: 'Email or phone number already exists',
+          email: errorMessage,
         }));
+        flashError({ title: 'Registration failed', body: errorMessage });
       } else {
-        // Generic error
+        const errorMessage =
+          error.message || 'Registration failed. Please try again.';
         setErrors((prev) => ({
           ...prev,
-          email: error.message || 'Registration failed. Please try again.',
+          email: errorMessage,
         }));
+        flashError({ title: 'Registration failed', body: errorMessage });
       }
     } finally {
       setLoader(false);
@@ -194,25 +201,34 @@ const Register = ({ navigation }: RegisterScreenProps) => {
       phone: '',
       password: '',
       confirmPassword: '',
-      city: '',
-      state: '',
-      address: '',
+      referral_code: '',
     });
     setErrors({});
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={50}
-    >
-      <View style={styles.container}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+    <View style={{ flex: 1, backgroundColor: theme.dark ? COLORS.darkCard : COLORS.white }}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <View
+        style={[
+          styles.brandHeader,
+          { paddingTop: Math.max(insets.top, 12) },
+        ]}
+      >
+        <ApaniBrandLogo variant="header" />
+      </View>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={50}
         >
-          <View style={styles.cardContainer}>
+          <View style={styles.container}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              <View style={styles.cardContainer}>
             {/* Header */}
             <View style={styles.headerContainer}>
               <Text
@@ -256,6 +272,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.name && (
                 <Text style={styles.errorText}>{errors.name}</Text>
@@ -279,6 +296,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.email && (
                 <Text style={styles.errorText}>{errors.email}</Text>
@@ -302,6 +320,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.phone && (
                 <Text style={styles.errorText}>{errors.phone}</Text>
@@ -324,6 +343,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.password && (
                 <Text style={styles.errorText}>{errors.password}</Text>
@@ -348,74 +368,37 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                   />
                 }
                 inputBorder
+                authChrome
               />
               {errors.confirmPassword && (
                 <Text style={styles.errorText}>{errors.confirmPassword}</Text>
               )}
             </View>
 
-            {/* City */}
+            {/* Referral Code (optional) */}
             <View>
               <CustomInput
-                placeholder="City"
-                value={formData.city}
-                onChangeText={(value: string) => handleInputChange('city', value)}
-                onBlur={() => handleFieldBlur('city')}
+                placeholder="Referral Code (optional)"
+                value={formData.referral_code}
+                onChangeText={(value: string) =>
+                  handleInputChange('referral_code', value)
+                }
+                onBlur={() => handleFieldBlur('referral_code')}
                 editable={!loader}
+                maxLength={10}
                 lefticon={
-                  <MapPin
+                  <User
                     size={22}
-                    color={errors.city ? COLORS.danger : colors.gray60}
+                    color={
+                      errors.referral_code ? COLORS.danger : colors.gray60
+                    }
                   />
                 }
                 inputBorder
+                authChrome
               />
-              {errors.city && (
-                <Text style={styles.errorText}>{errors.city}</Text>
-              )}
-            </View>
-
-            {/* State */}
-            <View>
-              <CustomInput
-                placeholder="State"
-                value={formData.state}
-                onChangeText={(value: string) => handleInputChange('state', value)}
-                onBlur={() => handleFieldBlur('state')}
-                editable={!loader}
-                lefticon={
-                  <Map
-                    size={22}
-                    color={errors.state ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
-              {errors.state && (
-                <Text style={styles.errorText}>{errors.state}</Text>
-              )}
-            </View>
-
-            {/* Address */}
-            <View>
-              <CustomInput
-                placeholder="Address"
-                value={formData.address}
-                onChangeText={(value: string) => handleInputChange('address', value)}
-                onBlur={() => handleFieldBlur('address')}
-                editable={!loader}
-                inputLg
-                textAlignVertical="top"
-                lefticon={
-                  <Home
-                    size={22}
-                    color={errors.address ? COLORS.danger : colors.gray60}
-                  />
-                }
-                inputBorder
-              />
-              {errors.address && (
-                <Text style={styles.errorText}>{errors.address}</Text>
+              {errors.referral_code && (
+                <Text style={styles.errorText}>{errors.referral_code}</Text>
               )}
             </View>
 
@@ -458,7 +441,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                     FONTS.fontSemiBold,
                     styles.loginLink,
                     {
-                      color: COLORS.danger,
+                      color: COLORS.brandAccent,
                     },
                   ]}
                 >
@@ -466,10 +449,12 @@ const Register = ({ navigation }: RegisterScreenProps) => {
                 </Text>
               </TouchableOpacity>
             </View>
+              </View>
+            </ScrollView>
           </View>
-        </ScrollView>
-      </View>
-    </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 };
 

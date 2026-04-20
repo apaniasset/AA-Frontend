@@ -31,6 +31,7 @@ import Edit_Property_Details from "../Screens/MyListing/Edit_Property_Details";
 import Settings from "../Screens/Settings/Settings";
 import Register from "../Screens/Auth/register";
 import Login from "../Screens/Auth/login";
+import EditProfile from "../Screens/profile/EditProfile";
 
 const MyStatusBar = ({ backgroundColor, ...props } : any) => (
   <View style={[styles.statusBar, { backgroundColor }]}>
@@ -85,6 +86,7 @@ const StackNavigator = () => {
         <Stack.Screen name={"Settings"} component={Settings} />
         <Stack.Screen name={"Register"} component={Register} />
         <Stack.Screen name={"Login"} component={Login} />
+        <Stack.Screen name={"EditProfile"} component={EditProfile} />
 
       </Stack.Navigator>
     </View>

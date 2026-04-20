@@ -1,18 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   NavigationContainer,
   DefaultTheme as NavigationDefaultTheme,
   DarkTheme as NavigationDarkTheme
 } from '@react-navigation/native';
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useDispatch } from 'react-redux';
 import StackNavigator from "./StackNavigator";
 import themeContext from "../constants/themeContext";
 import { COLORS } from "../constants/theme";
+import { loadAuth } from "../utils/authStorage";
+import { setUser } from "../redux/reducer/user";
 
 
 const Routes = () => {
 
+  const dispatch = useDispatch();
   const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+  useEffect(() => {
+    loadAuth().then((data) => {
+      if (data) {
+        dispatch(setUser(data));
+      }
+    });
+  }, [dispatch]);
   
   const authContext = React.useMemo(() => ({
     setDarkTheme: () => {

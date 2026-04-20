@@ -48,15 +48,15 @@ export type RootStackParamList = {
     PayrollPeople: undefined;
     SelectParty: undefined;
     AddTask: undefined;
-    SearchArea: undefined;
-    Search_List: undefined;
+    SearchArea: { search?: string; selectedCities?: { id: number; title: string }[]; propertyTypeId?: number; propertyTypeName?: string } | undefined;
+    Search_List: { filters?: Record<string, unknown> } | undefined;
     ContactOwner: undefined;
     BottomNavigation: undefined;
     Messages: undefined;
     Save: undefined;
     AddProperty: undefined;
-    PropertyDetailsStep2: undefined;
-    PropertyDetailsStep3: undefined;
+    PropertyDetailsStep2: { propertyDraft?: Record<string, unknown> };
+    PropertyDetailsStep3: { propertyDraft?: Record<string, unknown> };
     Add_Amenities: undefined;
     Property_Details: { data?: any };
     Galary: undefined;
@@ -66,13 +66,14 @@ export type RootStackParamList = {
     Property_Response: undefined;
     My_Listing: undefined;
     Edit_Listing: undefined;
-    Edit_Property_Details: undefined;
+    /** Optional `tabIndex` opens `Edit_Property_Details` on a specific tab. */
+    Edit_Property_Details: { tabIndex?: number };
 
     QrCodeScanner: undefined;
     SignUp: undefined;
     ComplateProfile: undefined;
     Login: undefined;
-    Register: undefined;
+    Register: { phone?: string };
     ForgatPassword: undefined;
     LookingFor: undefined;
     ExperienceLevel: undefined;
@@ -113,7 +114,7 @@ export type RootStackParamList = {
     Writereview: undefined;
     Profile: undefined;
     SaveJob: { data?: any };
-    Search: undefined;
+    Search: { propertyTypeId?: number; propertyTypeName?: string } | undefined;
     SearchResults: undefined;
     JobApplied: undefined;
     AboutCompany: { data?: any }; 
