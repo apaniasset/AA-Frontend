@@ -34,7 +34,7 @@ const Call = ({ navigation } : CallScreenProps) => {
                 <View style={{alignItems: 'center',marginTop:50 }}>
                     <Image
                         style={{ width: 180, height: 180, borderRadius: 100,resizeMode:'contain' }}
-                        source={IMAGES.banneruser2}
+                        source={IMAGES.user}
                     />
                 </View>
             </View>

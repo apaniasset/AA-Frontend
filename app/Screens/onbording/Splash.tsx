@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Image, View, StatusBar } from "react-native";
 import { StackScreenProps } from "@react-navigation/stack";
 import { useSelector } from "react-redux";
@@ -14,20 +14,13 @@ const Splash = ({ navigation }: SplashScreenProps) => {
 
     const isLoggedIn = useSelector((state: RootState) => state.user?.login === true);
     const [progress, setProgress] = useState(0);
+    const hasNavigatedRef = useRef(false);
 
     useEffect(() => {
         let interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 1) {
                     clearInterval(interval);
-                    if (isLoggedIn) {
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: "DrawerNavigation" }],
-                        });
-                    } else {
-                        navigation.replace("Onbording");
-                    }
                     return 1;
                 }
                 return prev + 0.02;
@@ -35,7 +28,24 @@ const Splash = ({ navigation }: SplashScreenProps) => {
         }, 100);
 
         return () => clearInterval(interval);
-    }, [isLoggedIn]);
+    }, []);
+
+    useEffect(() => {
+        if (progress < 1 || hasNavigatedRef.current) {
+            return;
+        }
+        hasNavigatedRef.current = true;
+
+        if (isLoggedIn) {
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "DrawerNavigation" }],
+            });
+            return;
+        }
+
+        navigation.replace("Onbording");
+    }, [progress, isLoggedIn, navigation]);
 
     return (
         <View
