@@ -289,13 +289,17 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
     ];
 
     const firstImage = data?.images?.[0];
-    const imageSource = firstImage?.image_url
+    const firstImageSource = firstImage?.image_url
         ? { uri: firstImage.image_url }
-        : (data?.images?.length > 0 && typeof data.images[0] === 'string')
-            ? { uri: data.images[0] as string }
-            : data?.image
-                ? (typeof data.image === 'string' ? { uri: data.image } : data.image)
-                : null;
+        : (typeof firstImage === 'string'
+            ? { uri: firstImage }
+            : firstImage?.uri
+                ? { uri: firstImage.uri }
+                : data?.image_url
+                    ? { uri: data.image_url }
+                    : data?.image
+                        ? (typeof data.image === 'string' ? { uri: data.image } : data.image)
+                        : IMAGES.projectpic1);
 
     const [showTabs, setShowTabs] = useState(false);
     const tabOpacity = useRef(new Animated.Value(0)).current;
@@ -440,6 +444,13 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
             "stylers": [{ "color": "#c9e6ff" }]
         }
     ];
+
+    const puneRegion = {
+        latitude: 18.5204,
+        longitude: 73.8567,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+    };
 
 
 
@@ -591,13 +602,11 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                 overflow: "hidden",
                                             }}
                                         >
-                                            {imageSource && (
-                                                <Image
-                                                    source={imageSource}
-                                                    style={{ width: "100%", height: "100%" }}
-                                                    resizeMode="cover"
-                                                />
-                                            )}
+                                            <Image
+                                                source={firstImageSource}
+                                                style={{ width: "100%", height: "100%" }}
+                                                resizeMode="cover"
+                                            />
                                             {/* Gradient / Overlay */}
                                             <Image
                                                 style={{
@@ -623,7 +632,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                         }}>
                                             <View style={[GlobalStyleSheet.flexcenter, { flex: 1, alignItems: 'flex-start' }]}>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                                                    {data.userPic ?
+                                                    {/* {data.userPic ?
                                                         <Image
                                                             style={{ height: 22, width: 22, borderRadius: 30 }}
                                                             resizeMode='contain'
@@ -635,7 +644,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                             resizeMode='contain'
                                                             source={IMAGES.small1}
                                                         />
-                                                    }
+                                                    } */}
                                                     <Text style={[FONTS.BodyXS, FONTS.fontBold, { color: COLORS.white }]}>
                                                         {data.userName}
                                                     </Text>
@@ -665,7 +674,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                     </Text>
                                                 </View>
 
-                                                <View
+                                                {/* <View
                                                     style={{
                                                         padding: 7,
                                                         paddingVertical: 5,
@@ -676,7 +685,7 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                                     <Text style={[FONTS.fontSemiBold, { fontSize: 11, color: theme.dark ? COLORS.darkwhite : COLORS.white }]}>
                                                         {data.time}
                                                     </Text>
-                                                </View>
+                                                </View> */}
                                             </View>
                                         </View>
                                     </View>
@@ -978,23 +987,18 @@ const Property_Details = ({ route, navigation }: Property_DetailsScreenProps) =>
                                             <MapView
                                                 provider={PROVIDER_GOOGLE}
                                                 style={StyleSheet.absoluteFillObject}
-                                                initialRegion={{
-                                                    latitude: 28.6139,
-                                                    longitude: 77.2090,
-                                                    latitudeDelta: 0.05,
-                                                    longitudeDelta: 0.05,
-                                                }}
+                                                region={puneRegion}
                                                 customMapStyle={mapStyle}   // Grey map style
                                             >
                                                 {/* Marker 1 */}
                                                 <Marker
-                                                    coordinate={{ latitude: 28.6200, longitude: 77.2000 }}
+                                                    coordinate={{ latitude: 18.5260, longitude: 73.8550 }}
                                                     pinColor="red"
                                                 />
 
                                                 {/* Marker 2 */}
                                                 <Marker
-                                                    coordinate={{ latitude: 28.6000, longitude: 77.2100 }}
+                                                    coordinate={{ latitude: 18.5145, longitude: 73.8640 }}
                                                     pinColor="red"
                                                 />
                                             </MapView>

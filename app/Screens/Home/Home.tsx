@@ -582,7 +582,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                                             area={item.area}
                                             tags={item.tags}
                                             userName={item.userName}
-                                            userPic={item.userPic}
+                                            // userPic={item.userPic}
                                             onPress={() => navigation.navigate('SingleChat', { data: item })}
                                             PropertyDetailsonPress={() => navigation.navigate('Property_Details', { data: (item as any)._raw || item })}
                                             SavePropertyonPress={() => addItemTosaveProperty(item)}

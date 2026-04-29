@@ -531,7 +531,7 @@ const Onbording = ({ navigation }: OnbordingScreenProps) => {
                                             keyboardType='number-pad'
                                             placeholder='Enter Your Phone Number'
                                             placeholderTextColor={colors.gray60}
-                                            maxLength={15}
+                                            maxLength={10}
                                         />
                                     </View>
                                 </View>
