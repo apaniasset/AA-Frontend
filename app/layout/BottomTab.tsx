@@ -152,10 +152,10 @@ const BottomTab = ({ state, descriptors, navigation }: Props) => {
                                                 tintColor: isFocused ? COLORS.primary : colors.gray30
                                             }}
                                             source={
-                                                label == 'Home' ? IMAGES.home :
-                                                    label == 'Messages' ? IMAGES.Messages :
-                                                        label == 'Save' ? IMAGES.heart2 :
-                                                            label == 'Profile' ? IMAGES.user2 :
+                                                route.name == 'Home' ? IMAGES.home :
+                                                    route.name == 'Messages' ? IMAGES.Messages :
+                                                        route.name == 'Save' ? IMAGES.heart2 :
+                                                            route.name == 'Profile' ? IMAGES.user2 :
                                                                 IMAGES.home
                                             }
                                             resizeMode='center'

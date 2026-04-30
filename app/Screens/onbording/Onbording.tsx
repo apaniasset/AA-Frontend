@@ -9,9 +9,7 @@ import { COLORS, FONTS } from '../../constants/theme';
 import Button from '../../components/Button/Button';
 import { CountryPicker } from 'react-native-country-codes-picker';
 import FeatherIcon from "react-native-vector-icons/Feather";
-import RBSheet from 'react-native-raw-bottom-sheet';
 import Customotp from '../../components/Input/Customotp';
-import ApaniBrandLogo from '../../components/Brand/ApaniBrandLogo';
 import { merchantSendOtp, merchantVerifyOtp } from '../../services/auth';
 import { flashError, flashSuccess } from '../../utils/flash';
 

@@ -1,6 +1,6 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'https://apaniasset.com/api',
+  BASE_URL: 'https://qa.apaniasset.com/api',
   TIMEOUT: 30000, // 30 seconds
 };
 
@@ -16,6 +16,8 @@ export const API_ENDPOINTS = {
   MERCHANT_SEND_OTP: '/merchant/send-otp',
   MERCHANT_VERIFY_OTP: '/merchant/verify-otp',
   MERCHANT_PROFILE_UPDATE: '/merchant/profile',
+  MERCHANT_MASTER_LEADS_LIST: '/merchant/master-leads/list',
+  MERCHANT_MASTER_LEADS_UNLOCK: '/merchant/master-leads/unlock',
 
   // User
   USER_REGISTER: '/user/register',

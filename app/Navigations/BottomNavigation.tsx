@@ -27,7 +27,8 @@ const BottomNavigation = () => {
             />
             <Tab.Screen 
                 name="Messages" 
-                component={Messages} 
+                component={Messages}
+                options={{ tabBarLabel: 'Lead' }}
             />
             <Tab.Screen 
                 name="AddProperty" 
